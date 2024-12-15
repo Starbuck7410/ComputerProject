@@ -1,0 +1,12 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/Simulator/x64/Debug
+/Simulator/Simulator/x64/Debug
+/Simulator/.vs/Simulator
+/Assembler/x64/Debug
+/Assembler/Assembler/x64/Debug
+/Assembler/.vs/Assembler/v17
+/Assembler/.vs/Assembler/FileContentIndex
+/.vs
