@@ -127,6 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="four.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="morestuff.c" />
   </ItemGroup>

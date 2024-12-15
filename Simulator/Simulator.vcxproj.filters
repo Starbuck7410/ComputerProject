@@ -21,5 +21,8 @@
     <ClCompile Include="morestuff.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="four.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
