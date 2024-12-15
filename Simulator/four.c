@@ -1,4 +1,4 @@
-#include <stdio.h>
-void five() {
-	printf("Four!\n");
+#include<stdio.h>
+int five() {
+	printf("This number is very secretive (it's 5)");
 }
