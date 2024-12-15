@@ -1,6 +1,6 @@
 #include <stdio.h>
 
 int main() {
-	printf("i like cheese\n");
+	printf("i lreally love cheese\n");
 	return 0;
 }
