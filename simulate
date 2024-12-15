@@ -1,4 +1,4 @@
 #!/bin/bash
 
-gcc Simulator/main.c
+gcc Simulator/morestuff.c Simulator/main.c 
 ./a.out
