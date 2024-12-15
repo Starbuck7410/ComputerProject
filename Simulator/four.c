@@ -1,4 +1,4 @@
-
-int five() {
-	printf("4");
+#include <stdio.h>
+void five() {
+	printf("Four!\n");
 }
