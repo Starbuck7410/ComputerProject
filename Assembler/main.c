@@ -1,5 +1,6 @@
 #include <stdio.h>
-int findInstruction();
+int find_instruction();
+int find_register();
 
 int main() {
 	printf("%d\n", findInstruction("hello"));

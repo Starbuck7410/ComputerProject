@@ -11,9 +11,13 @@ int eq_str(char str1[], char str2[]){
 }
 
 
-int findInstruction(char name[]){
+int find_instruction(char name[]){
     if (eq_str(name, "hello")){
         return 2;
     }
+    return 1;
+}
+
+int find_register(char reg[]){
     return 1;
 }
