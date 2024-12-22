@@ -2,7 +2,7 @@
 int findInstruction();
 
 int main() {
-	printf("%d\n", findInstruction());
+	printf("%d\n", findInstruction("hello"));
 	printf("Me? I'm just a SIMPle assembler haha\n");
 	return 0;
 }
