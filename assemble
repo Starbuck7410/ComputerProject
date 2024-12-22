@@ -1,4 +1,9 @@
 #!/bin/bash
 
 gcc Assembler/*.c
-./a.out
+rc=$?
+if [ $rc -ne 0 ]; then
+    echo "Error"
+    exit 1
+fi
+./a.out $1
