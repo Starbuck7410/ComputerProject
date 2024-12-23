@@ -13,14 +13,14 @@ int eq_str(char str1[], char str2[]){
 }
 
 
-int find_instruction(char name[]){
+long long find_instruction(char name[]){
     if (eq_str(name, "hello")){
         return 0x50;
     }
     return 1;
 }
 
-int find_register(char reg[]) {     //This function recives a string starting with '$' and reg name and returns its integer number.
+long long find_register(char reg[]) {     //This function recives a string starting with '$' and reg name and returns its integer number.
     if ((reg[1] == 'z' & reg[2] == 'e' & reg[3] == 'r' & reg[4] == 'o') | reg[1] == '0') //0 for $zero or $0
         return 0;
     if (reg[1] == 'i' & reg[2] == 'm' & reg[3] == 'm' & reg[4] == '1') 

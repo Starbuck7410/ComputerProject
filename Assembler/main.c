@@ -1,8 +1,25 @@
 #include <stdio.h>
-int find_instruction();
-int find_register();
+#include <string.h>
+long find_instruction();
+long find_register();
 
-int get_component(char * line, char * op_code,int start){
+int pow_int(int a, int b){
+	if (b == 0){
+		return 1;
+	}
+	if (a == 0){
+		return 0;
+	}
+	int value = a;
+	b--;
+	while (b>0){
+		value *= a;
+		b--;
+	}
+	return value;
+}
+
+long long get_component(char * line, char * op_code, int start){
 	int i = 0;
 	while (* (line + i) != ' ' && * (line + i) != '\0' && * (line + i) != '	'){
 		op_code[i] = *(line +i);
@@ -13,8 +30,24 @@ int get_component(char * line, char * op_code,int start){
 	}
 	op_code[i] = '\0';
 	return start + i + 1;
+	
 
 }
+
+int string_to_int(char number[]){
+	int value = 0;
+	int i = 0;
+	int sign = 1;
+	if (number[0] == '-'){
+		sign = -1;
+		i++;
+	}
+	for (; i < strlen(number); i++){
+		value += (number[i] - 48) * sign * pow_int(10, (strlen(number) - i - 1));
+	}
+	return value;
+}
+
 
 int main(int argc, char* argv[]) {
 	FILE *asmb;
@@ -23,8 +56,13 @@ int main(int argc, char* argv[]) {
 	mcode = fopen("imemin.txt","w");
 	char* line = NULL; 
 	long len; 
-	long read; // in case the file is big 
-	long decoded_instruction; // 48 bits per instruction means ints are not enough...
+	long long read; // in case the file is big 
+
+
+
+
+	// 2nd pass on the code:
+	long long decoded_instruction; // 48 bits per instruction
     while ((read = getline(&line, &len, asmb)) != -1) { 
 		if (line[read-1] == '\n'){
 		 	line[read-1] = '\0'; 
@@ -33,27 +71,36 @@ int main(int argc, char* argv[]) {
 		char op_code[10];
 		int start = get_component(line, op_code, 0);
 
-		printf("Instruction:  | %s\n", op_code);
-		decoded_instruction = find_instruction(op_code); // placeholder decoder
+		printf("Instruction:   | %s\n", op_code);
+		decoded_instruction = find_instruction(op_code) << 40; // placeholder decoder
 
+		long long decoded_reg;
 		// get all 4 registers
 		for (int i = 0; i<4; i++){
 			char reg[10];
 			start = get_component(line + start, reg, start);
 			// decode reg into decoded register here
-			printf("got Register: | %s\n", reg);
+			decoded_reg = find_register(reg);
+			decoded_instruction += decoded_reg << (24 + 4*(3-i));
+			printf("got Register:  | %s (%d)\n", reg, decoded_reg);
 		}
 
 		// get both immediates
 		for (int i = 0; i<2; i++){
-			char reg[10];
-			start = get_component(line + start, reg, start);
+			char imm[10];
+			start = get_component(line + start, imm, start);
+			int converted_imm = 0;
+
+			if ('0' <= imm[0] && imm[0] <= '9'){
+				decoded_instruction += string_to_int(imm) << (12*(1-i));
+				converted_imm = string_to_int(imm);
+			}
 			// turn immediate from string to number
-			printf("got immediate: | %s\n", reg);
+			printf("got immediate: | %s (%d)\n", imm, converted_imm);
 		}
 
-		//combine and write line with fprintf
-		// fprintf(mcode, "%x\n", decoded_instruction);
+		printf("Final opcode:  | %012lx\n", decoded_instruction);
+		fprintf(mcode, "%012lx\n", decoded_instruction);
 	}
 	fclose(asmb);
 	fclose(mcode); 
