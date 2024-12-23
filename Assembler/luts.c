@@ -20,6 +20,38 @@ int find_instruction(char name[]){
     return 1;
 }
 
-int find_register(char reg[]){
-    return 1;
+int find_register(char reg[]) {
+    if ((reg[1] == 'z' & reg[2] == 'e' & reg[3] == 'r' & reg[4] == 'o') | reg[1] == '0')
+        return 0;
+    if (reg[1] == 'i' & reg[2] == 'm' & reg[3] == 'm' & reg[4] == '1')
+        return 1;
+    if (reg[1] == 'i' & reg[2] == 'm' & reg[3] == 'm' & reg[4] == '2')
+        return 2;
+    if (reg[1] == 'v' & reg[2] == '0')
+        return 3;
+    if (reg[1] == 'a' & reg[2] == '0')
+        return 4;
+    if (reg[1] == 'a' & reg[2] == '1')
+        return 5;
+    if (reg[1] == 'a' & reg[2] == '2')
+        return 6;
+    if (reg[1] == 't' & reg[2] == '0')
+        return 7;
+    if (reg[1] == 't' & reg[2] == '1')
+        return 8;
+    if (reg[1] == 't' & reg[2] == '2')
+        return 9;
+    if (reg[1] == 's' & reg[2] == '0')
+        return 10;
+    if (reg[1] == 's' & reg[2] == '1')
+        return 11;
+    if (reg[1] == 's' & reg[2] == '2')
+        return 12;
+    if (reg[1] == 'g' & reg[2] == 'p')
+        return 13;
+    if (reg[1] == 's' & reg[2] == 'p')
+        return 14;
+    if (reg[1] == 'r' & reg[2] == 'a')
+        return 15;
+    return -1;
 }
