@@ -13,3 +13,4 @@ Ya'll should write your TODOs here so we can all see what you are working on or 
  - ~~S: get the decode parts working and the instruction combine and write to file~~ Done
  - S: Wait for Zohar to finish writing ```get_instruction``` to find out if linear code works
  - S: Handle correct file writing with cmdline args
+ - S: Support for Hex constants in immediate fields

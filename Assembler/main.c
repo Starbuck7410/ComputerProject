@@ -3,6 +3,8 @@
 long find_instruction();
 long find_register();
 
+const int LABEL_COUNT = 250;
+
 int pow_int(int a, int b){
 	if (b == 0){
 		return 1;
@@ -57,22 +59,40 @@ int main(int argc, char* argv[]) {
 	char* line = NULL; 
 	long len; 
 	long long read; // in case the file is big 
+	char labels [LABEL_COUNT][2]; // support for up to 250 labels
 
-
+	// 1st pass to read labels
+	while ((read = getline(&line, &len, asmb)) != -1) { 
+	
+	}
+	rewind (asmb);
 
 
 	// 2nd pass on the code:
 	long long decoded_instruction; // 48 bits per instruction
     while ((read = getline(&line, &len, asmb)) != -1) { 
+		
+		// Cut out whitespaces
+		int start = 0;
+		while(line[start] == ' ' || line[start] == '	'){
+			start++;
+		}
+
+		// Check the line isnt a comment
+		if (line[start] == '#'){
+			continue;
+		}
+
+		// Removes LF at the end of lines
 		if (line[read-1] == '\n'){
 		 	line[read-1] = '\0'; 
-		} // remove newlines if they exist
+		}
 
+		// Get 1st component (opcode)
 		char op_code[10];
-		int start = get_component(line, op_code, 0);
-
+		start = get_component(line + start, op_code, start);
 		printf("Instruction:   | %s\n", op_code);
-		decoded_instruction = find_instruction(op_code) << 40; // placeholder decoder
+		decoded_instruction = find_instruction(op_code) << 40; // Zoharrrr write the decoder
 
 		long long decoded_reg;
 		// get all 4 registers
@@ -92,15 +112,15 @@ int main(int argc, char* argv[]) {
 			int converted_imm = 0;
 
 			if ('0' <= imm[0] && imm[0] <= '9'){
-				decoded_instruction += string_to_int(imm) << (12*(1-i));
 				converted_imm = string_to_int(imm);
+				decoded_instruction += converted_imm << (12*(1-i)); // turn immediate from string to number
 			}
-			// turn immediate from string to number
+			
 			printf("got immediate: | %s (%d)\n", imm, converted_imm);
 		}
 
 		printf("Final opcode:  | %012lx\n", decoded_instruction);
-		fprintf(mcode, "%012lx\n", decoded_instruction);
+		fprintf(mcode, "%012lx\n", decoded_instruction); // Write to file
 	}
 	fclose(asmb);
 	fclose(mcode); 
