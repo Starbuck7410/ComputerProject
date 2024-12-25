@@ -53,5 +53,5 @@ long long find_register(char reg[]) {     //This function recives a string start
         return 14;
     if (reg[1] == 'r' & reg[2] == 'a')
         return 15;
-    return -1;
+    return -1;                    //If no register found -> return -1
 } 
