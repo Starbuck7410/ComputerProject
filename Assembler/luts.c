@@ -66,3 +66,4 @@ int find_register(char reg[]) { //this function takes the exact string name of t
     if (eq_str(reg, "monitorcmd"))
         return 22;
     return -1; //if no register name found -> returns -1
+}
