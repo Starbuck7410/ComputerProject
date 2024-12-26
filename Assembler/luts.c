@@ -40,38 +40,50 @@ long long find_instruction(char name[]){ //This function recives a string of the
     
 }
 
-long long find_register(char reg[]) {     //This function recives a string starting with '$' and reg name and returns its integer number.
-    if ((reg[1] == 'z' & reg[2] == 'e' & reg[3] == 'r' & reg[4] == 'o') | reg[1] == '0') //0 for $zero or $0
+int find_register(char reg[]) { //this function takes the exact string name of the register ($s0 and not $s0,) and returns the register number, as well as some I/O shit.
+    if ((eq_str(reg, "$zero")) | (eq_str(reg, "$0")) | (eq_str(reg, "irq0enable")))
         return 0;
-    if (reg[1] == 'i' & reg[2] == 'm' & reg[3] == 'm' & reg[4] == '1') 
+    if ((eq_str(reg, "$imm1")) | (eq_str(reg, "irq1enable")))
         return 1;
-    if (reg[1] == 'i' & reg[2] == 'm' & reg[3] == 'm' & reg[4] == '2')
+    if ((eq_str(reg, "$imm2")) | (eq_str(reg, "irq2enable")))
         return 2;
-    if (reg[1] == 'v' & reg[2] == '0')
+    if ((eq_str(reg, "$v0")) | (eq_str(reg, "irq0status")))
         return 3;
-    if (reg[1] == 'a' & reg[2] == '0')
+    if ((eq_str(reg, "$a0")) | (eq_str(reg, "irq1status")))
         return 4;
-    if (reg[1] == 'a' & reg[2] == '1')
+    if ((eq_str(reg, "$a1")) | (eq_str(reg, "irq2status")))
         return 5;
-    if (reg[1] == 'a' & reg[2] == '2')
+    if ((eq_str(reg, "$a2")) | (eq_str(reg, "irqhandler")))
         return 6;
-    if (reg[1] == 't' & reg[2] == '0')
+    if ((eq_str(reg, "$t0")) | (eq_str(reg, "irqreturn")))
         return 7;
-    if (reg[1] == 't' & reg[2] == '1')
+    if ((eq_str(reg, "$t1")) | (eq_str(reg, "clks")))
         return 8;
-    if (reg[1] == 't' & reg[2] == '2')
+    if ((eq_str(reg, "$t2")) | (eq_str(reg, "leds")))
         return 9;
-    if (reg[1] == 's' & reg[2] == '0')
+    if ((eq_str(reg, "$s0")) | (eq_str(reg, "display7seg")))
         return 10;
-    if (reg[1] == 's' & reg[2] == '1')
+    if ((eq_str(reg, "$s1")) | (eq_str(reg, "timerenable")))
         return 11;
-    if (reg[1] == 's' & reg[2] == '2')
+    if ((eq_str(reg, "$s2")) | (eq_str(reg, "timercurrent")))
         return 12;
-    if (reg[1] == 'g' & reg[2] == 'p')
+    if ((eq_str(reg, "$gp")) | (eq_str(reg, "timermax")))
         return 13;
-    if (reg[1] == 's' & reg[2] == 'p')
+    if ((eq_str(reg, "$sp")) | (eq_str(reg, "diskcmd")))
         return 14;
-    if (reg[1] == 'r' & reg[2] == 'a')
+    if ((eq_str(reg, "$ra")) | (eq_str(reg, "disksector")))
         return 15;
-    return -1;
-} 
+    if (eq_str(reg, "diskbuffer"))
+        return 16;
+    if (eq_str(reg, "diskstatus"))
+        return 17;
+    if (eq_str(reg, "reserved"))
+        return 18;
+    if (eq_str(reg, "monitoraddr"))
+        return 20;
+    if (eq_str(reg, "monitordata"))
+        return 21;
+    if (eq_str(reg, "monitorcmd"))
+        return 22;
+    return -1; //if no register name found -> returns -1
+}
