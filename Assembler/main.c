@@ -51,7 +51,7 @@ int string_to_int(char number[]){
 }
 
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.txt, argv[3] = dmemin.txt
 	FILE *asmb; //file pointer to program.asm
 	FILE *mcode; //file pointer to imemin.txt 
 	asmb = fopen(argv[1], "r");// only for read
@@ -60,6 +60,11 @@ int main(int argc, char* argv[]) {
 	long len; 
 	long long read; // in case the file is big 
 	char labels [LABEL_COUNT][2]; // support for up to 250 labels
+	
+	// TODO initialize comes here
+	// imemin.txt should get initialized to 000000000000\n * 4096
+	// dmemin.txt should get initialized to 00000000\n * 4096
+
 
 	// 1st pass to read labels
 	while ((read = getline(&line, &len, asmb)) != -1) { 
