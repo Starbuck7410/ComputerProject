@@ -21,16 +21,16 @@ int pow_int(int a, int b){
 	return value;
 }
 
-long long get_component(char * line, char * op_code, int start){
+long long get_component(char * line, char * component, int start){
 	int i = 0;
 	while (* (line + i) != ' ' && * (line + i) != '\0' && * (line + i) != '	'){
-		op_code[i] = *(line +i);
+		component[i] = *(line +i);
 		i++;
 	}
-	if (op_code[i-1] == ',' && i != 0){
-		op_code[i-1] = '\0';
+	if (component[i-1] == ',' && i != 0){
+		component[i-1] = '\0';
 	}
-	op_code[i] = '\0';
+	component[i] = '\0';
 	return start + i + 1;
 	
 
@@ -52,8 +52,8 @@ int string_to_int(char number[]){
 
 
 int main(int argc, char* argv[]) {
-	FILE *asmb;//file pointer to  program.asm
-	FILE *mcode;//file pointer to  imemin.txt 
+	FILE *asmb; //file pointer to program.asm
+	FILE *mcode; //file pointer to imemin.txt 
 	asmb = fopen(argv[1], "r");// only for read
 	mcode = fopen("imemin.txt","w");//read and write
 	char* line = NULL; 
