@@ -5,7 +5,7 @@ long find_register();
 
 const int LABEL_COUNT = 250;
 
-int pow_int(int a, int b){
+int pow_int(int a, int b){ // Do i really have to explain this...?
 	if (b == 0){
 		return 1;
 	}
@@ -21,22 +21,23 @@ int pow_int(int a, int b){
 	return value;
 }
 
-long long get_component(char * line, char * component, int start){
-	int i = 0;
-	while (* (line + i) != ' ' && * (line + i) != '\0' && * (line + i) != '	'){
-		component[i] = *(line +i);
+long long get_component(char * line, char * component, int start){ // get pointer to a line, extract 1st element and return new offset for the next component
+	int i = start;
+
+	while (* (line + i) == '$' || * (line + i) >= '0') {
+		component[i - start] = * (line + i);
 		i++;
 	}
-	if (component[i-1] == ',' && i != 0){
-		component[i-1] = '\0';
-	}
-	component[i] = '\0';
-	return start + i + 1;
-	
 
+	component[i - start] = '\0'; // Terminate the string
+
+	while (!(* (line + i) == '$' || * (line + i) >= '0')){ // Clear trailing whitespaces
+		i++;
+	}
+	return i;
 }
 
-int string_to_int(char number[]){
+int dec_string_to_int(char number[]){ // Decimal string to int
 	int value = 0;
 	int i = 0;
 	int sign = 1;
@@ -45,7 +46,30 @@ int string_to_int(char number[]){
 		i++;
 	}
 	for (; i < strlen(number); i++){
-		value += (number[i] - 48) * sign * pow_int(10, (strlen(number) - i - 1));
+		value += (number[i] - '0') * sign * pow_int(10, (strlen(number) - i - 1));
+	}
+	return value;
+}
+
+
+int hex_string_to_int(char number[]){ // You MUST pass the string WITHOUT the 0x
+	int value = 0;
+	int i = 0;
+	int sign = 1;
+	if (number[0] == '-'){ // fuck it let's allow negative hex numbers why not (0x-8000)
+		sign = -1;
+		i++;
+	}
+	for (; i < strlen(number); i++){
+		if ('0' <= number[i] && number[i] <= '9'){
+			value += (number[i] - '0') * sign * pow_int(16, (strlen(number) - i - 1));
+		}
+		if ('a' <= number[i] && number[i] <= 'f'){
+			value += (number[i] - 'a' + 10) * sign * pow_int(16, (strlen(number) - i - 1));
+		}
+		if ('A' <= number[i] && number[i] <= 'F'){
+			value += (number[i] - 'A' + 10) * sign * pow_int(16, (strlen(number) - i - 1));
+		}
 	}
 	return value;
 }
@@ -95,7 +119,7 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 
 		// Get 1st component (opcode)
 		char op_code[10];
-		start = get_component(line + start, op_code, start);
+		start = get_component(line, op_code, start);
 		printf("Instruction:   | %s\n", op_code);
 		decoded_instruction = find_instruction(op_code) << 40; 
 
@@ -103,7 +127,7 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 		// get all 4 registers
 		for (int i = 0; i<4; i++){
 			char reg[10];
-			start = get_component(line + start, reg, start);
+			start = get_component(line, reg, start);
 			// decode reg into decoded register here
 			decoded_reg = find_register(reg);
 			decoded_instruction += decoded_reg << (24 + 4*(3-i));
@@ -113,11 +137,11 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 		// get both immediates
 		for (int i = 0; i<2; i++){
 			char imm[10];
-			start = get_component(line + start, imm, start);
+			start = get_component(line, imm, start);
 			int converted_imm = 0;
 
 			if ('0' <= imm[0] && imm[0] <= '9'){
-				converted_imm = string_to_int(imm);
+				converted_imm = dec_string_to_int(imm);
 				decoded_instruction += converted_imm << (12*(1-i)); // turn immediate from string to number
 			}
 			
