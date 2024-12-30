@@ -52,10 +52,10 @@ int string_to_int(char number[]){
 
 
 int main(int argc, char* argv[]) {
-	FILE *asmb;
-	FILE *mcode;
-	asmb = fopen(argv[1], "r");
-	mcode = fopen("imemin.txt","w");
+	FILE *asmb;//file pointer to  program.asm
+	FILE *mcode;//file pointer to  imemin.txt 
+	asmb = fopen(argv[1], "r");// only for read
+	mcode = fopen("imemin.txt","w");//read and write
 	char* line = NULL; 
 	long len; 
 	long long read; // in case the file is big 
@@ -92,7 +92,7 @@ int main(int argc, char* argv[]) {
 		char op_code[10];
 		start = get_component(line + start, op_code, start);
 		printf("Instruction:   | %s\n", op_code);
-		decoded_instruction = find_instruction(op_code) << 40; // Zoharrrr write the decoder
+		decoded_instruction = find_instruction(op_code) << 40; 
 
 		long long decoded_reg;
 		// get all 4 registers
@@ -120,7 +120,7 @@ int main(int argc, char* argv[]) {
 		}
 
 		printf("Final opcode:  | %012lx\n", decoded_instruction);
-		fprintf(mcode, "%012lx\n", decoded_instruction); // Write to file
+		fprintf(mcode, "%012lx\n", decoded_instruction); // Write to machine code file
 	}
 	fclose(asmb);
 	fclose(mcode); 
