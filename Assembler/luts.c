@@ -37,7 +37,7 @@ long long find_instruction(char name[]){ //This function recives a string of the
     if (eq_str(name, "in")) return 19;
     if (eq_str(name, "out")) return 20;
     if (eq_str(name, "halt")) return 21;
-    
+    return -1;
 }
 
 int find_register(char reg[]) { //this function takes the exact string name of the register ($s0 and not $s0,) and returns the register number, as well as some I/O shit.
