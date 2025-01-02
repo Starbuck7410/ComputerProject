@@ -9,6 +9,7 @@ int hex_string_to_int();
 
 const int LABEL_COUNT = 250;
 const int LABEL_SIZE = 50;
+const int LINE_SIZE = 250;
 
 
 
@@ -36,9 +37,7 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 	FILE *mcode; //file pointer to imemin.txt 
 	asmb = fopen(argv[1], "r");// only for read
 	mcode = fopen("imemin.txt","w");//read and write
-	char* line = NULL; 
-	long len; 
-	long long read; // in case the file is big 
+	char line [LINE_SIZE]; 
 	char labels [LABEL_COUNT][LABEL_SIZE]; // support for up to 250 labels
 	int label_addresses [LABEL_COUNT];
 
@@ -57,7 +56,7 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 	int address = 0;
 	int label_index = 0;
 	int line_index = 0;
-	while ((read = getline(&line, &len, asmb)) != -1) { 
+	while (fscanf(asmb, "%[^\n]\n", line) != EOF) { 
 		line_index++;
 		// Cut out whitespaces
 		char label [LABEL_SIZE];
@@ -96,13 +95,12 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 		address++;
 	}
 	rewind (asmb);
-
 	// 				------------------------------------- 2nd pass on the code: ----------------------------------
 
 	long long decoded_instruction; // 48 bits per instruction
 	long long converted_instruction;
 	line_index = 0;
-    while ((read = getline(&line, &len, asmb)) != -1) { 
+    while (fscanf(asmb, "%[^\n]\n", line) != EOF) { 
 		line_index++;
 		// Cut out whitespaces
 		int start = 0;
@@ -110,8 +108,8 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 		while(line[start] == ' ' || line[start] == '	'){
 			start++;
 		}
-
-		// // Check the line isnt a comment
+		printf("Line:          | %s\n", line);
+		// Check the line isnt a comment
 		if (line[start] == '#'){
 			continue;
 		}

@@ -1,1 +1,2 @@
-"C:\program Files\MinGW\bin\gcc.exe" Assembler\*.c -o out.exe
+"C:\program Files\MinGW\bin\gcc.exe" Assembler\*.c
+a.exe %1 %2 %3 %4 %5 %6 %7 %8 %9
