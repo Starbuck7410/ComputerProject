@@ -1,27 +1,17 @@
+#define  _GNU_SOURCE
 #include <stdio.h>
 #include <string.h>
 long find_instruction();
 long find_register();
 int eq_str();
+int pow_int();
+int dec_string_to_int();
+int hex_string_to_int();
 
 const int LABEL_COUNT = 250;
 const int LABEL_SIZE = 50;
 
-int pow_int(int a, int b){ // Do i really have to explain this...?
-	if (b == 0){
-		return 1;
-	}
-	if (a == 0){
-		return 0;
-	}
-	int value = a;
-	b--;
-	while (b>0){
-		value *= a;
-		b--;
-	}
-	return value;
-}
+
 
 long long get_component(char * line, char * component, int start){ // get pointer to a line, extract 1st element and return new offset for the next component
 	int i = start;
@@ -39,42 +29,7 @@ long long get_component(char * line, char * component, int start){ // get pointe
 	return i;
 }
 
-int dec_string_to_int(char number[]){ // Decimal string to int
-	int value = 0;
-	int i = 0;
-	int sign = 1;
-	if (number[0] == '-'){
-		sign = -1;
-		i++;
-	}
-	for (; i < strlen(number); i++){
-		value += (number[i] - '0') * sign * pow_int(10, (strlen(number) - i - 1));
-	}
-	return value;
-}
 
-
-int hex_string_to_int(char number[]){ // You MUST pass the string WITHOUT the 0x
-	int value = 0;
-	int i = 0;
-	int sign = 1;
-	if (number[0] == '-'){ // fuck it let's allow negative hex numbers why not (0x-8000)
-		sign = -1;
-		i++;
-	}
-	for (; i < strlen(number); i++){
-		if ('0' <= number[i] && number[i] <= '9'){
-			value += (number[i] - '0') * sign * pow_int(16, (strlen(number) - i - 1));
-		}
-		if ('a' <= number[i] && number[i] <= 'f'){
-			value += (number[i] - 'a' + 10) * sign * pow_int(16, (strlen(number) - i - 1));
-		}
-		if ('A' <= number[i] && number[i] <= 'F'){
-			value += (number[i] - 'A' + 10) * sign * pow_int(16, (strlen(number) - i - 1));
-		}
-	}
-	return value;
-}
 
 
 int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.txt, argv[3] = dmemin.txt
@@ -87,6 +42,13 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 	long long read; // in case the file is big 
 	char labels [LABEL_COUNT][LABEL_SIZE]; // support for up to 250 labels
 	int label_addresses [LABEL_COUNT];
+
+	
+	int int_word_address, int_word_value, dmem[4096];			//define int of address, int of data, array such that x[address] = data and assist vars
+	for (int i = 0; i < 4096; i++){
+		dmem[i] = 0;
+	}       
+
 	// TODO initialize comes here
 	// imemin.txt should get initialized to 000000000000\n * 4096
 	// dmemin.txt should get initialized to 00000000\n * 4096
@@ -145,74 +107,42 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 		line_index++;
 		// Cut out whitespaces
 		int start = 0;
-		while(line[start] == ' ' || line[start] == '	'){
-			start++;
-		}
 
-		// Check the line isnt a comment
-		if (line[start] == '#'){
-			continue;
-		}
+		// while(line[start] == ' ' || line[start] == '	'){
+		// 	start++;
+		// }
+
+		// // Check the line isnt a comment
+		// if (line[start] == '#'){
+		// 	continue;
+		// }
 
 		// Get 1st component (opcode)
 		char op_code[10];
 		start = get_component(line, op_code, start);
-		//////////////////////////////////////////////////////////
-		FILE* file = fopen("text.txt", "r");                             //Open the asm instructions file
-		char L[500], char_val1[15], char_val2[15];                        //define Line, string of address, string of data
-		int int_val1, int_val2, x[4096], space, offset = 0, val1_0x, val2_0x; //define int of address, int of data, array such that x[address] = data and assist vars
-		for (int i = 0; i < 4096; i++)                                     //initialize array to all zeros
-			x[i] = 0;
 
-		while (fscanf(file, "%500[^\n]\n", L) != EOF) {                     //read from instructions file only 500 chars or \n and save it to string L exit when reached End Of File (EOF)
-			space = 0;                                                  //boolean var space tells if the space char between address and data have been found, initialized to 0
-			memset(char_val1, '\0', sizeof(char_val1));                 //before each iteration set address and data strings to all /0 so they wont carry leftovers between iterations
-			memset(char_val2, '\0', sizeof(char_val2));
-			val1_0x = 0;                                                //set to zero flags that indicate if the address or data are given in hex
-			val2_0x = 0;
-			offset = 6;                                                 //we read the string L using a for loop with indicator w. because we know that the first 5 letters are .word we set an offset to 6
-			if (L[0] == '.') {                                            //indicates when a .word command has been found
-				for (int w = 6;w <= strlen(L);w++) {                          //for loop to go over the command
-					if (L[w] == ' ') {                                    //if space has been found set space flag, skip the actual space indicator (w++)
-						space = 1;
-						w++;
-						offset = w;                                     //set the offset to match the string length to only be whats necessary
-					}
+		// Handle .word instructions
+		if (eq_str(op_code, ".word")){
+			char word_address[15], word_value[15];						//define string of address and string of data
 
-					if (space == 0) {                                     //if no space has been found, we're dealing with the address string
-						if (L[w + 1] == 'x') {                              //check if it's give in hex, the [w+1] skips the "0" in "0x" as to not accidentally check for 0 for it to actually be 0 in dec
-							val1_0x = 1;
-							w = w + 2;
-							offset = 8;
-						}                               //update the w indicator as to not include "0x" (important for how Saar made Hex to Dec)
-						char_val1[w - offset] = L[w];                     //copy the address part in string L to the address string
-					}
-
-					if (space == 1)                                      //a space has been found therefore were dealing with the data string
-						if (L[w + 1] == 'x') {
-							val2_0x = 1;                                //check if it's in hex
-							w = w + 2;
-							offset = w;                                 //update the offset accordingly
-						}
-					char_val2[w - offset] = L[w];
-
-
-				}
-				if (val1_0x)                                             //check if need to translate the string into dec or hex
-					int_val1 = hex_string_to_int(char_val1);            //actual conversion
-				else
-					int_val1 = dec_string_to_int(char_val1);
-				if (val2_0x)
-					int_val2 = hex_string_to_int(char_val2);
-				else
-					int_val2 = dec_string_to_int(char_val2);
-
-				x[int_val1] = int_val2;                                 //x[address] = data
+			start = get_component(line, word_address, start);
+			if (word_address[0] == '0' && word_address[1] == 'x')   {	//check if need to translate the string into dec or hex
+				int_word_address = hex_string_to_int(* (&(word_address) + 2));				//actual conversion
+			}else{
+				int_word_address = dec_string_to_int(word_address);
 			}
+				
+			if (word_value[0] == '0' && word_value[1] == 'x')   {	//check if need to translate the string into dec or hex
+				int_word_value = hex_string_to_int(* (&(word_value) + 2));				//actual conversion
+			}else{
+				int_word_value = dec_string_to_int(word_value);
+			}
+		               
+				dmem[int_word_address] = int_word_value;                                 //x[address] = data
+				continue;
 		}
-		fclose(file);
-	}
-		//////////////////////////////////////////////////////////
+		
+
 		if (op_code[strlen(op_code) - 1] == ':' || eq_str(op_code, "")){ // Check if it's not a label
 			continue;
 		}

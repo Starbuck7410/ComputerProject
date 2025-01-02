@@ -1,0 +1,1 @@
+"C:\program Files\MinGW\bin\gcc.exe" Assembler\*.c -o out.exe
