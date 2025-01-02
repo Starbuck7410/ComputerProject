@@ -157,7 +157,62 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 		// Get 1st component (opcode)
 		char op_code[10];
 		start = get_component(line, op_code, start);
+		//////////////////////////////////////////////////////////
+		FILE* file = fopen("text.txt", "r");                             //Open the asm instructions file
+		char L[500], char_val1[15], char_val2[15];                        //define Line, string of address, string of data
+		int int_val1, int_val2, x[4096], space, offset = 0, val1_0x, val2_0x; //define int of address, int of data, array such that x[address] = data and assist vars
+		for (int i = 0; i < 4096; i++)                                     //initialize array to all zeros
+			x[i] = 0;
 
+		while (fscanf(file, "%500[^\n]\n", L) != EOF) {                     //read from instructions file only 500 chars or \n and save it to string L exit when reached End Of File (EOF)
+			space = 0;                                                  //boolean var space tells if the space char between address and data have been found, initialized to 0
+			memset(char_val1, '\0', sizeof(char_val1));                 //before each iteration set address and data strings to all /0 so they wont carry leftovers between iterations
+			memset(char_val2, '\0', sizeof(char_val2));
+			val1_0x = 0;                                                //set to zero flags that indicate if the address or data are given in hex
+			val2_0x = 0;
+			offset = 6;                                                 //we read the string L using a for loop with indicator w. because we know that the first 5 letters are .word we set an offset to 6
+			if (L[0] == '.') {                                            //indicates when a .word command has been found
+				for (int w = 6;w <= strlen(L);w++) {                          //for loop to go over the command
+					if (L[w] == ' ') {                                    //if space has been found set space flag, skip the actual space indicator (w++)
+						space = 1;
+						w++;
+						offset = w;                                     //set the offset to match the string length to only be whats necessary
+					}
+
+					if (space == 0) {                                     //if no space has been found, we're dealing with the address string
+						if (L[w + 1] == 'x') {                              //check if it's give in hex, the [w+1] skips the "0" in "0x" as to not accidentally check for 0 for it to actually be 0 in dec
+							val1_0x = 1;
+							w = w + 2;
+							offset = 8;
+						}                               //update the w indicator as to not include "0x" (important for how Saar made Hex to Dec)
+						char_val1[w - offset] = L[w];                     //copy the address part in string L to the address string
+					}
+
+					if (space == 1)                                      //a space has been found therefore were dealing with the data string
+						if (L[w + 1] == 'x') {
+							val2_0x = 1;                                //check if it's in hex
+							w = w + 2;
+							offset = w;                                 //update the offset accordingly
+						}
+					char_val2[w - offset] = L[w];
+
+
+				}
+				if (val1_0x)                                             //check if need to translate the string into dec or hex
+					int_val1 = hex_string_to_int(char_val1);            //actual conversion
+				else
+					int_val1 = dec_string_to_int(char_val1);
+				if (val2_0x)
+					int_val2 = hex_string_to_int(char_val2);
+				else
+					int_val2 = dec_string_to_int(char_val2);
+
+				x[int_val1] = int_val2;                                 //x[address] = data
+			}
+		}
+		fclose(file);
+	}
+		//////////////////////////////////////////////////////////
 		if (op_code[strlen(op_code) - 1] == ':' || eq_str(op_code, "")){ // Check if it's not a label
 			continue;
 		}
