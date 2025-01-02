@@ -1,4 +1,3 @@
-#define  _GNU_SOURCE
 #include <stdio.h>
 #include <string.h>
 long find_instruction();
@@ -16,14 +15,14 @@ const int LABEL_SIZE = 50;
 long long get_component(char * line, char * component, int start){ // get pointer to a line, extract 1st element and return new offset for the next component
 	int i = start;
 
-	while (* (line + i) == '$' || * (line + i) >= '0' ) {
+	while (* (line + i) == '.' || * (line + i) == '$' || * (line + i) >= '0' ) {
 		component[i - start] = * (line + i);
 		i++;
 	}
 
 	component[i - start] = '\0'; // Terminate the string
 
-	while (!(* (line + i) == '$' || * (line + i) >= '0')){ // Clear trailing whitespaces
+	while (!(* (line + i) == '.' || * (line + i) == '$' || * (line + i) >= '0')){ // Clear trailing whitespaces
 		i++;
 	}
 	return i;
@@ -54,7 +53,7 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 	// dmemin.txt should get initialized to 00000000\n * 4096
 
 
-	// 1st pass to read labels
+	// 				------------------------------------- 1st pass on the code: ----------------------------------
 	int address = 0;
 	int label_index = 0;
 	int line_index = 0;
@@ -97,9 +96,9 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 		address++;
 	}
 	rewind (asmb);
-	// return 0;
 
-	// 2nd pass on the code:
+	// 				------------------------------------- 2nd pass on the code: ----------------------------------
+
 	long long decoded_instruction; // 48 bits per instruction
 	long long converted_instruction;
 	line_index = 0;
@@ -108,14 +107,14 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 		// Cut out whitespaces
 		int start = 0;
 
-		// while(line[start] == ' ' || line[start] == '	'){
-		// 	start++;
-		// }
+		while(line[start] == ' ' || line[start] == '	'){
+			start++;
+		}
 
 		// // Check the line isnt a comment
-		// if (line[start] == '#'){
-		// 	continue;
-		// }
+		if (line[start] == '#'){
+			continue;
+		}
 
 		// Get 1st component (opcode)
 		char op_code[10];
@@ -123,9 +122,12 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 
 		// Handle .word instructions
 		if (eq_str(op_code, ".word")){
+			printf("Instruction:   | \"%s\"\n", op_code);
 			char word_address[15], word_value[15];						//define string of address and string of data
 
 			start = get_component(line, word_address, start);
+			start = get_component(line, word_value, start);
+			
 			if (word_address[0] == '0' && word_address[1] == 'x')   {	//check if need to translate the string into dec or hex
 				int_word_address = hex_string_to_int(* (&(word_address) + 2));				//actual conversion
 			}else{
@@ -139,6 +141,8 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 			}
 		               
 				dmem[int_word_address] = int_word_value;                                 //x[address] = data
+				printf("Word address:  | %d\n", int_word_address);
+				printf("Word Value:    | %d\n", int_word_value);
 				continue;
 		}
 		
