@@ -3,60 +3,117 @@
 long find_instruction();
 long find_register();
 int eq_str();
-int pow_int();
-int dec_string_to_int();
-int hex_string_to_int();
 
 const int LABEL_COUNT = 250;
 const int LABEL_SIZE = 50;
-const int LINE_SIZE = 250;
 
-
+int pow_int(int a, int b){ // Do i really have to explain this...?
+	if (b == 0){
+		return 1;
+	}
+	if (a == 0){
+		return 0;
+	}
+	int value = a;
+	b--;
+	while (b>0){
+		value *= a;
+		b--;
+	}
+	return value;
+}
 
 long long get_component(char * line, char * component, int start){ // get pointer to a line, extract 1st element and return new offset for the next component
 	int i = start;
 
-	while (* (line + i) == '.' || * (line + i) == '$' || * (line + i) >= '0' ) {
+	while (* (line + i) == '$' || * (line + i) >= '0' ) {
 		component[i - start] = * (line + i);
 		i++;
 	}
 
 	component[i - start] = '\0'; // Terminate the string
 
-	while (!(* (line + i) == '.' || * (line + i) == '$' || * (line + i) >= '0')){ // Clear trailing whitespaces
+	while (!(* (line + i) == '$' || * (line + i) >= '0')){ // Clear trailing whitespaces
 		i++;
 	}
 	return i;
 }
 
+int dec_string_to_int(char number[]){ // Decimal string to int
+	int value = 0;
+	int i = 0;
+	int sign = 1;
+	if (number[0] == '-'){
+		sign = -1;
+		i++;
+	}
+	for (; i < strlen(number); i++){
+		value += (number[i] - '0') * sign * pow_int(10, (strlen(number) - i - 1));
+	}
+	return value;
+}
 
+
+int hex_string_to_int(char number[]){ // You MUST pass the string WITHOUT the 0x
+	int value = 0;
+	int i = 0;
+	int sign = 1;
+	if (number[0] == '-'){ // fuck it let's allow negative hex numbers why not (0x-8000)
+		sign = -1;
+		i++;
+	}
+	for (; i < strlen(number); i++){
+		if ('0' <= number[i] && number[i] <= '9'){
+			value += (number[i] - '0') * sign * pow_int(16, (strlen(number) - i - 1));
+		}
+		if ('a' <= number[i] && number[i] <= 'f'){
+			value += (number[i] - 'a' + 10) * sign * pow_int(16, (strlen(number) - i - 1));
+		}
+		if ('A' <= number[i] && number[i] <= 'F'){
+			value += (number[i] - 'A' + 10) * sign * pow_int(16, (strlen(number) - i - 1));
+		}
+	}
+	return value;
+}
+
+void dmemin_fill(FILE* dmemin_file, *int dmemin_array, int array_len)
+{
+	char hexStr[8];
+
+	for (int i = 0; i++; i < array_len)
+		fprintf(dmemin_file, "%08lx\n", dmemin_array[i]);
+	if (array_len < 4096)
+	{
+		for (int i = 0; i++; i < 4096 - array_len)
+			fprintf(dmemin_file, "00000000\n", dmemin_array[i]);
+	}
+
+}
 
 
 int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.txt, argv[3] = dmemin.txt
 	FILE *asmb; //file pointer to program.asm
-	FILE *mcode; //file pointer to imemin.txt 
+	FILE *mcode;//file pointer to imemin.txt
+	FILE *datamem;//file pointer to dmemin.txt 
 	asmb = fopen(argv[1], "r");// only for read
 	mcode = fopen("imemin.txt","w");//read and write
-	char line [LINE_SIZE]; 
+	datamem = fopen(argv[3], "w");
+
+	char* line = NULL; 
+	long len; 
+	long long read; // in case the file is big 
 	char labels [LABEL_COUNT][LABEL_SIZE]; // support for up to 250 labels
 	int label_addresses [LABEL_COUNT];
-
-	
-	int int_word_address, int_word_value, dmem[4096];			//define int of address, int of data, array such that x[address] = data and assist vars
-	for (int i = 0; i < 4096; i++){
-		dmem[i] = 0;
-	}       
-
 	// TODO initialize comes here
 	// imemin.txt should get initialized to 000000000000\n * 4096
 	// dmemin.txt should get initialized to 00000000\n * 4096
 
 
-	// 				------------------------------------- 1st pass on the code: ----------------------------------
+	// 1st pass to read labels
 	int address = 0;
 	int label_index = 0;
 	int line_index = 0;
-	while (fscanf(asmb, "%[^\n]\n", line) != EOF) { 
+	while ((read = getline(&line, &len, asmb)) != -1) { 
 		line_index++;
 		// Cut out whitespaces
 		char label [LABEL_SIZE];
@@ -95,20 +152,20 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 		address++;
 	}
 	rewind (asmb);
-	// 				------------------------------------- 2nd pass on the code: ----------------------------------
+	// return 0;
 
+	// 2nd pass on the code:
 	long long decoded_instruction; // 48 bits per instruction
 	long long converted_instruction;
 	line_index = 0;
-    while (fscanf(asmb, "%[^\n]\n", line) != EOF) { 
+    while ((read = getline(&line, &len, asmb)) != -1) { 
 		line_index++;
 		// Cut out whitespaces
 		int start = 0;
-
 		while(line[start] == ' ' || line[start] == '	'){
 			start++;
 		}
-		printf("Line:          | %s\n", line);
+
 		// Check the line isnt a comment
 		if (line[start] == '#'){
 			continue;
@@ -117,33 +174,6 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 		// Get 1st component (opcode)
 		char op_code[10];
 		start = get_component(line, op_code, start);
-
-		// Handle .word instructions
-		if (eq_str(op_code, ".word")){
-			printf("Instruction:   | \"%s\"\n", op_code);
-			char word_address[15], word_value[15];						//define string of address and string of data
-
-			start = get_component(line, word_address, start);
-			start = get_component(line, word_value, start);
-			
-			if (word_address[0] == '0' && word_address[1] == 'x')   {	//check if need to translate the string into dec or hex
-				int_word_address = hex_string_to_int(* (&(word_address) + 2));				//actual conversion
-			}else{
-				int_word_address = dec_string_to_int(word_address);
-			}
-				
-			if (word_value[0] == '0' && word_value[1] == 'x')   {	//check if need to translate the string into dec or hex
-				int_word_value = hex_string_to_int(* (&(word_value) + 2));				//actual conversion
-			}else{
-				int_word_value = dec_string_to_int(word_value);
-			}
-		               
-				dmem[int_word_address] = int_word_value;                                 //x[address] = data
-				printf("Word address:  | %d\n", int_word_address);
-				printf("Word Value:    | %d\n", int_word_value);
-				continue;
-		}
-		
 
 		if (op_code[strlen(op_code) - 1] == ':' || eq_str(op_code, "")){ // Check if it's not a label
 			continue;
@@ -202,7 +232,13 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 		fprintf(mcode, "%012lx\n", decoded_instruction); // Write to machine code file
 		
 	}
+	// filling dmemin
+	int LUNI[4096] = { 0 };//when daniel finishes his code, replace SHLOMI with his array name
+	int length_of_luni = sizeof(LUNI) / sizeof(LUNI[0]);
+	dmemin_fill(datamem, LUNI, length_of_luni);
+
 	fclose(asmb);
-	fclose(mcode); 
+	fclose(mcode);
+	fclose(datamem);
 	return 0;
 }
