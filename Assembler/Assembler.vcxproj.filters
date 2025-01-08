@@ -21,5 +21,8 @@
     <ClCompile Include="luts.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="extras.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

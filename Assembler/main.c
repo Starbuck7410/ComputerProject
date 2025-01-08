@@ -1,5 +1,13 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <stdio.h>
 #include <string.h>
+
+#define LABEL_COUNT 250
+#define LABEL_SIZE 50
+#define LINE_SIZE 250
+
+
 long find_instruction();
 long find_register();
 int eq_str();
@@ -9,9 +17,6 @@ int hex_string_to_int();
 void dmemin_fill();
 
 
-const int LABEL_COUNT = 250;
-const int LABEL_SIZE = 50;
-const int LINE_SIZE = 250;
 
 
 
@@ -172,7 +177,7 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 				printf("\x1B[31mERROR: UNKNOWN REGISTER \"%s\" AT LINE %d\x1B[0m\n", reg, line_index); // We didnt recognize the register
 				return 1;
 			}
-			printf("got Register:  | %s (%d)\n", reg, decoded_reg);
+			printf("got Register:  | %s (%lld)\n", reg, decoded_reg);
 			decoded_instruction += decoded_reg << (24 + 4*(3-i));
 		}
 
@@ -202,8 +207,8 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 			printf("got immediate: | %s (%d)\n", imm, converted_imm);
 		}
 
-		printf("Final opcode:  | %012lx\n", decoded_instruction);
-		fprintf(mcode, "%012lx\n", decoded_instruction); // Write to machine code file
+		printf("Final opcode:  | %012llx\n", decoded_instruction);
+		fprintf(mcode, "%012llx\n", decoded_instruction); // Write to machine code file
 		
 	}
 	// filling dmemin

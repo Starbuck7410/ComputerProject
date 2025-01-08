@@ -7,7 +7,7 @@ testLabel:
  jal $ra, $zero, $zero, $imm2, 0, fib		# calc $v0 = fib(x)
  sw $zero, $zero, $imm2, $v0, 0, 65		# store fib(x) in 65
  halt $zero, $zero, $zero, $zero, 0, 0		# halt
-
+.word 14 442
 AnotherTestLabel:
  # hello $zero, $zero, $imm2, $imm1, 1, 2		# enable irq2
  # testing comments

@@ -18,10 +18,13 @@
     <ClCompile Include="main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="morestuff.c">
+    <ClCompile Include="fetch.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="four.c">
+    <ClCompile Include="decode.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="execute.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

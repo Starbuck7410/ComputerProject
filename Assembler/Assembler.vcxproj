@@ -127,6 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="extras.c" />
     <ClCompile Include="luts.c" />
     <ClCompile Include="main.c" />
   </ItemGroup>
