@@ -1,8 +1,7 @@
 #include <stdio.h>
 int registers[16];
 
-int three();
-void five();
+
 
 
 /* 
@@ -19,8 +18,26 @@ void five();
 
 int main(int argc, char * argv[]) {
 
-	printf("I am a simulator bleep bloop: %d\n", three());
-	five();
+	long long instruction = 0xffffffffffff;
+	// zohar put your long long output in this guy.
+	
+	
+	
+	
+	
+	
+	int opcode, regs[4], imm[2];
+	opcode = decode(instruction,regs,imm);
+	//Takes long long, outputs int opcode, int[4] reg addresses, int[2] imm values
+	// changes their values in decode as such: 
+	// opcode is returned 
+	// reg[0] = rd, reg[1] = rs, reg[2] = rt, reg[3] = rm
+	// imm[0] = immediate 1, imm[1] = immediate 2
+	printf("Opcode is %d\nReg rd is %d\nReg rs is %d\nReg rt is %d\nReg rm is %d\nimmediate 1 is %d\nimmediate 2 is %d.", opcode, regs[0], regs[1], regs[2], regs[3], imm[0], imm[1]);
+
+
+
+
 	return 0;
 }
 
