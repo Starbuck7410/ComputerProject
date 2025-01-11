@@ -67,9 +67,3 @@ int hex_string_to_int(char number[]){ // You MUST pass the string WITHOUT the 0x
 	return value;
 }
 
-void dmemin_fill(FILE* dmemin_file, int* dmemin_array, int array_len){
-
-	for (int i = 0; i < array_len; i++){
-		fprintf(dmemin_file, "%08lx\n", dmemin_array[i]);
-	}
-}

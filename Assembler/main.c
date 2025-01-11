@@ -14,7 +14,6 @@ int eq_str();
 int pow_int();
 int dec_string_to_int();
 int hex_string_to_int();
-void dmemin_fill();
 
 
 
@@ -23,14 +22,14 @@ void dmemin_fill();
 long long get_component(char * line, char * component, int start){ // get pointer to a line, extract 1st element and return new offset for the next component
 	int i = start;
 
-	while (* (line + i) == '.' || * (line + i) == '$' || * (line + i) >= '0' ) {
+	while (* (line + i) == '-' || * (line + i) == '.' || * (line + i) == '$' || * (line + i) >= '0' ) {
 		component[i - start] = * (line + i);
 		i++;
 	}
 
 	component[i - start] = '\0'; // Terminate the string
 
-	while (!(* (line + i) == '.' || * (line + i) == '$' || * (line + i) >= '0')){ // Clear trailing whitespaces
+	while (!(* (line + i) == '-' || * (line + i) == '.' || * (line + i) == '$' || * (line + i) >= '0')){ // Clear trailing whitespaces
 		i++;
 	}
 	return i;
@@ -40,32 +39,66 @@ long long get_component(char * line, char * component, int start){ // get pointe
 
 
 int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.txt, argv[3] = dmemin.txt
-	FILE *asmb; //file pointer to program.asm
-	FILE *mcode;//file pointer to imemin.txt
-	FILE *datamem;//file pointer to dmemin.txt 
-	asmb = fopen(argv[1], "r");// only for read
-	mcode = fopen(argv[2],"w");//read and write
+	FILE *asmb_file; //file pointer to program.asm
+	FILE *imem_file;//file pointer to imemin.txt
+	FILE *dmem_file;//file pointer to dmemin.txt 
+	if (argc < 3){
+		printf("\x1B[31mNot enough arguments\x1B[0m");
+		return 1;
+	}
+	asmb_file = fopen(argv[1], "r");// only for read
+	if (asmb_file == NULL){
+		printf("\x1B[31mFailed to open assembly file: %s\n", argv[1]);
+		perror("");
+		printf("\x1B[0m");
+		return 1;	
+	}
+
+	imem_file = fopen(argv[2],"w");	//read and write
+	if (asmb_file == NULL){
+		printf("\x1B[31mFailed to create imem file: %s\n", argv[1]);
+		perror("");
+		printf("\x1B[0m");
+		return 1;	
+	}
+
+	dmem_file = fopen(argv[3], "w");
+	if (asmb_file == NULL){
+		printf("\x1B[31mFailed to create dmem file: %s\n", argv[1]);
+		perror("");
+		printf("\x1B[0m");
+		return 1;	
+	}
+
+
 	char line [LINE_SIZE]; 
-	datamem = fopen(argv[3], "w");
 	char labels [LABEL_COUNT][LABEL_SIZE]; // support for up to 250 labels
 	int label_addresses [LABEL_COUNT];
 
-	
-	int int_word_address, int_word_value, dmem[4096];			//define int of address, int of data, array such that x[address] = data and assist vars
+
+	if(asmb_file == NULL || imem_file == NULL || dmem_file == NULL){
+		
+	}
+
+	int dmem[4096];
+	long long imem[4096];
+	int int_word_address, int_word_value;			//define int of address, int of data, array such that x[address] = data and assist vars
 	for (int i = 0; i < 4096; i++){
-		dmem[i] = 0;
+		dmem[i] = 0;	// dmemin.txt gets initialized to 00000000\n * 4096
+		imem[i] = 0;	// imemin.txt gets initialized to 000000000000\n * 4096
 	}       
 
-	// TODO initialize comes here
-	// imemin.txt should get initialized to 000000000000\n * 4096
-	// dmemin.txt should get initialized to 00000000\n * 4096
+
+	
+	
 
 
 	// 				------------------------------------- 1st pass on the code: ----------------------------------
 	int address = 0;
 	int label_index = 0;
 	int line_index = 0;
-	while (fscanf(asmb, "%[^\n]\n", line) != EOF) { 
+
+	while (fscanf(asmb_file, "%[^\n]\n", line) != EOF) { 
 		line_index++;
 		// Cut out whitespaces
 		char label [LABEL_SIZE];
@@ -88,7 +121,7 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 
 			// Check if we haven't seen this label before
 			for(int i = 0; i < LABEL_COUNT; i++){
-				if (eq_str(labels[i],label)){
+				if (eq_str(labels[i], label)){
 					printf("\x1B[31mERROR: DUPLICATE LABELS DETECTED IN LINE: %d\x1B[0m\n", line_index);
 					return 1;
 				}
@@ -99,17 +132,19 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 				labels[label_index][i] = label[i]; // because apparently regular assignments dont work?
 			} 
 			label_addresses[label_index] = address;
-
+			label_index++;
+			continue;
 		}
 		address++;
 	}
-	rewind (asmb);
+	rewind(asmb_file);
 	// 				------------------------------------- 2nd pass on the code: ----------------------------------
 
 	long long decoded_instruction; // 48 bits per instruction
 	long long converted_instruction;
+	address = 0;
 	line_index = 0;
-    while (fscanf(asmb, "%[^\n]\n", line) != EOF) { 
+    while (fscanf(asmb_file, "%[^\n]\n", line) != EOF) { 
 		line_index++;
 		// Cut out whitespaces
 		int start = 0;
@@ -164,7 +199,7 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 			printf("\x1B[31mERROR: UNDEFINED INSTRUCTION \"%s\" FOUND AT LINE: %d\x1B[0m\n", op_code, line_index); // We didnt recognize the instruction
 			return 1;
 		}
-		decoded_instruction =  converted_instruction << 40; 
+		decoded_instruction =  (converted_instruction & 0xFFFF) << 40; 
 
 		long long decoded_reg;
 		// get all 4 registers
@@ -178,7 +213,7 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 				return 1;
 			}
 			printf("got Register:  | %s (%lld)\n", reg, decoded_reg);
-			decoded_instruction += decoded_reg << (24 + 4*(3-i));
+			decoded_instruction += (decoded_reg & 0xF) << (24 + 4*(3-i));
 		}
 
 		// get both immediates
@@ -187,13 +222,13 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 			start = get_component(line, imm, start);
 			int converted_imm = 0;
 
-			if ('0' <= imm[0] && imm[0] <= '9'){
+			if ('0' <= imm[0] && imm[0] <= '9' || imm[0] == '-'){
 				converted_imm = dec_string_to_int(imm);
 			}else{
 				for(int i = 0; i < LABEL_COUNT; i++){
 					if (eq_str(labels[i], imm)){
 						printf("\x1B[32mReplacing label \"%s\" with address: %d\x1B[0m\n",labels[i] , label_addresses[i]);
-						converted_imm =label_addresses[i];
+						converted_imm = label_addresses[i];
 						break;
 					}
 					if (i == LABEL_COUNT - 1){
@@ -202,22 +237,34 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 					}
 				}	
 			}
-				decoded_instruction += converted_imm << (12*(1-i)); // turn immediate from string to number
+				decoded_instruction += (converted_imm & 0xFFF) << (12*(1-i)); // turn immediate from string to number
 			
 			printf("got immediate: | %s (%d)\n", imm, converted_imm);
 		}
 
 		printf("Final opcode:  | %012llx\n", decoded_instruction);
-		fprintf(mcode, "%012llx\n", decoded_instruction); // Write to machine code file
+		imem[address] = decoded_instruction;
+		address++;
+		// fprintf(imem_file, "%012llx\n", decoded_instruction); // Write to machine code file
 		
 	}
-	// filling dmemin
-	int length_of_dmem = sizeof(dmem) / sizeof(dmem[0]);
-	
-	dmemin_fill(datamem, dmem, length_of_dmem);
+	// filling dmemin and imemin
 
-	fclose(asmb);
-	fclose(mcode); 
-	fclose(datamem);
+
+	for (int i = 0; i < 4096; i++){
+		fprintf(dmem_file, "%08lX\n", dmem[i]);
+	}
+
+	for (int i = 0; i < 4096; i++){
+		fprintf(imem_file, "%012llX\n", imem[i]);
+	}
+
+
+
+
+
+	fclose(asmb_file);
+	fclose(imem_file); 
+	fclose(dmem_file);
 	return 0;
 }
