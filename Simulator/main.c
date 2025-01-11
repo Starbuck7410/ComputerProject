@@ -7,7 +7,7 @@ int registers[16];
 /* 
 	Fetch: - ZHARS
 	Takes imem file pointer and PC, outputs instruction as long long
-
+	
 	Decode: - DANIEL
 	Takes long long, outputs int opcode, int [4] reg addresses, int [2] imm values
 
@@ -17,12 +17,13 @@ int registers[16];
 */
 
 int main(int argc, char * argv[]) {
+	FILE* mcode;//file pointer to imemin.txt
+	mcode = fopen(argv[2], "r");//read and write
+	int PC = 0;
 
-	long long instruction = 0xffffffffffff;
+
+	long long instruction = fetch(mcode,PC);
 	// zohar put your long long output in this guy.
-	
-	
-	
 	
 	
 	
