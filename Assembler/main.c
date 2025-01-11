@@ -199,7 +199,7 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 			printf("\x1B[31mERROR: UNDEFINED INSTRUCTION \"%s\" FOUND AT LINE: %d\x1B[0m\n", op_code, line_index); // We didnt recognize the instruction
 			return 1;
 		}
-		decoded_instruction =  (converted_instruction & 0xFFFF) << 40; 
+		decoded_instruction =  (converted_instruction & 0xFF) << 40; 
 
 		long long decoded_reg;
 		// get all 4 registers

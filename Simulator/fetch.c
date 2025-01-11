@@ -43,8 +43,8 @@ long long hex_string_to_long_long(char number[]) { // You MUST pass the string W
 
 long long fetch(FILE* imemin_file, int PC) {
     int current_line = 0;
-    char* line[13];
-	char* line_without_null_terminator[12];
+    char line[13];
+	char line_without_null_terminator[12];
     // Read lines until the desired line is found
     while (fgets(line, PC, imemin_file) != NULL) {
         current_line++;
