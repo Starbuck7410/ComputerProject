@@ -42,16 +42,10 @@ long long hex_string_to_long_long(char number[]) { // You MUST pass the string W
 }
 
 long long fetch(FILE* imemin_file, int PC) {
-    int current_line = 0;
-    char* line[13];
-	char* line_without_null_terminator[12];
-    // Read lines until the desired line is found
-    while (fgets(line, PC, imemin_file) != NULL) {
-        current_line++;
-        if (current_line == PC) {
-			strncpy(line_without_null_terminator, line, 12);
-            return hex_string_to_long_long(line_without_null_terminator);  // Return the line as along long if it matches the PC
-        }
+    char* line[12];
+	fseek(imemin_file, PC * 13, SEEK_SET);
+    if (fgets(line, 12, imemin_file) != NULL) {
+            return hex_string_to_long_long(line);  // Return the line as along long if it matches the PC
     }
 
 }
