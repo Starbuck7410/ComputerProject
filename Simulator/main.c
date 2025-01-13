@@ -3,6 +3,7 @@ int registers[16];
 int execute();
 int decode();
 long long fetch();
+int cycles = 0;
 int PC = 0;
 long long instruction;
 /* 
@@ -20,7 +21,6 @@ long long instruction;
 int main(int argc, char * argv[]) {
 	FILE* mcode; //file pointer to imemin.txt
 	mcode = fopen(argv[1], "r"); //read and write
-	int cycles = 0;
 	while(0 == 0){
 		instruction = fetch(mcode, PC);
 		// zohar put your long long output in this guy.
