@@ -15,8 +15,6 @@ long long instruction;
 	Cycles.txt, Trace.txt, Regout.txt output
 	Cycles and regout get updated only at the end, but trace gets updated at the TODO:ZOHAR tag
 
-
-
 */
 
 int main(int argc, char * argv[]) {
@@ -44,7 +42,7 @@ int main(int argc, char * argv[]) {
 
 		// TODO:ZOHAR Update the trace here
 
-		execute(opcode, &inst_regs, &imm, &registers);
+		execute(opcode, &inst_regs, &imm, &registers, PC);
 		printf("Values in registers after operation: %d, %d, %d, %d\n", registers[inst_regs[0]], registers[inst_regs[1]], registers[inst_regs[2]], registers[inst_regs[3]]);
 		cycles++;
 		PC++;
