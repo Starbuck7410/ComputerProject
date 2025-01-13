@@ -42,9 +42,9 @@ long long hex_string_to_long_long(char number[]) { // You MUST pass the string W
 }
 
 long long fetch(FILE* imemin_file, int PC) {
-    char* line[12];
+    char line[13];
 	fseek(imemin_file, PC * 13, SEEK_SET);
-    if (fgets(line, 12, imemin_file) != NULL) {
+    if (fgets(line, 13, imemin_file) != NULL) {
             return hex_string_to_long_long(line);  // Return the line as along long if it matches the PC
     }
 

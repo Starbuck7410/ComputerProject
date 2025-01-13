@@ -152,6 +152,7 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 		while(line[start] == ' ' || line[start] == '	'){
 			start++;
 		}
+		
 		printf("Line:          | %s\n", line);
 		// Check the line isnt a comment
 		if (line[start] == '#'){
