@@ -11,9 +11,9 @@ long long instruction;
 int fill_memarray_from_dmem();
 /* 
 	DANIEL:
-	Load dmemin.txt from argument to int array [4096] - DONE* (one strange non-warning)
-	implement lw sw
-	Output dmemout.txt from int array to argument
+	Load dmemin.txt from argument to int array [4096] - DONE* (one strange non-warning).
+	implement lw sw - Done, need to test to make sure.
+	Output dmemout.txt from int array to argument - done and works.
 
 	ZOHAR:
 	Cycles.txt, Trace.txt, Regout.txt output
@@ -34,7 +34,7 @@ int main(int argc, char * argv[]) {
 
 	while(0 == 0){
 		instruction = fetch(mcode, pc);
-		// zohar put your long long output in this guy.
+		
 		printf("instruction: %012llx\n", instruction);
 		
 		int opcode, inst_regs[4], imm[2];
