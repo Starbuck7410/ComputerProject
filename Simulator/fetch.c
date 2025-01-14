@@ -45,7 +45,7 @@ long long fetch(FILE* imemin_file, int PC) {
     char line[13];
 	fseek(imemin_file, PC * 13, SEEK_SET);
     if (fgets(line, 13, imemin_file) != NULL) {
-            return hex_string_to_long_long(line);  // Return the line as along long if it matches the PC
+            return hex_string_to_long_long(line);  // Return the line as a long long if it matches the PC
     }
 
 }

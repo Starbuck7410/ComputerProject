@@ -27,5 +27,11 @@
     <ClCompile Include="execute.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="fill_memarray_from_dmem.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dmemout.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

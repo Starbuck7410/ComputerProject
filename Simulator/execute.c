@@ -1,4 +1,4 @@
-int execute(int op_code, int * inst_regs, int * imms, int * registers, int PC){ // returns 0 on success, will decide of error codes for other things
+int execute(int op_code, int * inst_regs, int * imms, int * registers, int PC, long long local_memory[]) { // returns 0 on success, will decide of error codes for other things
     for (int i = 0; i < 4; i++){
         if (inst_regs[i] == 1){
             registers[1] = imms[0];
@@ -73,8 +73,13 @@ int execute(int op_code, int * inst_regs, int * imms, int * registers, int PC){ 
         registers[inst_regs[0]] = PC + 1;
         PC = registers[inst_regs[3]] & 0xFFF;
     }
-
-
+    //  -------------------------------- Memory --------------------------------
+    if (op_code == 16){ // LW
+        registers[inst_regs[0]] = local_memory[registers[inst_regs[1]] + registers[inst_regs[2]] + registers[inst_regs[3]]];
+    }
+    if (op_code == 17) { // SW
+        local_memory[registers[inst_regs[1]] + registers[inst_regs[2]]] = registers[inst_regs[0]] + registers[inst_regs[3]];
+    }
     registers[0] = 0;
 
 }
