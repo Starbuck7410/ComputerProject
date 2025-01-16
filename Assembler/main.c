@@ -209,7 +209,7 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 			start = get_component(line, reg, start);
 			// decode reg into decoded register here
 			decoded_reg = find_register(reg);
-			if (decoded_reg == -1){
+			if (decoded_reg == 4294967295){
 				printf("\x1B[31mERROR: UNKNOWN REGISTER \"%s\" AT LINE %d\x1B[0m\n", reg, line_index); // We didnt recognize the register
 				return 1;
 			}
@@ -243,7 +243,7 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 			printf("got immediate: | %s (%d)\n", imm, converted_imm);
 		}
 
-		printf("Final opcode:  | %012llx\n", decoded_instruction);
+		printf("Final opcode:  | %012llX\n", decoded_instruction);
 		imem[address] = decoded_instruction;
 		address++;
 		// fprintf(imem_file, "%012llx\n", decoded_instruction); // Write to machine code file
