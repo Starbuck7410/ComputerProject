@@ -8,15 +8,15 @@ time ./simulate imemin.txt dmemin.txt diskin.txt irq2in.txt dmemout.txt regout.t
 
 ## real optimized: 
 ### desktop:
-0m10.468s
-0m10.581s
-0m10.557s
-0m10.612s
-0m10.720s
+- 0m10.468s
+- 0m10.581s
+- 0m10.557s
+- 0m10.612s
+- 0m10.720s
 
 ## real unoptimized:
 ### desktop:
-2m46.349s
-2m47.435s
+- 2m46.349s
+- 2m47.435s
 
 HOLY FUCK
