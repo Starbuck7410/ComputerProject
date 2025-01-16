@@ -11,11 +11,7 @@ int fill_memarray_from_dmem();
 int dmemout();
 
 /* 
-	DANIEL:
-	Load dmemin.txt from argument to int array [4096] - DONE* (one strange non-warning).
-	implement lw sw - Done, need to test to make sure.
-	Output dmemout.txt from int array to argument - done and works.
-
+	
 	ZOHAR:
 	Cycles.txt, Trace.txt, Regout.txt output
 	Cycles and regout get updated only at the end, but trace gets updated at the TODO:ZOHAR tag
