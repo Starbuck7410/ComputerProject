@@ -19,7 +19,7 @@ long long pow_int(int a, int b) {
 }
 
 // like in the assembler, but returns long long
-long long hex_string_to_long_long(char number[]) { // You MUST pass the string WITHOUT the 0x
+long long hex_string_to_long_long(char number[], int len) { // You MUST pass the string WITHOUT the 0x
 	long long value = 0;
 	int i = 0;
 	int sign = 1;
@@ -27,15 +27,15 @@ long long hex_string_to_long_long(char number[]) { // You MUST pass the string W
 		sign = -1;
 		i++;
 	}
-	for (; i < strlen(number); i++) {
+	for (; i < len; i++) {
 		if ('0' <= number[i] && number[i] <= '9') {
-			value += (number[i] - '0') * sign * pow_int(16, (strlen(number) - i - 1));
+			value += (number[i] - '0') * sign * pow_int(16, (len - i - 1));
 		}
 		if ('a' <= number[i] && number[i] <= 'f') {
-			value += (number[i] - 'a' + 10) * sign * pow_int(16, (strlen(number) - i - 1));
+			value += (number[i] - 'a' + 10) * sign * pow_int(16, (len - i - 1));
 		}
 		if ('A' <= number[i] && number[i] <= 'F') {
-			value += (number[i] - 'A' + 10) * sign * pow_int(16, (strlen(number) - i - 1));
+			value += (number[i] - 'A' + 10) * sign * pow_int(16, (len - i - 1));
 		}
 	}
 	return value;
@@ -45,7 +45,7 @@ long long fetch(FILE* imemin_file, int PC) {
     char line[13];
 	fseek(imemin_file, PC * 13, SEEK_SET);
     if (fgets(line, 13, imemin_file) != NULL) {
-            return hex_string_to_long_long(line);  // Return the line as a long long if it matches the PC
+            return hex_string_to_long_long(line, 12);  // Return the line as a long long if it matches the PC
     }
 
 }

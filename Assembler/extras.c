@@ -31,6 +31,7 @@ int pow_int(int a, int b){ // Do i really have to explain this...?
 }
 
 int dec_string_to_int(char number[]){ // Decimal string to int
+	int len = strlen(number);
 	int value = 0;
 	int i = 0;
 	int sign = 1;
@@ -38,14 +39,15 @@ int dec_string_to_int(char number[]){ // Decimal string to int
 		sign = -1;
 		i++;
 	}
-	for (; i < strlen(number); i++){
-		value += (number[i] - '0') * sign * pow_int(10, (strlen(number) - i - 1));
+	for (; i < len; i++){
+		value += (number[i] - '0') * sign * pow_int(10, (len - i - 1));
 	}
 	return value;
 }
 
 
 int hex_string_to_int(char number[]){ // You MUST pass the string WITHOUT the 0x
+	int len = strlen(number);
 	int value = 0;
 	int i = 0;
 	int sign = 1;
@@ -53,15 +55,15 @@ int hex_string_to_int(char number[]){ // You MUST pass the string WITHOUT the 0x
 		sign = -1;
 		i++;
 	}
-	for (; i < strlen(number); i++){
+	for (; i < len; i++){
 		if ('0' <= number[i] && number[i] <= '9'){
-			value += (number[i] - '0') * sign * pow_int(16, (strlen(number) - i - 1));
+			value += (number[i] - '0') * sign * pow_int(16, (len - i - 1));
 		}
 		if ('a' <= number[i] && number[i] <= 'f'){
-			value += (number[i] - 'a' + 10) * sign * pow_int(16, (strlen(number) - i - 1));
+			value += (number[i] - 'a' + 10) * sign * pow_int(16, (len - i - 1));
 		}
 		if ('A' <= number[i] && number[i] <= 'F'){
-			value += (number[i] - 'A' + 10) * sign * pow_int(16, (strlen(number) - i - 1));
+			value += (number[i] - 'A' + 10) * sign * pow_int(16, (len - i - 1));
 		}
 	}
 	return value;

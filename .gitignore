@@ -1,7 +1,6 @@
 ﻿################################################################################
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
-
 /Simulator/x64/Debug
 /Simulator/Simulator/x64/Debug
 /Simulator/.vs/Simulator
@@ -20,3 +19,6 @@ Assembler/Assembler/Debug/Assembler.tlog/CL.command.1.tlog
 Assembler/Assembler/Debug/Assembler.tlog/unsuccessfulbuild
 a.exe
 dmemin.txt
+test
+
+dmemout.txt

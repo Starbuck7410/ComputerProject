@@ -6,9 +6,10 @@ int execute();
 int decode();
 long long fetch();
 int cycles = 0;
-int pc = 0;
 long long instruction;
 int fill_memarray_from_dmem();
+int dmemout();
+
 /* 
 	DANIEL:
 	Load dmemin.txt from argument to int array [4096] - DONE* (one strange non-warning).
@@ -22,11 +23,13 @@ int fill_memarray_from_dmem();
 */
 
 int main(int argc, char * argv[]) {
+	int pc = 0;
 
-	long long local_memory[4096];
+	int local_memory[4096];
 	//initialize local memory array
 	
 	fill_memarray_from_dmem(local_memory,argv[2]);
+	printf("DEBUG - Calculating fib %d\n", local_memory[64]);
 	//fills local memory from dmemin.txt
 	
 	FILE* mcode; //file pointer to imemin.txt
@@ -35,7 +38,7 @@ int main(int argc, char * argv[]) {
 	while(0 == 0){
 		instruction = fetch(mcode, pc);
 		
-		printf("instruction: %012llx\n", instruction);
+		printf("instruction: %012llX\n", instruction);
 		
 		int opcode, inst_regs[4], imm[2];
 		opcode = decode(instruction, inst_regs, imm);
@@ -53,14 +56,19 @@ int main(int argc, char * argv[]) {
 
 		// todo:zohar update the trace here
 
-		execute(opcode, &inst_regs, &imm, &registers, pc, local_memory);
+		if (execute(opcode, &inst_regs, &imm, &registers, &pc, &local_memory)){
+			printf("Error in execute\n");
+			return 1;
+		}
 		//printf("values in registers after operation: %d, %d, %d, %d\n", registers[inst_regs[0]], registers[inst_regs[1]], registers[inst_regs[2]], registers[inst_regs[3]]);
 		cycles++;
 		pc++;
 	}
 
+	printf("DEBUG - Fibonacci number %d: %d\n", local_memory[64], local_memory[65]);
 	fclose(mcode);
-	dmemout(local_memory,argv[5]);
+	mcode = NULL;
+	dmemout(local_memory, argv[5]);
 	return 0;
 }
 

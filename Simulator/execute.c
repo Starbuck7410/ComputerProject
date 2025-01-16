@@ -1,4 +1,5 @@
-int execute(int op_code, int * inst_regs, int * imms, int * registers, int PC, long long local_memory[]) { // returns 0 on success, will decide of error codes for other things
+#include <stdio.h>
+int execute(int op_code, int * inst_regs, int * imms, int * registers, int * P_PC, int * local_memory) { // returns 0 on success, will decide of error codes for other things
     for (int i = 0; i < 4; i++){
         if (inst_regs[i] == 1){
             registers[1] = imms[0];
@@ -41,45 +42,54 @@ int execute(int op_code, int * inst_regs, int * imms, int * registers, int PC, l
 
     if(op_code == 9){ // BEQ
         if(registers[inst_regs[1]] == registers[inst_regs[2]]){
-            PC = registers[inst_regs[3]] & 0xFFF;
+            *P_PC = (registers[inst_regs[3]] & 0xFFF) - 1;
         }
     }
     if(op_code == 10){ // BNE
         if(registers[inst_regs[1]] != registers[inst_regs[2]]){
-            PC = registers[inst_regs[3]] & 0xFFF;
+            *P_PC = (registers[inst_regs[3]] & 0xFFF) - 1;
         }
     }
     if(op_code == 11){ // BLT
         if(registers[inst_regs[1]] < registers[inst_regs[2]]){
-            PC = registers[inst_regs[3]] & 0xFFF;
+            *P_PC = (registers[inst_regs[3]] & 0xFFF) - 1;
         }
     }
     if(op_code == 12){ // BGT
         if(registers[inst_regs[1]] > registers[inst_regs[2]]){
-            PC = registers[inst_regs[3]] & 0xFFF;
+            *P_PC = (registers[inst_regs[3]] & 0xFFF) - 1;
         }
     }
     if(op_code == 13){ // BLE
         if(registers[inst_regs[1]] <= registers[inst_regs[2]]){
-            PC = registers[inst_regs[3]] & 0xFFF;
+            *P_PC = (registers[inst_regs[3]] & 0xFFF) - 1;
         }
     }
     if(op_code == 14){ // BGE
         if(registers[inst_regs[1]] >= registers[inst_regs[2]]){
-            PC = registers[inst_regs[3]] & 0xFFF;
+            *P_PC = (registers[inst_regs[3]] & 0xFFF) - 1;
         }
     }
     if(op_code == 15){ // JAL
-        registers[inst_regs[0]] = PC + 1;
-        PC = registers[inst_regs[3]] & 0xFFF;
+        printf("Jumping to address %d\n", (registers[inst_regs[3]] & 0xFFF));
+        printf("Returning to address %d\n", * P_PC + 1);
+        registers[inst_regs[0]] = * P_PC + 1;
+        *P_PC = (registers[inst_regs[3]] & 0xFFF) - 1;
     }
     //  -------------------------------- Memory --------------------------------
     if (op_code == 16){ // LW
         registers[inst_regs[0]] = local_memory[registers[inst_regs[1]] + registers[inst_regs[2]] + registers[inst_regs[3]]];
+        printf("Loaded value %d from address %d\n", registers[inst_regs[0]], registers[inst_regs[1]] + registers[inst_regs[2]] + registers[inst_regs[3]]);
     }
     if (op_code == 17) { // SW
-        local_memory[registers[inst_regs[1]] + registers[inst_regs[2]]] = registers[inst_regs[0]] + registers[inst_regs[3]];
+    int address = registers[inst_regs[1]] + registers[inst_regs[2]];
+        printf("Storing value %d at address %d\n", registers[inst_regs[0]], registers[inst_regs[1]] + registers[inst_regs[2]] + registers[inst_regs[3]]);
+        if(address >= 4095){
+            printf("Error: Address out of bounds\n");
+            return 1;
+        }
+        local_memory[address] = registers[inst_regs[0]] + registers[inst_regs[3]];
     }
     registers[0] = 0;
-
+    return 0;
 }

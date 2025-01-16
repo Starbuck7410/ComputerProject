@@ -2,9 +2,9 @@
 // it masks, shifts and places each value.
 
 int decode(long long input, int regs[], int imm[]) {
-	imm[1] = (input & 0xFFF);
+	imm[1] = (input & 0x7FF) - (input & 0x800);
 	input = (input >> 12);
-	imm[0] = (input & 0xFFF);
+	imm[0] = (input & 0x7FF) - (input & 0x800);
 	input = (input >> 12);
 	regs[3] = (input & 0xF);
 	input = (input >> 4);
