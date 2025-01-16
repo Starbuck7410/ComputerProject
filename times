@@ -1,10 +1,12 @@
 # calculating the 35th (0x023) fibonacci number
+(check optimize-fibonacci branch)
 
-time measured with: 
-``` time ./simulate imemin.txt dmemin.txt diskin.txt irq2in.txt dmemout.txt regout.txt trace.txt hwregtrace.txt cycles.txt leds.txt display7seg.txt diskout.txt monitor.txt
+### time measured with: 
+``` 
+time ./simulate imemin.txt dmemin.txt diskin.txt irq2in.txt dmemout.txt regout.txt trace.txt hwregtrace.txt cycles.txt leds.txt display7seg.txt diskout.txt monitor.txt
 ```
 
-## real optimized: (check optimize-fibonacci branch)
+## real optimized: 
 ### desktop:
 0m10.468s
 0m10.581s
@@ -15,5 +17,6 @@ time measured with:
 ## real unoptimized:
 ### desktop:
 2m46.349s
+2m47.435s
 
 HOLY FUCK
