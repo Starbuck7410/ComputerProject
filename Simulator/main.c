@@ -38,7 +38,7 @@ int main(int argc, char * argv[]) {
 	while(0 == 0){
 		instruction = fetch(mcode, pc);
 		
-		printf("instruction: %012llX\n", instruction);
+		// printf("instruction: %012llX\n", instruction);
 		
 		int opcode, inst_regs[4], imm[2];
 		opcode = decode(instruction, inst_regs, imm);
