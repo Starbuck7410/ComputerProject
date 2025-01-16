@@ -71,19 +71,19 @@ int execute(int op_code, int * inst_regs, int * imms, int * registers, int * P_P
         }
     }
     if(op_code == 15){ // JAL
-        printf("Jumping to address %d\n", (registers[inst_regs[3]] & 0xFFF));
-        printf("Returning to address %d\n", * P_PC + 1);
+        // printf("Jumping to address %d\n", (registers[inst_regs[3]] & 0xFFF));
+        // printf("Returning to address %d\n", * P_PC + 1);
         registers[inst_regs[0]] = * P_PC + 1;
         *P_PC = (registers[inst_regs[3]] & 0xFFF) - 1;
     }
     //  -------------------------------- Memory --------------------------------
     if (op_code == 16){ // LW
         registers[inst_regs[0]] = local_memory[registers[inst_regs[1]] + registers[inst_regs[2]] + registers[inst_regs[3]]];
-        printf("Loaded value %d from address %d\n", registers[inst_regs[0]], registers[inst_regs[1]] + registers[inst_regs[2]] + registers[inst_regs[3]]);
+        // printf("Loaded value %d from address %d\n", registers[inst_regs[0]], registers[inst_regs[1]] + registers[inst_regs[2]] + registers[inst_regs[3]]);
     }
     if (op_code == 17) { // SW
     int address = registers[inst_regs[1]] + registers[inst_regs[2]];
-        printf("Storing value %d at address %d\n", registers[inst_regs[0]], registers[inst_regs[1]] + registers[inst_regs[2]] + registers[inst_regs[3]]);
+        // printf("Storing value %d at address %d\n", registers[inst_regs[0]], registers[inst_regs[1]] + registers[inst_regs[2]] + registers[inst_regs[3]]);
         if(address >= 4095){
             printf("Error: Address out of bounds\n");
             return 1;

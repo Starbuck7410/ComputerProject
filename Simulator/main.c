@@ -7,7 +7,8 @@ int decode();
 long long fetch();
 int cycles = 0;
 long long instruction;
-int fill_memarray_from_dmem();
+int fill_int_array_from_file();
+int fill_long_array_from_file();
 int dmemout();
 
 /* 
@@ -26,9 +27,11 @@ int main(int argc, char * argv[]) {
 	int pc = 0;
 
 	int local_memory[4096];
+	long long instruction_memory[4096];
 	//initialize local memory array
 	
-	fill_memarray_from_dmem(local_memory,argv[2]);
+	fill_int_array_from_file(local_memory, argv[2]);
+	fill_long_array_from_file(instruction_memory, argv[1]);
 	printf("DEBUG - Calculating fib %d\n", local_memory[64]);
 	//fills local memory from dmemin.txt
 	
@@ -36,9 +39,10 @@ int main(int argc, char * argv[]) {
 	mcode = fopen(argv[1], "r"); //read and write
 
 	while(0 == 0){
-		instruction = fetch(mcode, pc);
+		// instruction = fetch(mcode, pc);
+		instruction = instruction_memory[pc];
 		
-		printf("instruction: %012llX\n", instruction);
+		// printf("instruction: %012llX\n", instruction);
 		
 		int opcode, inst_regs[4], imm[2];
 		opcode = decode(instruction, inst_regs, imm);

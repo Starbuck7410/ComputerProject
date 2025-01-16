@@ -209,7 +209,7 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 			start = get_component(line, reg, start);
 			// decode reg into decoded register here
 			decoded_reg = find_register(reg);
-			if (decoded_reg == 4294967295){
+			if ( (int) decoded_reg == -1){
 				printf("\x1B[31mERROR: UNKNOWN REGISTER \"%s\" AT LINE %d\x1B[0m\n", reg, line_index); // We didnt recognize the register
 				return 1;
 			}
