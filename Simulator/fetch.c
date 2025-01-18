@@ -19,7 +19,8 @@ long long pow_int(int a, int b) {
 }
 
 // like in the assembler, but returns long long
-long long hex_string_to_long_long(char number[], int len) { // You MUST pass the string WITHOUT the 0x
+long long hex_string_to_long_long(char number[], int len) 
+{ // You MUST pass the string WITHOUT the 0x
 	long long value = 0;
 	int i = 0;
 	int sign = 1;
@@ -41,11 +42,12 @@ long long hex_string_to_long_long(char number[], int len) { // You MUST pass the
 	return value;
 }
 
-long long fetch(FILE* imemin_file, int PC) {
+long long fetch(FILE* imemin_file, int PC) 
+{
     char line[13];
 	fseek(imemin_file, PC * 13, SEEK_SET);
-    if (fgets(line, 13, imemin_file) != NULL) {
-            return hex_string_to_long_long(line, 12);  // Return the line as a long long if it matches the PC
-    }
+	fgets(line, 13, imemin_file);
 
+	// Return the line as a long long if it matches the PC
+    return hex_string_to_long_long(line, 12);  
 }

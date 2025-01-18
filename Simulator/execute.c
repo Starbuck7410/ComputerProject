@@ -1,5 +1,8 @@
 #include <stdio.h>
-int execute(int op_code, int * inst_regs, int * imms, int * registers, int * P_PC, int * local_memory) { // returns 0 on success, will decide of error codes for other things
+int execute(int op_code, int* inst_regs, int* imms, int* registers, 
+    int* P_PC, int* local_memory) 
+{ 
+    // returns 0 on success, will decide of error codes for other things
     for (int i = 0; i < 4; i++){
         if (inst_regs[i] == 1){
             registers[1] = imms[0];

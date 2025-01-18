@@ -1,14 +1,13 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 
-int registers[16];
-int execute();
-int decode();
-long long fetch();
+int execute(int op_code, int* inst_regs, int* imms, int* registers, int* P_PC, int* local_memory);
+int decode(long long input, int regs[], int imm[]);
+long long fetch(FILE* imemin_file, int PC);
 int cycles = 0;
 long long instruction;
-int fill_memarray_from_dmem();
-int dmemout();
+int fill_memarray_from_dmem(int mem[], char* dmemin_file_path);
+int dmemout(int local_mem[], char* arg5);
 
 /* 
 	
@@ -17,10 +16,14 @@ int dmemout();
 	Cycles and regout get updated only at the end, but trace gets updated at the TODO:ZOHAR tag
 
 */
+void trace_out(FILE* trace_file, int PC, long long inst, int registers[]);
+
+#define HALT_OP 21
+#define MAX_PC 4096
 
 int main(int argc, char * argv[]) {
 	int pc = 0;
-
+	int registers[16] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
 	int local_memory[4096];
 	//initialize local memory array
 	
@@ -31,14 +34,19 @@ int main(int argc, char * argv[]) {
 	FILE* mcode; //file pointer to imemin.txt
 	mcode = fopen(argv[1], "r"); //read and write
 
-	while(0 == 0){
+	FILE* trace_file = fopen("trace.txt", "w");
+
+	while(1){
 		instruction = fetch(mcode, pc);
 		
 		// printf("instruction: %012llX\n", instruction);
 		
 		int opcode, inst_regs[4], imm[2];
 		opcode = decode(instruction, inst_regs, imm);
-		if (opcode == 21 || pc >= 4096){ // halt instruction
+
+		// halt instruction
+		if (opcode == HALT_OP || pc >= MAX_PC)
+		{ 
 			printf("halted!\n");
 			break;
 		}
@@ -50,9 +58,9 @@ int main(int argc, char * argv[]) {
 
 	//	printf("opcode is %d\nreg rd is %d\nreg rs is %d\nreg rt is %d\nreg rm is %d\nimmediate 1 is %d\nimmediate 2 is %d.\n", opcode, inst_regs[0], inst_regs[1], inst_regs[2], inst_regs[3], imm[0], imm[1]);
 
-		// todo:zohar update the trace here
+		trace_out(trace_file, pc, instruction, registers);
 
-		if (execute(opcode, &inst_regs, &imm, &registers, &pc, &local_memory)){
+		if (execute(opcode, inst_regs, imm, registers, &pc, local_memory)){
 			printf("Error in execute\n");
 			return 1;
 		}
@@ -63,6 +71,7 @@ int main(int argc, char * argv[]) {
 
 	printf("DEBUG - Fibonacci number %d: %d\n", local_memory[64], local_memory[65]);
 	fclose(mcode);
+	fclose(trace_file);
 	mcode = NULL;
 	dmemout(local_memory, argv[5]);
 	return 0;

@@ -1,5 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
+
 int dmemout(int local_mem[], char * arg5) {
 	FILE* dmemout;
 	dmemout = fopen(arg5, "w");
