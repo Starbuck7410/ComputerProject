@@ -72,22 +72,21 @@ int main(int argc, char * argv[]) {
 	}
 	
 	// writing into regout.txt
-	for (int i = 3; i < 15; i++)
+	for (int i = 3; i < 16; i++)
 	{
 		fprintf(regout_file, "%08x ", registers[i]);
 	}
-	fprintf(regout_file, "%08x\n", registers[15]);
 
 	// writing into cycles.txt
 	fprintf(cycles_file, "%d", cycles);
+
+	dmemout(local_memory, argv[5]);
 
 	printf("DEBUG - Fibonacci number %d: %d\n", local_memory[64], local_memory[65]);
 	fclose(mcode);
 	fclose(trace_file);
 	fclose(regout_file);
 	fclose(cycles_file);
-	mcode = NULL;
-	dmemout(local_memory, argv[5]);
 	return 0;
 }
 
