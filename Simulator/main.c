@@ -35,6 +35,8 @@ int main(int argc, char * argv[]) {
 	mcode = fopen(argv[1], "r"); //read and write
 
 	FILE* trace_file = fopen("trace.txt", "w");
+	FILE* regout_file = fopen("regout.txt", "w");
+	FILE* cycles_file = fopen("cycles.txt", "w");
 
 	while(1){
 		instruction = fetch(mcode, pc);
@@ -68,10 +70,22 @@ int main(int argc, char * argv[]) {
 		cycles++;
 		pc++;
 	}
+	
+	// writing into regout.txt
+	for (int i = 3; i < 15; i++)
+	{
+		fprintf(regout_file, "%08x ", registers[i]);
+	}
+	fprintf(regout_file, "%08x\n", registers[15]);
+
+	// writing into cycles.txt
+	fprintf(cycles_file, "%d", cycles);
 
 	printf("DEBUG - Fibonacci number %d: %d\n", local_memory[64], local_memory[65]);
 	fclose(mcode);
 	fclose(trace_file);
+	fclose(regout_file);
+	fclose(cycles_file);
 	mcode = NULL;
 	dmemout(local_memory, argv[5]);
 	return 0;
