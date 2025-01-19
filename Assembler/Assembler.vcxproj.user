@@ -3,6 +3,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerWorkingDirectory>.</LocalDebuggerWorkingDirectory>
-    <LocalDebuggerCommandArguments>..\test.asm ..\imemin.txt ..\dmemin.txt</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>..\Example\fib.asm ..\imemin.txt ..\dmemin.txt</LocalDebuggerCommandArguments>
   </PropertyGroup>
 </Project>

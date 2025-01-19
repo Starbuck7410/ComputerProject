@@ -8,10 +8,10 @@
 #define LINE_SIZE 250
 
 
-long find_instruction();
-long find_register();
-int eq_str();
-int pow_int();
+long long find_instruction();
+long long find_register();
+long long pow_int(int a, int b);
+int eq_str(char str1[], char str2[]);
 int dec_string_to_int();
 int hex_string_to_int();
 

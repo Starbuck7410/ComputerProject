@@ -33,6 +33,10 @@ int main(int argc, char * argv[]) {
 	
 	FILE* mcode; //file pointer to imemin.txt
 	mcode = fopen(argv[1], "r"); //read and write
+	if (mcode == NULL) {
+		perror("ERROR");
+		return 1;
+	}
 
 	FILE* trace_file = fopen("trace.txt", "w");
 	FILE* regout_file = fopen("regout.txt", "w");
@@ -41,7 +45,7 @@ int main(int argc, char * argv[]) {
 	while(1){
 		instruction = fetch(mcode, pc);
 		
-		// printf("instruction: %012llX\n", instruction);
+		 //printf("instruction: %012llX\n", instruction);
 		
 		int opcode, inst_regs[4], imm[2];
 		opcode = decode(instruction, inst_regs, imm);
@@ -58,7 +62,7 @@ int main(int argc, char * argv[]) {
 		// reg[0] = rd, reg[1] = rs, reg[2] = rt, reg[3] = rm
 		// imm[0] = immediate 1, imm[1] = immediate 2
 
-	//	printf("opcode is %d\nreg rd is %d\nreg rs is %d\nreg rt is %d\nreg rm is %d\nimmediate 1 is %d\nimmediate 2 is %d.\n", opcode, inst_regs[0], inst_regs[1], inst_regs[2], inst_regs[3], imm[0], imm[1]);
+		//printf("opcode is %d\nreg rd is %d\nreg rs is %d\nreg rt is %d\nreg rm is %d\nimmediate 1 is %d\nimmediate 2 is %d.\n", opcode, inst_regs[0], inst_regs[1], inst_regs[2], inst_regs[3], imm[0], imm[1]);
 
 		trace_out(trace_file, pc, instruction, registers);
 
