@@ -1,11 +1,10 @@
 ## Computer Stuff Project
 
 # Roles:
- - *Daniel*: Handle .word instructions
- - *Shraga*: Handle labels
- - *Shraga*: Handle hex numbers (0xNNNNNNN)
- - *Zohar*: Initialize memory files to 4096 zeroes
-- *Raz*: 
+ - *Daniel*: In file
+ - *Shraga*: In file
+ - *Zohar*: In file
+ - *Raz*: 
 <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/To-Be-Continued_Text_Logo_%28%C3%A0_suivre%29.png/1600px-To-Be-Continued_Text_Logo_%28%C3%A0_suivre%29.png" width="200">
 
 # Finished Tasks:

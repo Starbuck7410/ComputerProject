@@ -1,7 +1,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 
-int execute(int op_code, int* inst_regs, int* imms, int* registers, int* P_PC, int* local_memory);
+int execute(int op_code, int* inst_regs, int* imms, int* registers, int* P_PC, int* local_memory, unsigned int * io_registers);
 int decode(long long input, int regs[], int imm[]);
 long long fetch(FILE* imemin_file, int PC);
 int cycles = 0;
@@ -9,13 +9,7 @@ long long instruction;
 int fill_memarray_from_dmem(int mem[], char* dmemin_file_path);
 int dmemout(int local_mem[], char* arg5);
 
-/* 
-	
-	ZOHAR:
-	Cycles.txt, Trace.txt, Regout.txt output
-	Cycles and regout get updated only at the end, but trace gets updated at the TODO:ZOHAR tag
 
-*/
 void trace_out(FILE* trace_file, int PC, long long inst, int registers[]);
 
 #define HALT_OP 21
@@ -24,11 +18,11 @@ void trace_out(FILE* trace_file, int PC, long long inst, int registers[]);
 int main(int argc, char * argv[]) {
 	int pc = 0;
 	int registers[16] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
+	unsigned int io_registers[22];
+	unsigned char monitor[256 * 256];
 	int local_memory[4096];
 	//initialize local memory array
-	
 	fill_memarray_from_dmem(local_memory,argv[2]);
-	printf("DEBUG - Calculating fib %d\n", local_memory[64]);
 	//fills local memory from dmemin.txt
 	
 	FILE* mcode; //file pointer to imemin.txt
@@ -66,12 +60,28 @@ int main(int argc, char * argv[]) {
 
 		trace_out(trace_file, pc, instruction, registers);
 
-		if (execute(opcode, inst_regs, imm, registers, &pc, local_memory)){
+		// DANIEL:
+		// TODO Check monitorcmd
+		// execute_monitor(unsigned int * io_registers, unsigned char * monitor);
+		
+		// SHRAGA:
+		// TODO Check diskcmd
+		// execute_disk(unsigned int * io_registers, FILE * disk_file, int * local_memory, int * doom_counter)
+		// doom counter is the counter for the clock cycles since calling the diskcmd
+
+		// ZOHAR
+		// TODO Check Interrupts (irq = (irq0enable & irq0status) | (irq1enable & irq1status) | (irq2enable & irq2status))
+		// If / else with the execute
+		// execute_interrupt(unsigned int * io_registers, int * PC)
+
+		if (execute(opcode, inst_regs, imm, registers, &pc, local_memory, io_registers)){
 			printf("Error in execute\n");
 			return 1;
 		}
+
 		//printf("values in registers after operation: %d, %d, %d, %d\n", registers[inst_regs[0]], registers[inst_regs[1]], registers[inst_regs[2]], registers[inst_regs[3]]);
 		cycles++;
+		io_registers[8] = cycles;
 		pc++;
 	}
 	
@@ -86,7 +96,6 @@ int main(int argc, char * argv[]) {
 
 	dmemout(local_memory, argv[5]);
 
-	printf("DEBUG - Fibonacci number %d: %d\n", local_memory[64], local_memory[65]);
 	fclose(mcode);
 	fclose(trace_file);
 	fclose(regout_file);

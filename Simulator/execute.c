@@ -1,7 +1,8 @@
 #include <stdio.h>
 int execute(int op_code, int* inst_regs, int* imms, int* registers, 
-    int* P_PC, int* local_memory) 
-{ 
+    int* P_PC, int* local_memory, unsigned int* io_registers) 
+{   
+
     // returns 0 on success, will decide of error codes for other things
     for (int i = 0; i < 4; i++){
         if (inst_regs[i] == 1){
@@ -93,6 +94,9 @@ int execute(int op_code, int* inst_regs, int* imms, int* registers,
         }
         local_memory[address] = registers[inst_regs[0]] + registers[inst_regs[3]];
     }
+
+    // TODO handle in / out
+
     registers[0] = 0;
     return 0;
 }
