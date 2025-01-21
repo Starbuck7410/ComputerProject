@@ -10,7 +10,7 @@ int fill_memarray_from_dmem(int mem[], char* dmemin_file_path);
 int dmemout(int * local_mem, char* arg5);
 void execute_interrupt(unsigned int* io_registers, int* PC, int* in_isr);
 int execute_disk(unsigned int * io_registers, FILE * disk_file, int * local_memory);
-
+int monitor_out(char* arg13, char* arg14, unsigned char monitor[]);
 void trace_out(FILE* trace_file, int PC, long long inst, int registers[]);
 
 #define HALT_OP 21
@@ -19,13 +19,18 @@ void trace_out(FILE* trace_file, int PC, long long inst, int registers[]);
 int main(int argc, char * argv[]) {
 	int pc = 0;
 	int registers[16] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
-	unsigned int io_registers[22];
+	unsigned int io_registers[22] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,200,200,1 };
+	//The initial values of the local and hardware registers on reset are 0.
 	unsigned char monitor[256 * 256];
+
+	for (int k = 0; k < 256 * 256; k++) monitor[k] = 0;
+	//initialize monitor array and set to 0's.
+
 	int local_memory[4096];
 	int doom_counter = 0;
 	int in_isr = 0; //if in ISR then 1, else 0.
 	int irq = 0;
-	//initialize local memory array
+
 	fill_memarray_from_dmem(local_memory, argv[2]);
 	//fills local memory from dmemin.txt
 	
@@ -70,10 +75,12 @@ int main(int argc, char * argv[]) {
 
 		trace_out(trace_file, pc, instruction, registers);
 
-		// DANIEL:
-		// TODO Check monitorcmd
-		// execute_monitor(unsigned int * io_registers, unsigned char * monitor);
 		
+		if (io_registers[22] == 1) {
+			monitor[io_registers[20]] = io_registers[21];
+		}
+		//if monitor command is 1 write to monitor array, data from I/O to adress given by I/O.
+
 		// SHRAGA:
 		// TODO Check diskcmd
 		// execute_disk(unsigned int * io_registers, FILE * disk_file, int * local_memory)
@@ -125,7 +132,7 @@ int main(int argc, char * argv[]) {
 	fprintf(cycles_file, "%d", cycles);
 
 	dmemout(local_memory, argv[5]);
-
+	monitor_out(argv[13], argv[14], monitor); //13 - monitor.txt, 14 - monitor.yuv
 	fclose(mcode);
 	fclose(trace_file);
 	fclose(regout_file);
