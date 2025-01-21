@@ -94,8 +94,17 @@ int execute(int op_code, int* inst_regs, int* imms, int* registers,
         }
         local_memory[address] = registers[inst_regs[0]] + registers[inst_regs[3]];
     }
+    //  -------------------------------- I/0 --------------------------------
+    if (op_code == 18) { // reti
+        *P_PC = io_registers[7]-1;
+    }
+    if (op_code == 19) { // in
+        registers[inst_regs[0]] = io_registers[registers[inst_regs[1]] + registers[inst_regs[2]]];
+    }
+    if (op_code == 20) { // out
+        io_registers[registers[inst_regs[1]] + registers[inst_regs[2]]] = registers[inst_regs[3];
+    }
 
-    // TODO handle in / out
 
     registers[0] = 0;
     return 0;

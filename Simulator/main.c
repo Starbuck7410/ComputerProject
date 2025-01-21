@@ -8,6 +8,7 @@ int cycles = 0;
 long long instruction;
 int fill_memarray_from_dmem(int mem[], char* dmemin_file_path);
 int dmemout(int local_mem[], char* arg5);
+void execute_interrupt(unsigned int* io_registers, int* PC, int* in_isr);
 
 
 void trace_out(FILE* trace_file, int PC, long long inst, int registers[]);
@@ -21,6 +22,8 @@ int main(int argc, char * argv[]) {
 	unsigned int io_registers[22];
 	unsigned char monitor[256 * 256];
 	int local_memory[4096];
+	int in_isr = 0; //if in ISR then 1, else 0.
+	int irq = 0;
 	//initialize local memory array
 	fill_memarray_from_dmem(local_memory,argv[2]);
 	//fills local memory from dmemin.txt
@@ -72,7 +75,14 @@ int main(int argc, char * argv[]) {
 		// ZOHAR
 		// TODO Check Interrupts (irq = (irq0enable & irq0status) | (irq1enable & irq1status) | (irq2enable & irq2status))
 		// If / else with the execute
-		// execute_interrupt(unsigned int * io_registers, int * PC)
+		// execute_interrupt(unsigned int * io_registers, int * PC, int in_isr)
+		irq = (io_registers[0] & io_registers[3]) | (io_registers[1] & io_registers[4]) | (io_registers[2] & io_registers[5]);
+		if (irq == 1) {
+			execute_interrupt(io_registers, &pc, &in_isr);
+		}
+
+
+
 
 		if (execute(opcode, inst_regs, imm, registers, &pc, local_memory, io_registers)){
 			printf("Error in execute\n");
