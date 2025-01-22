@@ -1,6 +1,15 @@
 #include <stdio.h>
 #include <string.h>
 
+#ifdef _WIN32
+#define LINE_LEN 14
+#endif
+
+#ifdef __GNUC__
+#define LINE_LEN 13
+#endif
+
+
 // like in the assembler, but returns long long
 long long pow_int(int a, int b) { 
 	if (b == 0) {
@@ -46,7 +55,7 @@ long long fetch(FILE* imemin_file, int PC)
 {
 	// printf("PC = %d, char %d\n", PC, PC * 14);
 	char line[13];
-	fseek(imemin_file, PC * 13, SEEK_SET);
+	fseek(imemin_file, PC * LINE_LEN, SEEK_SET);
 	if (fgets(line, 13, imemin_file) != NULL) {
 		// printf("%s\n", line);
 		return hex_string_to_long_long(line, 12);  

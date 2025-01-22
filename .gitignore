@@ -25,3 +25,10 @@ dmemout.txt
 /Simulator/trace.txt
 /Simulator/Simulator.vcxproj
 /Simulator/Simulator.vcxproj.filters
+/cycles.txt
+/diskin.txt
+/irq2in.txt
+/monitor.txt
+/monitor.yuv
+/regout.txt
+/trace.txt

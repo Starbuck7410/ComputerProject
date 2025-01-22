@@ -130,6 +130,7 @@
     <ClCompile Include="decode.c" />
     <ClCompile Include="dmemout.c" />
     <ClCompile Include="execute.c" />
+    <ClCompile Include="execute_disk.c" />
     <ClCompile Include="execute_interrupt.c" />
     <ClCompile Include="fill_memarray_from_dmem.c" />
     <ClCompile Include="irq2_check.c" />
