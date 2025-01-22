@@ -32,3 +32,4 @@ dmemout.txt
 /monitor.yuv
 /regout.txt
 /trace.txt
+.vscode/settings.json

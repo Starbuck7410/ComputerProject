@@ -62,11 +62,24 @@ int main(int argc, char * argv[]) {
 
 	while(1){ // main run loop
 
+		// STAGE:  Interrupts
+		
+		// checks for Interrupt 2
+		irq2_check(irq2in_file, cycles, io_registers);
+		
+		// executing interrupts
+		irq = (io_registers[0] && io_registers[3]) || (io_registers[1] && io_registers[4]) || (io_registers[2] && io_registers[5]);
+		if (irq & !in_isr) {
+			io_registers[7] = pc;
+			pc = io_registers[6];
+			in_isr = 1;
+		}
+
+		// STAGE: Fetch
 		instruction = fetch(mcode, pc);
 		
-		//printf("instruction: %012llX\n", instruction);
 		
-
+		// STAGE: Decode
 		// takes long long, outputs int opcode, int[4] reg addresses, int[2] imm values
 		// changes their values in decode as such: 
 		// opcode is returned 
@@ -74,6 +87,7 @@ int main(int argc, char * argv[]) {
 		// imm[0] = immediate 1, imm[1] = immediate 2
 		int opcode, inst_regs[4], imm[2];
 		opcode = decode(instruction, inst_regs, imm);
+		// printf("DEBUG: INSTRUCTION - %012llX \n", instruction);
 
 		// halt instruction
 		if (opcode == HALT_OP || pc >= MAX_PC)
@@ -84,18 +98,9 @@ int main(int argc, char * argv[]) {
 
 		// STAGE: Traces
 		trace_out(trace_file, pc, instruction, registers);
+
 		// TODO - Daniel check if in/out and update hwregtrace file
 	
-		// STAGE:  Interrupts
-		
-		// checks for Interrupt 2
-		irq2_check(irq2in_file, pc, io_registers);
-		
-		// executing interrupts
-		irq = (io_registers[0] & io_registers[3]) | (io_registers[1] & io_registers[4]) | (io_registers[2] & io_registers[5]);
-		if (irq == 1) {
-			execute_interrupt(io_registers, &pc, &in_isr);
-		}
 
 
 		// STAGE:  Execute
@@ -147,7 +152,7 @@ int main(int argc, char * argv[]) {
 	fprintf(cycles_file, "%d", cycles);
 
 	dmemout(local_memory, argv[5]);
-	monitor_out(argv[13], argv[14], monitor); //13 - monitor.txt, 14 - monitor.yuv
+	// monitor_out(argv[13], argv[14], monitor); //13 - monitor.txt, 14 - monitor.yuv
 
 
 	fclose(leds_file);

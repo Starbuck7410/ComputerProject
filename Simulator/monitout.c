@@ -7,7 +7,7 @@ int monitor_out(char* arg13, char* arg14, unsigned char monitor[]) {
 
 	if (!monitxt) {
 		perror("Error opening .txt file");
-		return -1;
+		return 1;
 	}
 
 	for (int i = 0; i < 256 * 256; i++) {
@@ -21,7 +21,7 @@ int monitor_out(char* arg13, char* arg14, unsigned char monitor[]) {
 	monityuv = fopen(arg14, "wb");
 	if (!monityuv) {
 		perror("Error opening .yuv file");
-		return -1;
+		return 1;
 	}
 
 	for (int i = 0; i < 256 * 256; i++) {

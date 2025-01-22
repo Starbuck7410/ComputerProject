@@ -70,6 +70,7 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 		return 1;	
 	}
 
+	// TODO - Shraga dont just leave this here
 	// if(argc > 4){}
 	// 	dmem_file = fopen(argv[3], "w");
 	// 	if (asmb_file == NULL){
@@ -199,6 +200,7 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 				continue;
 		}
 		
+		// TODO - Shraga you know you want to finisht this feature
 		// if(eq_str(op_code, ".interrupt")){
 
 		// }
