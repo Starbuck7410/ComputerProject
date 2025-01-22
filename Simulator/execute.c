@@ -102,7 +102,7 @@ int execute(int op_code, int* inst_regs, int* imms, int* registers,
         registers[inst_regs[0]] = io_registers[registers[inst_regs[1]] + registers[inst_regs[2]]];
     }
     if (op_code == 20) { // out
-        io_registers[registers[inst_regs[1]] + registers[inst_regs[2]]] = registers[inst_regs[3];
+        io_registers[registers[inst_regs[1]] + registers[inst_regs[2]]] = registers[inst_regs[3]];
     }
 
 

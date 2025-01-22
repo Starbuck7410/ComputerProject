@@ -134,6 +134,7 @@
     <ClCompile Include="fill_memarray_from_dmem.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="fetch.c" />
+    <ClCompile Include="monitout.c" />
     <ClCompile Include="trace.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

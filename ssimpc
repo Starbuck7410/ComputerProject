@@ -1,9 +1,13 @@
 #!/bin/sh
 # ssimpc stands for shraga's simp compiler
-./assemble $1 imemin.txt dmemin.txt
+./assemble $1 test/imemin.txt test/dmemin.txt
 rc=$?
 if [ $rc -ne 0 ]; then
     echo "Error"
     exit 1
 fi
-./simulate imemin.txt dmemin.txt diskin.txt irq2in.txt dmemout.txt regout.txt trace.txt hwregtrace.txt cycles.txt leds.txt display7seg.txt diskout.txt monitor.txt monitor.yuv
+echo
+echo "$1 compiled successfully!"
+echo "Running simulator..."
+echo
+./simulate test/imemin.txt test/dmemin.txt test/diskin.txt test/irq2in.txt test/dmemout.txt test/regout.txt test/trace.txt test/hwregtrace.txt test/cycles.txt test/leds.txt test/display7seg.txt test/diskout.txt test/monitor.txt test/monitor.yuv

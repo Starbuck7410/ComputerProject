@@ -44,11 +44,11 @@ long long hex_string_to_long_long(char number[], int len)
 
 long long fetch(FILE* imemin_file, int PC) 
 {
-	printf("PC = %d, char %d\n", PC, PC * 14);
+	// printf("PC = %d, char %d\n", PC, PC * 14);
 	char line[13];
 	fseek(imemin_file, PC * 13, SEEK_SET);
 	if (fgets(line, 13, imemin_file) != NULL) {
-		printf("%s\n", line);
+		// printf("%s\n", line);
 		return hex_string_to_long_long(line, 12);  
 	}
 	return 0;
