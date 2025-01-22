@@ -63,7 +63,18 @@ int main(int argc, char * argv[]) {
 	while(1){ // main run loop
 
 		// STAGE:  Interrupts
-		
+
+		// Timer
+		if(io_registers[11]){
+			if (io_registers[12] - io_registers[13]) {
+				io_registers[3] = 0;
+				io_registers[12]++;
+			}else{
+				io_registers[3] = 1;
+				io_registers[12] = 0;
+			}
+		}
+
 		// checks for Interrupt 2
 		irq2_check(irq2in_file, cycles, io_registers);
 		
