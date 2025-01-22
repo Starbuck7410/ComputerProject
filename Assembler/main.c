@@ -70,6 +70,16 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 		return 1;	
 	}
 
+	// if(argc > 4){}
+	// 	dmem_file = fopen(argv[3], "w");
+	// 	if (asmb_file == NULL){
+	// 		printf("\x1B[31mFailed to create dmem file: %s\n", argv[1]);
+	// 		perror("");
+	// 		printf("\x1B[0m");
+	// 		return 1;	
+	// 	}
+	// }
+
 
 	char line [LINE_SIZE]; 
 	char labels [LABEL_COUNT][LABEL_SIZE]; // support for up to 250 labels
@@ -189,6 +199,9 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 				continue;
 		}
 		
+		// if(eq_str(op_code, ".interrupt")){
+
+		// }
 
 		if (op_code[strlen(op_code) - 1] == ':' || eq_str(op_code, "")){ // Check if it's not a label
 			continue;
