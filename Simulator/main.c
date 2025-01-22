@@ -12,6 +12,7 @@ void execute_interrupt(unsigned int* io_registers, int* PC, int* in_isr);
 int execute_disk(unsigned int * io_registers, FILE * disk_file, int * local_memory);
 int monitor_out(char* arg13, char* arg14, unsigned char monitor[]);
 void trace_out(FILE* trace_file, int PC, long long inst, int registers[]);
+void irq2_check(FILE* irq2in_file, int pc, int io_registers[]);
 
 #define HALT_OP 21
 #define MAX_PC 4096
@@ -45,6 +46,8 @@ int main(int argc, char * argv[]) {
 	FILE* trace_file = fopen(argv[7], "w");
 	FILE* cycles_file = fopen(argv[9], "w");
 	FILE* disk_in_file = fopen(argv[3], "r");
+	FILE* irq2in_file = fopen(argv[7], "r");
+
 	if (disk_in_file == NULL){
 		perror("ERROR ");
 		printf("Cant open file diskin. Crashing...");
@@ -97,11 +100,10 @@ int main(int argc, char * argv[]) {
 			}
 		}
 
-
-		// ZOHAR
-		// TODO Check Interrupts (irq = (irq0enable & irq0status) | (irq1enable & irq1status) | (irq2enable & irq2status))
-		// If / else with the execute
-		// execute_interrupt(unsigned int * io_registers, int * PC, int in_isr)
+		//checks for Interrupt 2
+		irq2_check(irq2in_file, pc, io_registers);
+		
+		
 		irq = (io_registers[0] & io_registers[3]) | (io_registers[1] & io_registers[4]) | (io_registers[2] & io_registers[5]);
 		if (irq == 1) {
 			execute_interrupt(io_registers, &pc, &in_isr);
@@ -137,6 +139,7 @@ int main(int argc, char * argv[]) {
 	fclose(trace_file);
 	fclose(regout_file);
 	fclose(cycles_file);
+	fclose(irq2in_file);
 	return 0;
 }
 

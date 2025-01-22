@@ -132,6 +132,7 @@
     <ClCompile Include="execute.c" />
     <ClCompile Include="execute_interrupt.c" />
     <ClCompile Include="fill_memarray_from_dmem.c" />
+    <ClCompile Include="irq2_check.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="fetch.c" />
     <ClCompile Include="monitout.c" />
