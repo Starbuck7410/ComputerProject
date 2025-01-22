@@ -23,3 +23,5 @@ test
 
 dmemout.txt
 /Simulator/trace.txt
+/Simulator/Simulator.vcxproj
+/Simulator/Simulator.vcxproj.filters

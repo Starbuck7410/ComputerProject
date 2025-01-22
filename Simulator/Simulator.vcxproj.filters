@@ -33,5 +33,11 @@
     <ClCompile Include="dmemout.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="trace.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="execute_interrupt.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
