@@ -1,6 +1,6 @@
 #!/bin/sh
 # ssimpc stands for shraga's simp compiler
-./assemble $1 test/imemin.txt test/dmemin.txt
+./assemble $1 test/imemin.txt test/dmemin.txt test/diskin.txt test/irq2in.txt
 rc=$?
 if [ $rc -ne 0 ]; then
     echo "Error"
