@@ -7,7 +7,7 @@ if [ $rc -ne 0 ]; then
     echo "Error"
     exit 1
 fi
-./a.out $1 $2 $3 $4 $5 $6 $7 $8 $9 ${10} ${11} ${12}
+./a.out $1 $2 $3 $4 $5 $6 $7 $8 $9 ${10} ${11} ${12} ${13} ${14}
 rc=$?
 echo
 echo Simulator: program returned $rc

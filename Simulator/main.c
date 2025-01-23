@@ -14,7 +14,7 @@ int execute_disk(unsigned int * io_registers, FILE * disk_file, int * local_memo
 int monitor_out(char* arg13, char* arg14, unsigned char monitor[]);
 void trace_out(FILE* trace_file, int PC, long long inst, int registers[]);
 void irq2_check(FILE* irq2in_file, int pc, int io_registers[]);
-int get_IO_reg_name(int regs_array[], char IOReg[]);
+int get_IO_reg_name(int regs_array[], int registers[], char IOReg[]);
 
 #define HALT_OP 21
 #define MAX_PC 4096
@@ -99,6 +99,8 @@ int main(int argc, char * argv[]) {
 		// imm[0] = immediate 1, imm[1] = immediate 2
 		int opcode, inst_regs[4], imm[2];
 		opcode = decode(instruction, inst_regs, imm);
+		registers[1] = imm[0];
+        registers[2] = imm[1];
 		// printf("DEBUG: INSTRUCTION - %012llX \n", instruction);
 
 		// halt instruction
@@ -115,15 +117,25 @@ int main(int argc, char * argv[]) {
 		
 		if ((opcode == 19) || (opcode == 20)) {
 			printf("Opcode is: %d\n", opcode);
-			get_IO_reg_name(inst_regs, IOReg_name);
+			get_IO_reg_name(inst_regs, registers, IOReg_name);
 			printf("Reg name is %s\n", IOReg_name);
 			fprintf(hwregtrace_file, "%d ", cycles);
 			printf("Cycles is %d\n", cycles);
-			if (opcode == 19) fprintf(hwregtrace_file, "READ ");// Read
-			else fprintf(hwregtrace_file, "Write ");// Write
+
+			if (opcode == 19){ 
+				fprintf(hwregtrace_file, "READ ");// Read
+			} else {
+				fprintf(hwregtrace_file, "WRITE ");// Write
+			}
+
 			fprintf(hwregtrace_file, "%s ", IOReg_name);
-			if (opcode == 19) fprintf(hwregtrace_file, "%08X\n", io_registers[inst_regs[1] + inst_regs[2]]); 
-			else { fprintf(hwregtrace_file, "%08X\n", registers[inst_regs[3]]);printf("Data is %d\n\n", registers[inst_regs[3]]); }
+
+			if (opcode == 19){
+				fprintf(hwregtrace_file, "%08X\n", io_registers[registers[inst_regs[1]] + registers[inst_regs[2]]]); 
+			} else { 
+				fprintf(hwregtrace_file, "%08X\n", registers[inst_regs[3]]);
+				printf("Data is %d\n\n", registers[inst_regs[3]]); 
+			}
 		}
 		// STAGE:  Execute
 		if (execute(opcode, inst_regs, imm, registers, &pc, local_memory, io_registers)){

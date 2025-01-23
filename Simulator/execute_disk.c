@@ -42,3 +42,8 @@ int execute_disk(unsigned int * io_registers, FILE * disk_file, int * local_memo
         return 0;
     }
 }
+
+// Note this
+// fseek(disk_in_file, 0L, SEEK_END);
+// disk_size = ftell(fp);
+// rewind(disk_in_file);

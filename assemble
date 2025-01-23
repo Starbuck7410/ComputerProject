@@ -6,4 +6,4 @@ if [ $rc -ne 0 ]; then
     echo "Error"
     exit 1
 fi
-./a.out $1 $2 $3
+./a.out $1 $2 $3 $4 $5

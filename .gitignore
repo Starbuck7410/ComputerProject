@@ -11,7 +11,8 @@
 /.vs
 a.out
 imemin.txt
-Assembler/Assembler/Debug/luts.obj
+Assembler/Assembler/*
+Assembler/Debug
 Assembler/Assembler/Debug/vc143.idb
 Assembler/Assembler/Debug/vc143.pdb
 Assembler/Assembler/Debug/Assembler.tlog/Assembler.lastbuildstate

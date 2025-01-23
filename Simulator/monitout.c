@@ -3,9 +3,8 @@
 #include <string.h>
 
 int monitor_out(char* arg13, char* arg14, unsigned char monitor[]) {
-	FILE* monitxt;
-	monitxt = fopen(arg13, "w");
-
+	FILE* monitxt = fopen(arg13, "w");
+	
 	if (!monitxt) {
 		perror("Error opening .txt file");
 		return 1;
@@ -18,8 +17,8 @@ int monitor_out(char* arg13, char* arg14, unsigned char monitor[]) {
 	monitxt = NULL;
 
 
-	FILE* monityuv;
-	monityuv = fopen(arg14, "wb");
+	FILE* monityuv = fopen(arg14, "wb");
+	
 	if (!monityuv) {
 		perror("Error opening .yuv file");
 		return 1;

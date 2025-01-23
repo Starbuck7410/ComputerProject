@@ -14,7 +14,7 @@ long long pow_int(int a, int b);
 int eq_str(char str1[], char str2[]);
 int dec_string_to_int();
 int hex_string_to_int();
-
+int text_to_int(char * text);
 
 
 
@@ -71,15 +71,26 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 	}
 
 	// TODO - Shraga dont just leave this here
-	// if(argc > 4){}
-	// 	dmem_file = fopen(argv[3], "w");
-	// 	if (asmb_file == NULL){
-	// 		printf("\x1B[31mFailed to create dmem file: %s\n", argv[1]);
-	// 		perror("");
-	// 		printf("\x1B[0m");
-	// 		return 1;	
-	// 	}
-	// }
+	FILE* disk_in_file;
+	FILE* irq2in_file;
+	int disk_size;
+	if(argc > 4){
+		disk_in_file = fopen(argv[4], "w");
+		irq2in_file = fopen(argv[5], "w");
+
+		if (disk_in_file == NULL){
+			printf("\x1B[31mFailed to create diskin file: %s\n", argv[1]);
+			perror("");
+			printf("\x1B[0m");
+			return 1;	
+		}
+		if (irq2in_file == NULL){
+			printf("\x1B[31mFailed to create irq2in file: %s\n", argv[1]);
+			perror("");
+			printf("\x1B[0m");
+			return 1;	
+		}
+	}
 
 
 	char line [LINE_SIZE]; 
@@ -93,7 +104,6 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 
 	int dmem[4096];
 	long long imem[4096];
-	int int_word_address, int_word_value;			//define int of address, int of data, array such that x[address] = data and assist vars
 	for (int i = 0; i < 4096; i++){
 		dmem[i] = 0;	// dmemin.txt gets initialized to 00000000\n * 4096
 		imem[i] = 0;	// imemin.txt gets initialized to 000000000000\n * 4096
@@ -176,34 +186,52 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 
 		// Handle .word instructions
 		if (eq_str(op_code, ".word")){
+			int int_word_address, int_word_value;									//define int of address, int of data, array such that x[address] = data and assist vars
 			printf("Instruction:   | \"%s\"\n", op_code);
-			char word_address[15], word_value[15];											//define string of address and string of data
+			char word_address[15], word_value[15];									//define string of address and string of data
 
 			start = get_component(line, word_address, start);
 			start = get_component(line, word_value, start);
 			
-			if (word_address[0] == '0' && word_address[1] == 'x')   {						//check if need to translate the string into dec or hex
-				int_word_address = hex_string_to_int(* (&(word_address) + 2));				//actual conversion
-			}else{
-				int_word_address = dec_string_to_int(word_address);
-			}
-				
-			if (word_value[0] == '0' && word_value[1] == 'x')   {							//check if need to translate the string into dec or hex
-				int_word_value = hex_string_to_int(* (&(word_value) + 2));					//actual conversion
-			}else{
-				int_word_value = dec_string_to_int(word_value);
-			}
+			int_word_address = text_to_int(word_address);						//convert string to int
+			int_word_value = text_to_int(word_value);							//convert string to int
 		               
-				dmem[int_word_address] = int_word_value;                                	 //dmem[address] = data
-				printf("Word address:  | %d\n", int_word_address);
-				printf("Word Value:    | %d\n", int_word_value);
-				continue;
+			dmem[int_word_address] = int_word_value;                                	 //dmem[address] = data
+			printf("Word address:  | %d\n", int_word_address);
+			printf("Word Value:    | %d\n", int_word_value);
+			continue;
 		}
 		
 		// TODO - Shraga you know you want to finisht this feature
-		// if(eq_str(op_code, ".interrupt")){
+		if(eq_str(op_code, ".interrupt")){
+			printf("Instruction:   | \"%s\"\n", op_code);
+			char interrupt_text[10];
+			start = get_component(line, interrupt_text, start);
+			int interrupt_value = text_to_int(interrupt_text);
+			printf("Interrupt:     | %d\n", interrupt_value);
+			fprintf(irq2in_file, "%d\n", interrupt_value);
+			continue;
+		}
 
-		// }
+		if(eq_str(op_code, ".disksector")){
+			printf("Instruction:   | \"%s\"\n", op_code);
+			char disk_sector_text[10];
+			start = get_component(line, disk_sector_text, start);
+			int disk_sector_value = text_to_int(disk_sector_text);	
+
+			printf("Disk Sector:   | %d\n", disk_sector_value);
+
+			char word_text[10];
+			int word_value;
+			for (int i = 0; i < 16; i++){ // 1 sector is 16 words
+				start = get_component(line, word_text, start);
+				word_value = text_to_int(word_text);
+				printf("Word %02d:       | %d\n", i, word_value);
+			}
+			continue;
+		}
+
+
 
 		if (op_code[strlen(op_code) - 1] == ':' || eq_str(op_code, "")){ // Check if it's not a label
 			continue;

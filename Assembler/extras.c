@@ -69,3 +69,12 @@ int hex_string_to_int(char number[]){ // You MUST pass the string WITHOUT the 0x
 	return value;
 }
 
+int text_to_int(char * text){
+	int value;
+	if (text[0] == '0' && text[1] == 'x')   {						//check if need to translate the string into dec or hex
+		value = hex_string_to_int(text + 2);				//actual conversion
+	}else{
+		value = dec_string_to_int(text);
+	}
+	return value;
+}
