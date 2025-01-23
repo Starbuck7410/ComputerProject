@@ -19,7 +19,9 @@ Assembler/Assembler/Debug/Assembler.tlog/CL.command.1.tlog
 Assembler/Assembler/Debug/Assembler.tlog/unsuccessfulbuild
 a.exe
 dmemin.txt
-test
+
+test/*
+!test/test.asm
 
 dmemout.txt
 /Simulator/trace.txt
