@@ -39,5 +39,17 @@
     <ClCompile Include="execute_interrupt.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="execute_disk.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="irq2_check.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="monitout.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="get_IO_reg_name.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

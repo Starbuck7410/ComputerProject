@@ -1,4 +1,6 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
+#include <string.h>
 int execute(int op_code, int* inst_regs, int* imms, int* registers, 
     int* P_PC, int* local_memory, unsigned int* io_registers) 
 {   

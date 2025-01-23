@@ -1,5 +1,6 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
-
+#include <string.h>
 void trace_out(FILE* trace_file, int PC, long long inst, int registers[])
 {
 	fprintf(trace_file, "%03x ", PC);

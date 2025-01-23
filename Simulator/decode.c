@@ -1,3 +1,6 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <string.h>
 //Takes long long, outputs int opcode, int[4] reg addresses, int[2] imm values
 // it masks, shifts and places each value.
 

@@ -1,5 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
+#include <string.h>
 
 int execute(int op_code, int* inst_regs, int* imms, int* registers, int* P_PC, int* local_memory, unsigned int * io_registers);
 int decode(long long input, int regs[], int imm[]);
@@ -13,6 +14,7 @@ int execute_disk(unsigned int * io_registers, FILE * disk_file, int * local_memo
 int monitor_out(char* arg13, char* arg14, unsigned char monitor[]);
 void trace_out(FILE* trace_file, int PC, long long inst, int registers[]);
 void irq2_check(FILE* irq2in_file, int pc, int io_registers[]);
+int get_IO_reg_name(int regs_array[], char IOReg[]);
 
 #define HALT_OP 21
 #define MAX_PC 4096
@@ -32,8 +34,7 @@ int main(int argc, char * argv[]) {
 	int doom_counter = 0;
 	int in_isr = 0; //if in ISR then 1, else 0.
 	int irq = 0;
-
-	
+	char IOReg_name[20];
 
 	FILE* mcode = fopen(argv[1], "r");
 	fill_memarray_from_dmem(local_memory, argv[2]); // fills local memory from dmemin.txt
@@ -111,9 +112,19 @@ int main(int argc, char * argv[]) {
 		trace_out(trace_file, pc, instruction, registers);
 
 		// TODO - Daniel check if in/out and update hwregtrace file
-	
-
-
+		
+		if ((opcode == 19) || (opcode == 20)) {
+			printf("Opcode is: %d\n", opcode);
+			get_IO_reg_name(inst_regs, IOReg_name);
+			printf("Reg name is %s\n", IOReg_name);
+			fprintf(hwregtrace_file, "%d ", cycles);
+			printf("Cycles is %d\n", cycles);
+			if (opcode == 19) fprintf(hwregtrace_file, "READ ");// Read
+			else fprintf(hwregtrace_file, "Write ");// Write
+			fprintf(hwregtrace_file, "%s ", IOReg_name);
+			if (opcode == 19) fprintf(hwregtrace_file, "%08X\n", io_registers[inst_regs[1] + inst_regs[2]]); 
+			else { fprintf(hwregtrace_file, "%08X\n", registers[inst_regs[3]]);printf("Data is %d\n\n", registers[inst_regs[3]]); }
+		}
 		// STAGE:  Execute
 		if (execute(opcode, inst_regs, imm, registers, &pc, local_memory, io_registers)){
 			printf("Error in execute\n");
@@ -163,7 +174,7 @@ int main(int argc, char * argv[]) {
 	fprintf(cycles_file, "%d", cycles);
 
 	dmemout(local_memory, argv[5]);
-	// monitor_out(argv[13], argv[14], monitor); //13 - monitor.txt, 14 - monitor.yuv
+	monitor_out(argv[13], argv[14], monitor); //13 - monitor.txt, 14 - monitor.yuv
 
 
 	fclose(leds_file);
@@ -172,6 +183,7 @@ int main(int argc, char * argv[]) {
 	fclose(regout_file);
 	fclose(cycles_file);
 	fclose(irq2in_file);
+	fclose(hwregtrace_file);
 	return 0;
 }
 

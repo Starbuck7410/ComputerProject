@@ -1,5 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
+#include <string.h>
 
 int monitor_out(char* arg13, char* arg14, unsigned char monitor[]) {
 	FILE* monitxt;
