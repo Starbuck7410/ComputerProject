@@ -134,7 +134,6 @@ int main(int argc, char * argv[]) {
 		// STAGE: Traces
 		trace_out(trace_file, pc, instruction, registers);
 
-		// TODO - Daniel check if in/out and update hwregtrace file
 		
 		if ((opcode == 19) || (opcode == 20)) {
 			printf("Opcode is: %d\n", opcode);
@@ -176,13 +175,14 @@ int main(int argc, char * argv[]) {
 			io_registers[22] = 0;
 		}
 
-
-		// TODO - SHRAGA Rewrite this garbage
-		// execute_disk(unsigned int * io_registers, FILE * disk_file, int * local_memory)
 		// doom counter is the counter for the clock cycles since calling the diskcmd
 		if (io_registers[14]) {
-			doom_counter = 1024; //TODO later put this in a check if execute disk succeeded
-			execute_disk(io_registers, disk_data, local_memory);
+			doom_counter = 1024; 
+			if(execute_disk(io_registers, disk_data, local_memory)){
+				error("Error in execute_disk\n");
+				return 1;
+			}
+
 		}
 		if (doom_counter) {
 			doom_counter--;
