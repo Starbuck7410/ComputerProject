@@ -2,26 +2,45 @@
 #include <stdio.h>
 #include <string.h>
 
+void print_help();
+void error(char * text);
+void warn(char * text);
+int eq_str(char str1[], char str2[]);
 int execute(int op_code, int* inst_regs, int* imms, int* registers, int* P_PC, int* local_memory, unsigned int * io_registers);
 int decode(long long input, int regs[], int imm[]);
 long long fetch(FILE* imemin_file, int PC);
-int cycles = 0;
-long long instruction;
 int fill_memarray_from_dmem(int mem[], char* dmemin_file_path);
 int dmemout(int * local_mem, char* arg5);
 void execute_interrupt(unsigned int* io_registers, int* PC, int* in_isr);
-int execute_disk(unsigned int * io_registers, FILE * disk_file, int * local_memory);
 int monitor_out(char* arg13, char* arg14, unsigned char monitor[]);
 void trace_out(FILE* trace_file, int PC, long long inst, int registers[]);
 void irq2_check(FILE* irq2in_file, int pc, int io_registers[]);
 int get_IO_reg_name(int regs_array[], int registers[], char IOReg[]);
+int execute_disk(unsigned int * io_registers, int * disk_file, int * local_memory);
+int* load_disk(FILE * disk_file);
+int save_disk(FILE * disk_file, int * disk_data);
 
 #define HALT_OP 21
 #define MAX_PC 4096
 
 int main(int argc, char * argv[]) {
-	int pc = 0;
+	
+	if(argc == 2 && (eq_str(argv[1], "-h") || eq_str(argv[1], "-H"))){
+		print_help();
+		return 0;
+	}
 
+	if(argc < 15){
+		error("Not enough arguments. Use the -h flag for more info.\n");
+		return 1;
+	}
+	if(argc > 15){
+		error("Too many arguments. Use the -h flag for more info.\n");
+		return 1;
+	}
+	int pc = 0;
+	int cycles = 0;
+	long long instruction;
 	// The initial values of the local and hardware registers on reset are 0.
 	int registers[16] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
 	unsigned int io_registers[23] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
@@ -57,9 +76,11 @@ int main(int argc, char * argv[]) {
 
 	if (disk_in_file == NULL){
 		perror("ERROR ");
-		printf("Cant open file diskin. Crashing...");
+		error("Cant open file diskin. Crashing...");
 		return 1;
 	}
+
+	int * disk_data = load_disk(disk_in_file);
 
 	while(1){ // main run loop
 
@@ -139,7 +160,7 @@ int main(int argc, char * argv[]) {
 		}
 		// STAGE:  Execute
 		if (execute(opcode, inst_regs, imm, registers, &pc, local_memory, io_registers)){
-			printf("Error in execute\n");
+			error("Error in execute\n");
 			return 1;
 		}
 		
@@ -161,12 +182,13 @@ int main(int argc, char * argv[]) {
 		// doom counter is the counter for the clock cycles since calling the diskcmd
 		if (io_registers[14]) {
 			doom_counter = 1024; //TODO later put this in a check if execute disk succeeded
-			execute_disk(io_registers, disk_in_file, local_memory);
+			execute_disk(io_registers, disk_data, local_memory);
 		}
 		if (doom_counter) {
 			doom_counter--;
 			if (!doom_counter) {
 				io_registers[17] = 0;
+				io_registers[3] = 1;
 				// raise the interrupt
 			}
 		}
@@ -188,7 +210,7 @@ int main(int argc, char * argv[]) {
 	dmemout(local_memory, argv[5]);
 	monitor_out(argv[13], argv[14], monitor); //13 - monitor.txt, 14 - monitor.yuv
 
-
+	save_disk(disk_out_file, disk_data);
 	fclose(leds_file);
 	fclose(mcode);
 	fclose(trace_file);

@@ -96,8 +96,8 @@ void warn(char * text){
 }
 
 void print_help(){
-	printf("NASS:\n");
-	printf("Nameless asssembler for SIMP Simulator (Name pending approval)\n");
+	printf("NASS Assembler:\n");
+	printf("Nameless asssembler & simulator for SIMP (Name pending approval)\n");
 	printf("Usage: ./assembler <program.asm> <imemin.txt> <dmemin.txt> [diskin.txt] [irq2in.txt]\n");
 	printf("You do not have to specify the last 2 arguments.\n");
 	printf("Specifying them enables our special \"Extra features mode\"\n");
