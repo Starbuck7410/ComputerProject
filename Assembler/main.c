@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #define LABEL_COUNT 250
 #define LABEL_SIZE 50
 #define LINE_SIZE 250
