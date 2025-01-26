@@ -6,7 +6,7 @@ void print_help();
 void error(char * text);
 void warn(char * text);
 int eq_str(char str1[], char str2[]);
-int execute(int op_code, int* inst_regs, int* imms, int* registers, int* P_PC, int* local_memory, unsigned int * io_registers);
+int execute(int op_code, int* inst_regs, int* imms, int* registers, int* P_PC, int* local_memory, unsigned int * io_registers, int * in_isr);
 int decode(long long input, int regs[], int imm[]);
 long long fetch(FILE* imemin_file, int PC);
 int fill_memarray_from_dmem(int mem[], char* dmemin_file_path);
@@ -51,6 +51,7 @@ int main(int argc, char * argv[]) {
 
 	int local_memory[4096];
 	int doom_counter = 0;
+	unsigned int temp_leds, temp_7seg; // temp variables to check if the leds or 7 seg changed
 	int in_isr = 0; //if in ISR then 1, else 0.
 	int irq = 0;
 	char IOReg_name[20];
@@ -84,29 +85,6 @@ int main(int argc, char * argv[]) {
 
 	while(1){ // main run loop
 
-		// STAGE:  Interrupts
-
-		// Timer
-		if(io_registers[11]){
-			if (io_registers[12] - io_registers[13]) {
-				io_registers[3] = 0;
-				io_registers[12]++;
-			}else{
-				io_registers[3] = 1;
-				io_registers[12] = 0;
-			}
-		}
-
-		// checks for Interrupt 2
-		irq2_check(irq2in_file, cycles, io_registers);
-		
-		// executing interrupts
-		irq = (io_registers[0] && io_registers[3]) || (io_registers[1] && io_registers[4]) || (io_registers[2] && io_registers[5]);
-		if (irq & !in_isr) {
-			io_registers[7] = pc;
-			pc = io_registers[6];
-			in_isr = 1;
-		}
 
 		// STAGE: Fetch
 		instruction = fetch(mcode, pc);
@@ -124,12 +102,7 @@ int main(int argc, char * argv[]) {
         registers[2] = imm[1];
 		// printf("DEBUG: INSTRUCTION - %012llX \n", instruction);
 
-		// halt instruction
-		if (opcode == HALT_OP || pc >= MAX_PC)
-		{ 
-			printf("halted!\n");
-			break;
-		}
+		
 
 		// STAGE: Traces
 		trace_out(trace_file, pc, instruction, registers);
@@ -158,17 +131,25 @@ int main(int argc, char * argv[]) {
 			}
 		}
 		// STAGE:  Execute
-		if (execute(opcode, inst_regs, imm, registers, &pc, local_memory, io_registers)){
+		if (execute(opcode, inst_regs, imm, registers, &pc, local_memory, io_registers, &in_isr)){
 			error("Error in execute\n");
 			return 1;
 		}
+
+		
 		
 		// STAGE:  I/O
 		
-		// TODO - Shraga:
-		// Write LEDs & 7segdisp
-		// surprise tool that will help you later: fprintf(leds_file, "%uX", io_registers[9]);
-		
+		if(temp_leds != io_registers[9]){
+			fprintf(leds_file, "%d %08x\n", cycles, io_registers[9]);
+		}
+		if(temp_7seg != io_registers[10]){
+			fprintf(disp7seg_file, "%d %08x\n", cycles, io_registers[10]);
+		}
+		temp_leds = io_registers[9];
+		temp_7seg = io_registers[10];
+
+
 		//if monitor command is 1 write to monitor array, data from I/O to adress given by I/O.
 		if (io_registers[22]) {
 			monitor[io_registers[20]] = io_registers[21];
@@ -193,15 +174,48 @@ int main(int argc, char * argv[]) {
 			}
 		}
 
+		// STAGE:  Interrupts
+
+		// Timer
+		if(io_registers[11]){
+			if (io_registers[12] - io_registers[13]) {
+				io_registers[3] = 0;
+				io_registers[12]++;
+			}else{
+				io_registers[3] = 1;
+				io_registers[12] = 0;
+			}
+		}
+
+		// checks for Interrupt 2
+		irq2_check(irq2in_file, cycles, io_registers);
+		
+		// executing interrupts
+		irq = (io_registers[0] && io_registers[3]) || (io_registers[1] && io_registers[4]) || (io_registers[2] && io_registers[5]);
+		if (irq){
+			printf("DEBUG - Are we in the ISR? %d\n", in_isr);
+		}
+		if (irq & !in_isr) {
+			io_registers[7] = pc + 1;
+			pc = io_registers[6] - 1;
+			in_isr = 1;
+		}
+
 		cycles++;
 		io_registers[8] = cycles;
+		// halt instruction
+		if (opcode == HALT_OP || pc >= MAX_PC)
+		{ 
+			printf("halted!\n");
+			break;
+		}
 		pc++;
 	}
 	
 	// writing into regout.txt
 	for (int i = 3; i < 16; i++)
 	{
-		fprintf(regout_file, "%08x ", registers[i]);
+		fprintf(regout_file, "%08X\n", registers[i]);
 	}
 
 	// writing into cycles.txt
@@ -211,6 +225,7 @@ int main(int argc, char * argv[]) {
 	monitor_out(argv[13], argv[14], monitor); //13 - monitor.txt, 14 - monitor.yuv
 
 	save_disk(disk_out_file, disk_data);
+	fclose(disp7seg_file);
 	fclose(leds_file);
 	fclose(mcode);
 	fclose(trace_file);

@@ -1,6 +1,10 @@
 #!/bin/sh
-if [ $1 = "-h" ]; then
-    echo "Usage: ./nass <file>"
+if [[ $1 = "" ]]; then
+    ./assemble
+    exit 1
+fi
+if [[ $1 = "-h" ]]; then
+    echo "Usage: ./nass <file.asm>"
     exit 0
 fi
 ./assemble $1 test/imemin.txt test/dmemin.txt test/diskin.txt test/irq2in.txt

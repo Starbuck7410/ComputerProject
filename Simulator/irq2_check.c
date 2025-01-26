@@ -14,7 +14,8 @@ void irq2_check(FILE* irq2in_file, int cycles, int io_registers[])
 	while (fscanf(irq2in_file, "%[^\n]\n", line) != EOF) {
 		line_number = dec_string_to_int(line);
 		if (line_number == cycles) {
-			io_registers[5] = 1;//irq2status=1
+			io_registers[5] = 1; //irq2status=1
+			return;
 		}
 	}
 }

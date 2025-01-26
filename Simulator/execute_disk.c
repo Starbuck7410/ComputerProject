@@ -18,6 +18,7 @@ int* load_disk(FILE * disk_file){
         disk_data[i] = 0;
         i++;
     }
+    fclose(disk_file);
     return disk_data;
 }
 

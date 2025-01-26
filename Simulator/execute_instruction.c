@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 int execute(int op_code, int* inst_regs, int* imms, int* registers, 
-    int* P_PC, int* local_memory, unsigned int* io_registers) 
+    int* P_PC, int* local_memory, unsigned int* io_registers, int * in_isr) 
 {   
 
     // returns 0 on success, will decide of error codes for other things
@@ -91,6 +91,7 @@ int execute(int op_code, int* inst_regs, int* imms, int* registers,
     //  -------------------------------- I/0 --------------------------------
     if (op_code == 18) { // reti
         *P_PC = io_registers[7] - 1;
+        *in_isr = 0;
     }
     if (op_code == 19) { // in
         registers[inst_regs[0]] = io_registers[registers[inst_regs[1]] + registers[inst_regs[2]]];

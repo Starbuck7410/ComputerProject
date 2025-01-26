@@ -2,7 +2,6 @@
 	sll $sp, $imm1, $imm2, $zero, 1, 11		# set $sp = 1 << 11 = 2048
 	out $zero, $imm1, $zero, $imm2, 6, L3		# set irqhandler as L3
 	lw $a0, $zero, $imm2, $zero, 0, 64		# get x from address 64
-	# halt $zero, $zero, $zero, $zero, 0, 0		# halt
 	jal $ra, $zero, $zero, $imm2, 0, fib		# calc $v0 = fib(x)
 	sw $zero, $zero, $imm2, $v0, 0, 65		# store fib(x) in 65
 	halt $zero, $zero, $zero, $zero, 0, 0		# halt
@@ -11,7 +10,6 @@ fib:
 	sw $zero, $sp, $imm2, $s0, 0, 2			# save $s0
 	sw $zero, $sp, $imm2, $ra, 0, 1			# save return address
 	sw $zero, $sp, $imm2, $a0, 0, 0			# save argument
-	# halt $zero, $zero, $zero, $zero, 0, 0		# halt 
 	bgt $zero, $a0, $imm1, $imm2, 1, L1		# jump to L1 if x > 1
 	add $v0, $a0, $zero, $zero, 0, 0		# otherwise, fib(x) = x, copy input
 	beq $zero, $zero, $zero, $imm2, 0, L2		# jump to L2
@@ -45,4 +43,4 @@ L3:
 	out $zero, $zero, $imm2, $t1, 0, 20		# update address
 	out $zero, $zero, $imm2, $zero, 0, 5		# clear irq2 status
 	reti $zero, $zero, $zero, $zero, 0, 0		# return from interrupt
-	.word 64 20
+	.word 64 7
