@@ -1,5 +1,4 @@
 #define _CRT_SECURE_NO_WARNINGS
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -7,9 +6,6 @@
 #define LABEL_COUNT 250
 #define LABEL_SIZE 50
 #define LINE_SIZE 250
-
-
-
 
 
 int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.txt, argv[3] = dmemin.txt

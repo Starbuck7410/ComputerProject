@@ -69,11 +69,11 @@ int main(int argc, char * argv[]) {
 	while(1){ // main run loop
 
 
-		// STAGE: Fetch
+		// ------- STAGE: Fetch -------
 		instruction = fetch(mcode, pc);
 		
 		
-		// STAGE: Decode
+		// ------- STAGE: Decode -------
 		// takes long long, outputs int opcode, int[4] reg addresses, int[2] imm values
 		// changes their values in decode as such: 
 		// opcode is returned 
@@ -87,7 +87,7 @@ int main(int argc, char * argv[]) {
 
 		
 
-		// STAGE: Traces
+		// ------- STAGE: Traces -------
 		trace_out(trace_file, pc, instruction, registers);
 
 		
@@ -108,15 +108,14 @@ int main(int argc, char * argv[]) {
 				fprintf(hwregtrace_file, "%08X\n", registers[inst_regs[3]]);
 			}
 		}
-		// STAGE:  Execute
+		// ------- STAGE: Execute -------
 		if (execute(opcode, inst_regs, imm, registers, &pc, local_memory, io_registers, &in_isr)){
 			error("Error in execute\n");
 			return 1;
 		}
 
 		
-		
-		// STAGE:  I/O
+		// ------- STAGE: I/O -------
 		
 		if(temp_leds != io_registers[9]){
 			fprintf(leds_file, "%d %08x\n", cycles, io_registers[9]);
@@ -152,7 +151,7 @@ int main(int argc, char * argv[]) {
 			}
 		}
 
-		// STAGE:  Interrupts
+		// ------- STAGE: Interrupts -------
 
 		// Timer
 		if(io_registers[11]){
@@ -210,7 +209,4 @@ int main(int argc, char * argv[]) {
 	fclose(hwregtrace_file);
 	return 0;
 }
-
-
-
 
