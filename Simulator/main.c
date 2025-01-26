@@ -1,24 +1,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <string.h>
-
-void print_help();
-void error(char * text);
-void warn(char * text);
-int eq_str(char str1[], char str2[]);
-int execute(int op_code, int* inst_regs, int* imms, int* registers, int* P_PC, int* local_memory, unsigned int * io_registers, int * in_isr);
-int decode(long long input, int regs[], int imm[]);
-long long fetch(FILE* imemin_file, int PC);
-int fill_memarray_from_dmem(int mem[], char* dmemin_file_path);
-int dmemout(int * local_mem, char* arg5);
-void execute_interrupt(unsigned int* io_registers, int* PC, int* in_isr);
-int monitor_out(char* arg13, char* arg14, unsigned char monitor[]);
-void trace_out(FILE* trace_file, int PC, long long inst, int registers[]);
-void irq2_check(FILE* irq2in_file, int pc, int io_registers[]);
-int get_IO_reg_name(int regs_array[], int registers[], char IOReg[]);
-int execute_disk(unsigned int * io_registers, int * disk_file, int * local_memory);
-int* load_disk(FILE * disk_file);
-int save_disk(FILE * disk_file, int * disk_data);
+#include "functions.h"
 
 #define HALT_OP 21
 #define MAX_PC 4096
@@ -57,7 +40,7 @@ int main(int argc, char * argv[]) {
 	char IOReg_name[20];
 
 	FILE* mcode = fopen(argv[1], "r");
-	fill_memarray_from_dmem(local_memory, argv[2]); // fills local memory from dmemin.txt
+	fill_llarray_from_file(local_memory, argv[2]); // fills local memory from dmemin.txt
 	FILE* disk_in_file = fopen(argv[3], "r");
 	FILE* irq2in_file = fopen(argv[4], "r");
 	// dmemout 5 handled in its own function
@@ -109,12 +92,8 @@ int main(int argc, char * argv[]) {
 
 		
 		if ((opcode == 19) || (opcode == 20)) {
-			printf("Opcode is: %d\n", opcode);
 			get_IO_reg_name(inst_regs, registers, IOReg_name);
-			printf("Reg name is %s\n", IOReg_name);
 			fprintf(hwregtrace_file, "%d ", cycles);
-			printf("Cycles is %d\n", cycles);
-
 			if (opcode == 19){ 
 				fprintf(hwregtrace_file, "READ ");// Read
 			} else {
@@ -127,7 +106,6 @@ int main(int argc, char * argv[]) {
 				fprintf(hwregtrace_file, "%08X\n", io_registers[registers[inst_regs[1]] + registers[inst_regs[2]]]); 
 			} else { 
 				fprintf(hwregtrace_file, "%08X\n", registers[inst_regs[3]]);
-				printf("Data is %d\n\n", registers[inst_regs[3]]); 
 			}
 		}
 		// STAGE:  Execute
@@ -192,9 +170,6 @@ int main(int argc, char * argv[]) {
 		
 		// executing interrupts
 		irq = (io_registers[0] && io_registers[3]) || (io_registers[1] && io_registers[4]) || (io_registers[2] && io_registers[5]);
-		if (irq){
-			printf("DEBUG - Are we in the ISR? %d\n", in_isr);
-		}
 		if (irq & !in_isr) {
 			io_registers[7] = pc + 1;
 			pc = io_registers[6] - 1;
@@ -206,7 +181,7 @@ int main(int argc, char * argv[]) {
 		// halt instruction
 		if (opcode == HALT_OP || pc >= MAX_PC)
 		{ 
-			printf("halted!\n");
+			printf("Halted successfully!\n");
 			break;
 		}
 		pc++;

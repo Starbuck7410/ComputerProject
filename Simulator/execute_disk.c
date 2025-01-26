@@ -35,7 +35,7 @@ int execute_disk(unsigned int * io_registers, int * disk_data, int * local_memor
         return 1;
     }
     if (* disk_cmd == 1){
-        printf("Reading sector %d from disk to bufffer at %d\n", *disk_sector, *disk_buffer);
+        // printf("Reading sector %d from disk to bufffer at %d\n", *disk_sector, *disk_buffer);
 
         for (int i = 0; i < 16; i++){
             // printf("%s (%d) -> %d\n", line, (int) hex_string_to_long_long(line, 8), (* disk_buffer)+i);
@@ -46,7 +46,7 @@ int execute_disk(unsigned int * io_registers, int * disk_data, int * local_memor
         return 0;
     }
     if (* disk_cmd == 2){
-        printf("Writing sector %d to disk from bufffer at %d\n", *disk_sector, *disk_buffer);
+        // printf("Writing sector %d to disk from bufffer at %d\n", *disk_sector, *disk_buffer);
         for (int i = 0; i < 16; i++){
             // printf("%s (%d) -> %d\n", line, (int) hex_string_to_long_long(line, 8), (* disk_buffer)+i);
             disk_data[(* disk_sector) * 16 + i] = local_memory[(* disk_buffer) + i];

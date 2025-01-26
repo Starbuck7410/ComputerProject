@@ -3,7 +3,7 @@
 #include <string.h>
 long long hex_string_to_long_long(char number[], int len);
 
-int fill_memarray_from_dmem(int mem[], char* dmemin_file_path) {
+int fill_llarray_from_file(int mem[], char* dmemin_file_path) {
 	int i = 0;
 	char data[9];
 	FILE* dmem; //file pointer to dmemin.txt
@@ -16,3 +16,21 @@ int fill_memarray_from_dmem(int mem[], char* dmemin_file_path) {
 	dmem = NULL;
 	return 0;
 }
+
+int dmemout(int * local_mem, char * arg5) {
+	FILE* dmemout;
+	dmemout = fopen(arg5, "w");
+	if(dmemout == NULL){
+		perror("Failed to open file");
+		return 1;
+	}
+	for (int i = 0; i < 4096; i++) {
+		fprintf(dmemout, "%08lX\n", local_mem[i]);
+	}
+	fclose(dmemout);
+	dmemout = NULL;
+	return 0;
+}
+
+
+

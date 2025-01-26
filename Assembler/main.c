@@ -3,22 +3,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "functions.h"
 #define LABEL_COUNT 250
 #define LABEL_SIZE 50
 #define LINE_SIZE 250
 
 
-long long find_instruction();
-long long find_register();
-long long pow_int(int a, int b);
-int eq_str(char str1[], char str2[]);
-int dec_string_to_int();
-int hex_string_to_int();
-int str_to_int(char * text);
-void error(char * text);
-void warn(char * text);
-void print_help();
-long long get_component(char * line, char * component, int start);
 
 
 
@@ -38,8 +28,8 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 	}
 
 	FILE *asmb_file; //file pointer to program.asm
-	FILE *imem_file;//file pointer to imemin.txt
-	FILE *dmem_file;//file pointer to dmemin.txt 
+	FILE *imem_file; //file pointer to imemin.txt
+	FILE *dmem_file; //file pointer to dmemin.txt 
 	asmb_file = fopen(argv[1], "r");// only for read
 	if (asmb_file == NULL){
 		error("Failed to create assembly file: ");
@@ -177,7 +167,7 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 		// Handle .word instructions
 		if (eq_str(op_code, ".word")){
 			int int_word_address, int_word_value;									//define int of address, int of data, array such that x[address] = data and assist vars
-			printf("Instruction:   | \"%s\"\n", op_code);
+			// printf("Instruction:   | \"%s\"\n", op_code);
 			char word_address[15], word_value[15];									//define string of address and string of data
 
 			start = get_component(line, word_address, start);
@@ -196,7 +186,7 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 		// TODO - Shraga you know you want to finisht this feature
 		if(eq_str(op_code, ".interrupt")){
 			if(argc > 4){
-				printf("Instruction:   | \"%s\"\n", op_code);
+				// printf("Instruction:   | \"%s\"\n", op_code);
 				char interrupt_text[10];
 				start = get_component(line, interrupt_text, start);
 				
@@ -211,7 +201,7 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 
 		if(eq_str(op_code, ".disksector")){
 			if(argc > 4){
-				printf("Instruction:   | \"%s\"\n", op_code);
+				// printf("Instruction:   | \"%s\"\n", op_code);
 				char disk_sector_text[10];
 				start = get_component(line, disk_sector_text, start);
 				
@@ -231,7 +221,7 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 				for (int i = 0; i < 16; i++){ // 1 sector is 16 words
 					start = get_component(line, word_text, start);
 					word_value = str_to_int(word_text);
-					printf("Word %02d:       | %d\n", i, word_value);
+					// printf("Word %02d:       | %d\n", i, word_value);
 					disk[disk_sector_value * 16 + i] = word_value;
 				}
 			} else {
@@ -247,7 +237,7 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 			continue;
 		}
 
-		printf("Instruction:   | \"%s\"\n", op_code);
+		// printf("Instruction:   | \"%s\"\n", op_code);
 		converted_instruction = find_instruction(op_code);
 		if (converted_instruction == -1){
 			printf("\x1B[31mERROR: UNDEFINED INSTRUCTION \"%s\" FOUND AT LINE: %d\x1B[0m\n", op_code, line_index); // We didnt recognize the instruction
@@ -267,7 +257,7 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 				printf("\x1B[31mERROR: UNKNOWN REGISTER \"%s\" AT LINE %d\x1B[0m\n", reg, line_index); // We didnt recognize the register
 				return 1;
 			}
-			printf("got Register:  | %s (%lld)\n", reg, decoded_reg);
+			// printf("Register:  | %s (%lld)\n", reg, decoded_reg);
 			decoded_instruction += (decoded_reg & 0xF) << (24 + 4*(3-i));
 		}
 
@@ -294,7 +284,7 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 			}
 				decoded_instruction += (converted_imm & 0xFFF) << (12*(1-i)); // turn immediate from string to number
 			
-			printf("got immediate: | %s (%d)\n", imm, converted_imm);
+			// printf("got immediate: | %s (%d)\n", imm, converted_imm);
 		}
 
 		printf("Final opcode:  | %012llX\n", decoded_instruction);

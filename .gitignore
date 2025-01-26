@@ -10,7 +10,7 @@
 /Assembler/.vs/Assembler/FileContentIndex
 /.vs
 a.out
-imemin.txt
+
 Assembler/Assembler/*
 Assembler/Debug
 Assembler/Assembler/Debug/vc143.idb
@@ -19,12 +19,9 @@ Assembler/Assembler/Debug/Assembler.tlog/Assembler.lastbuildstate
 Assembler/Assembler/Debug/Assembler.tlog/CL.command.1.tlog
 Assembler/Assembler/Debug/Assembler.tlog/unsuccessfulbuild
 a.exe
-dmemin.txt
 
-test/*
-!test/test.asm
 
-dmemout.txt
+
 /Simulator/trace.txt
 /Simulator/Simulator.vcxproj
 /Simulator/Simulator.vcxproj.filters

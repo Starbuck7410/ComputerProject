@@ -1,4 +1,6 @@
 #!/bin/sh
+wd=$(dirname $1)
+echo
 if [[ $1 = "" ]]; then
     ./assemble
     exit 1
@@ -7,14 +9,20 @@ if [[ $1 = "-h" ]]; then
     echo "Usage: ./nass <file.asm>"
     exit 0
 fi
-./assemble $1 test/imemin.txt test/dmemin.txt test/diskin.txt test/irq2in.txt
-rc=$?
-if [ $rc -ne 0 ]; then
-    echo "Error"
+mkdir "$(echo $wd)"/build
+mkdir "$(echo $wd)"/run 
+./assemble "$1" "$(echo $wd)/build/imemin.txt" "$(echo $wd)/build/dmemin.txt" "$(echo $wd)/build/diskin.txt" "$(echo $wd)/build/irq2in.txt"
+if [ $? -ne 0 ]; then
     exit 1
 fi
 echo
-echo "$1 compiled successfully!"
+echo "Program $1 compiled successfully!"
 echo "Running simulator..."
 echo
-./simulate test/imemin.txt test/dmemin.txt test/diskin.txt test/irq2in.txt test/dmemout.txt test/regout.txt test/trace.txt test/hwregtrace.txt test/cycles.txt test/leds.txt test/display7seg.txt test/diskout.txt test/monitor.txt test/monitor.yuv
+./simulate "$(echo $wd)/build/imemin.txt" "$(echo $wd)/build/dmemin.txt" "$(echo $wd)/build/diskin.txt" "$(echo $wd)/build/irq2in.txt" "$(echo $wd)/run/dmemout.txt" "$(echo $wd)/run/regout.txt" "$(echo $wd)/run/trace.txt" "$(echo $wd)/run/hwregtrace.txt" "$(echo $wd)/run/cycles.txt" "$(echo $wd)/run/leds.txt" "$(echo $wd)/run/display7seg.txt" "$(echo $wd)/run/diskout.txt" "$(echo $wd)/run/monitor.txt" "$(echo $wd)/run/monitor.yuv"
+if [ $? -eq 0 ]; then
+    echo "Simulation finished successfully!"
+    exit 0
+else
+    exit 1
+fi
