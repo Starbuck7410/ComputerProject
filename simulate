@@ -4,12 +4,12 @@
 gcc Simulator/*.c
 rc=$?
 if [ $rc -ne 0 ]; then
-    echo "Error building simulator"
+    echo "Error building simulator" 1>&2
     exit 1
 fi
 ./a.out $1 $2 $3 $4 $5 $6 $7 $8 $9 ${10} ${11} ${12} ${13} ${14}
 rc=$?
 if [ $rc -ne 0 ]; then
-    echo "Simulation finished with errors"
+    echo "Simulation finished with errors" 1>&2
     exit 1
 fi

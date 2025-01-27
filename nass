@@ -6,11 +6,32 @@ if [[ $1 = "" ]]; then
     exit 1
 fi
 if [[ $1 = "-h" ]]; then
-    echo "Usage: ./nass <file.asm>"
+    echo "Usage: ./nass <file.asm>        | Assemble and simulate the given file"
+    echo "       ./nass -h                | Display this help message"
+    echo "       ./nass <file.asm> -c     | Clean up build and run directories" 
     exit 0
 fi
-mkdir "$(echo $wd)"/build
-mkdir "$(echo $wd)"/run 
+if [[ $2 = "-c" ]]; then
+    rm -rf "$(echo $wd)/build"
+    rm -rf "$(echo $wd)/run"
+    echo "Cleaned up build and run directories"
+    exit 0
+fi
+
+dir="$(echo $wd)/build"
+if [[ ! -e $dir ]]; then
+    mkdir $dir
+elif [[ ! -d $dir ]]; then
+    echo "$dir already exists but is not a directory" 1>&2
+fi
+dir="$(echo $wd)/run"
+if [[ ! -e $dir ]]; then
+    mkdir $dir
+elif [[ ! -d $dir ]]; then
+    echo "$dir already exists but is not a directory" 1>&2
+fi
+
+
 ./assemble "$1" "$(echo $wd)/build/imemin.txt" "$(echo $wd)/build/dmemin.txt" "$(echo $wd)/build/diskin.txt" "$(echo $wd)/build/irq2in.txt"
 if [ $? -ne 0 ]; then
     exit 1

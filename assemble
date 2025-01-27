@@ -3,11 +3,11 @@
 gcc Assembler/*.c
 rc=$?
 if [ $rc -ne 0 ]; then
-    echo "Error compiling assembler"
+    echo "Error compiling assembler" 1>&2
     exit 1
 fi
 ./a.out $1 $2 $3 $4 $5
 if [ $? -ne 0 ]; then
-    echo "Error assembling code"
+    echo "Error assembling code" 1>&2
     exit 1
 fi
