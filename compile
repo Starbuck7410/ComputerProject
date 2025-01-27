@@ -1,0 +1,40 @@
+#!/bin/sh
+
+# Before using this make sure you have installed the dependencies for your distro:
+# Ubuntu: sudo apt install gcc-mingw-w64
+# Arch: sudo pacman -S mingw-w64-gcc
+
+if [[ ! -e "bin/win64" ]]; then
+    mkdir "bin/win64"
+elif [[ ! -d "bin/linux" ]]; then
+    echo "bin/win64 already exists but is not a directory" 1>&2
+fi
+
+if [[ ! -e "bin/linux" ]]; then
+    mkdir "bin/linux"
+elif [[ ! -d "bin/linux" ]]; then
+    echo "bin/linux already exists but is not a directory" 1>&2
+fi
+
+x86_64-w64-mingw32-gcc Assembler/*.c -o bin/win64/assemble.exe
+if [ $? -ne 0 ]; then
+    echo
+    echo "Failed to compile win64 assembler" 1>&2
+    exit 1
+fi
+x86_64-w64-mingw32-gcc Simulator/*.c -o bin/win64/simulate.exe
+if [ $? -ne 0 ]; then
+    echo
+    echo "Failed to compile win64 simulator" 1>&2
+    exit 1
+fi
+gcc Assembler/*.c -o bin/linux/assemble
+if [ $? -ne 0 ]; then
+    echo "Error building linux assembler" 1>&2
+    exit 1
+fi
+gcc Simulator/*.c -o bin/linux/simulate
+if [ $? -ne 0 ]; then
+    echo "Error building linux simulator" 1>&2
+    exit 1
+fi

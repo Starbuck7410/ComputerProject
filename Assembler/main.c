@@ -19,7 +19,7 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 		return 0;
 	}
 	if (argc < 3){
-		error("Too enough arguments. Use the -h flag for more info.\n");
+		error("Not enough arguments. Use the -h flag for more info.\n");
 		return 1;
 	}
 
