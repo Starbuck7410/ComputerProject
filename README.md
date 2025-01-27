@@ -1,14 +1,24 @@
-## Computer Stuff Project
+## Computer Organization ISA Project
 
-# Roles:
- - *Daniel*: In file
- - *Shraga*: In file
- - *Zohar*: In file
- - *Raz*: 
-<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/To-Be-Continued_Text_Logo_%28%C3%A0_suivre%29.png/1600px-To-Be-Continued_Text_Logo_%28%C3%A0_suivre%29.png" width="200">
+(This is a placeholder readme in the meantime)
 
-# Finished Tasks:
-Ya'll should write your TODOs here so we can all see what you are working on or waiting for
- - ~~Shraga: get the decode parts working and the instruction combine and write to file~~ Done
- - ~~Shraga: Wait for Zohar to finish writing ```get_instruction``` to find out if linear code works~~ Done
- 
+# Structure
+
+Assembler - contains the assembler source code
+Simulator - contains the simulator source code
+bin - contains binaries for linux & windows
+assembly_programs - contains all assembly programs
+Example - contains the fibonacci example files
+
+# Usage
+
+On Linux, you can simply point the `nass` script to an assembly file and it will compile and run it.
+simply use
+
+```bash
+./nass /path/to/file.asm
+```
+
+and it will create build and run files.
+
+On Windows, you will need to use the binary files in the `bin` folder as instructed in the instructions PDF. (later I will provide more info)
