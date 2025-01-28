@@ -2,13 +2,14 @@
 #include <stdio.h>
 #include <string.h>
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 #define LINE_LEN 14
-#endif
-
-#ifdef __GNUC__
+#elif defined(__GNUC__)
+#define LINE_LEN 13
+#else
 #define LINE_LEN 13
 #endif
+
 long long pow_int(int a, int b);
 long long hex_string_to_long_long(char number[], int len);
 
