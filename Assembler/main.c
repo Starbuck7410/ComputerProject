@@ -158,10 +158,8 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 		// Get 1st component (opcode)
 		char op_code[10];
 		start = get_component(line, op_code, start);
-		if(!eq_str(op_code, "#.disksector") && !eq_str(op_code, "#.interrupt")){
-			printf("\x1B[31mERROR: UNDEFINED INSTRUCTION \"%s\" FOUND AT LINE: %d\x1B[0m\n", op_code, line_index); // We didnt recognize the instruction
-			return 1;
-		}
+
+		
 		
 
 		// Handle .word instructions
@@ -233,16 +231,18 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 
 
 
-		if (op_code[strlen(op_code) - 1] == ':' || eq_str(op_code, "")){ // Check if it's not a label
-			continue;
-		}
+		
 
 		// printf("Instruction:   | \"%s\"\n", op_code);
 		converted_instruction = find_instruction(op_code);
-		if (converted_instruction == -1){
+		if (op_code[strlen(op_code) - 1] == ':' || eq_str(op_code, "")){ // Check if it's not a label
+			continue;
+		}
+		if(!eq_str(op_code, "#.disksector") && !eq_str(op_code, "#.interrupt") && converted_instruction == -1){
 			printf("\x1B[31mERROR: UNDEFINED INSTRUCTION \"%s\" FOUND AT LINE: %d\x1B[0m\n", op_code, line_index); // We didnt recognize the instruction
 			return 1;
 		}
+		
 		decoded_instruction =  (converted_instruction & 0xFF) << 40; 
 
 		long long decoded_reg;

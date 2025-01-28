@@ -141,11 +141,13 @@ int main(int argc, char * argv[]) {
 
 		// doom counter is the counter for the clock cycles since calling the diskcmd
 		if (io_registers[14]) {
-			doom_counter = 1024; 
+			printf("Disk command: %d\n", io_registers[14]);
+			printf("Instruction: %d\n", opcode);
 			if(execute_disk(io_registers, disk_data, local_memory)){
 				error("Error in execute_disk\n");
 				return 1;
 			}
+			doom_counter = 1024; 
 
 		}
 		if (doom_counter) {
@@ -215,4 +217,3 @@ int main(int argc, char * argv[]) {
 	fclose(hwregtrace_file);
 	return 0;
 }
-

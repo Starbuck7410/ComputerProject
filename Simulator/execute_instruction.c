@@ -1,6 +1,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <string.h>
+void error(char * text);
 int execute(int op_code, int* inst_regs, int* imms, int* registers, 
     int* P_PC, int* local_memory, unsigned int* io_registers, int * in_isr) 
 {   
@@ -44,7 +45,9 @@ int execute(int op_code, int* inst_regs, int* imms, int* registers,
         }
     }
     if(op_code == 10){ // BNE
+    // printf("%d != %d: ", registers[inst_regs[1]], registers[inst_regs[2]]);
         if(registers[inst_regs[1]] != registers[inst_regs[2]]){
+            // printf("true\n");
             *P_PC = (registers[inst_regs[3]] & 0xFFF) - 1;
         }
     }
@@ -76,16 +79,21 @@ int execute(int op_code, int* inst_regs, int* imms, int* registers,
     }
     //  -------------------------------- Memory --------------------------------
     if (op_code == 16){ // LW
-        registers[inst_regs[0]] = local_memory[registers[inst_regs[1]] + registers[inst_regs[2]] + registers[inst_regs[3]]];
+        int address = registers[inst_regs[1]] + registers[inst_regs[2]] + registers[inst_regs[3]];
+        if(address >= 4095 || address < 0){
+            error("Error: Address out of bounds\n");
+            return 1;
+        }
+        registers[inst_regs[0]] = local_memory[address];
         // printf("Loaded value %d from address %d\n", registers[inst_regs[0]], registers[inst_regs[1]] + registers[inst_regs[2]] + registers[inst_regs[3]]);
     }
     if (op_code == 17) { // SW
-    int address = registers[inst_regs[1]] + registers[inst_regs[2]];
-        // printf("Storing value %d at address %d\n", registers[inst_regs[0]], registers[inst_regs[1]] + registers[inst_regs[2]] + registers[inst_regs[3]]);
-        if(address >= 4095){
-            printf("Error: Address out of bounds\n");
+        int address = registers[inst_regs[1]] + registers[inst_regs[2]];
+        if(address >= 4095 || address < 0){
+            error("Error: Address out of bounds\n");
             return 1;
         }
+        printf("Storing value %d at address %d\n", registers[inst_regs[0]], registers[inst_regs[1]] + registers[inst_regs[2]] + registers[inst_regs[3]]);
         local_memory[address] = registers[inst_regs[0]] + registers[inst_regs[3]];
     }
     //  -------------------------------- I/0 --------------------------------

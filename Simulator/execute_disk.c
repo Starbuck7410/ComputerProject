@@ -10,7 +10,7 @@ int* load_disk(FILE * disk_file){
     int * disk_data = (int*) malloc(512 * 128); // 512 sectors of 128 bytes
     if (disk_data == NULL) {
         error("ERROR ALLOCATING MEMORY SPACE FOR DISK");
-        return 1;
+        return NULL;
     }
     char line[9];
     int i = 0;
