@@ -24,19 +24,7 @@
     <ClCompile Include="decode.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="execute.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="fill_memarray_from_dmem.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="dmemout.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="trace.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="execute_interrupt.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="execute_disk.c">
@@ -45,11 +33,22 @@
     <ClCompile Include="irq2_check.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="monitout.c">
+    <ClCompile Include="dmem.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="get_IO_reg_name.c">
+    <ClCompile Include="monitor_out.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="execute_instruction.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="extra.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="functions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -128,17 +128,18 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="decode.c" />
-    <ClCompile Include="dmemout.c" />
-    <ClCompile Include="execute.c" />
+    <ClCompile Include="dmem.c" />
     <ClCompile Include="execute_disk.c" />
-    <ClCompile Include="execute_interrupt.c" />
-    <ClCompile Include="fill_memarray_from_dmem.c" />
-    <ClCompile Include="get_IO_reg_name.c" />
+    <ClCompile Include="execute_instruction.c" />
+    <ClCompile Include="extra.c" />
     <ClCompile Include="irq2_check.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="fetch.c" />
-    <ClCompile Include="monitout.c" />
+    <ClCompile Include="monitor_out.c" />
     <ClCompile Include="trace.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="functions.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

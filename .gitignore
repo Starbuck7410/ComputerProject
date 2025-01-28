@@ -34,3 +34,10 @@ a.exe
 /trace.txt
 .vscode/settings.json
 Example/.fib.asm.kate-swp
+/Simulator/dmemout.txt
+/Simulator/Simulator.vcxproj
+/Simulator/Simulator.vcxproj.filters
+/binom.asm
+/dmemin.txt
+/dmemout.txt
+/imemin.txt

@@ -3,11 +3,15 @@
 #include <string.h>
 #include <stdlib.h>
 
-long long hex_string_to_long_long();
+long long hex_string_to_long_long(char number[], int len);
 void error(char * text);
 
 int* load_disk(FILE * disk_file){
     int * disk_data = (int*) malloc(512 * 128); // 512 sectors of 128 bytes
+    if (disk_data == NULL) {
+        error("ERROR ALLOCATING MEMORY SPACE FOR DISK");
+        return 1;
+    }
     char line[9];
     int i = 0;
     while (fscanf(disk_file, "%[^\n]\n", line) != EOF){
@@ -55,6 +59,7 @@ int execute_disk(unsigned int * io_registers, int * disk_data, int * local_memor
         * disk_status = 1;
         return 0;
     }
+    return 0;
 }
 
 int save_disk(FILE * disk_file, int * disk_data){

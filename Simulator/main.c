@@ -5,6 +5,11 @@
 
 #define HALT_OP 21
 #define MAX_PC 4096
+// argv[1] = sim.exe,      argv[2] = imemin.txt,   argv[3] = dmemin.txt
+// argv[4] = diskin.txt,   argv[5] = irq2in.txt,   argv[6] = dmemout.txt
+// argv[7] = regout.txt,   argv[8] = trace.txt,    argv[9] = hwregtrace.txt
+// argv[10] = cycles.txt,  argv[11] = leds.txt,    argv[12] =  display7seg.txt 
+// argv[13] = diskout.txt, argv[14] = monitor.txt, argv[15] = monitor.yuv
 
 int main(int argc, char * argv[]) {
 	
@@ -34,7 +39,8 @@ int main(int argc, char * argv[]) {
 
 	int local_memory[4096];
 	int doom_counter = 0;
-	unsigned int temp_leds, temp_7seg; // temp variables to check if the leds or 7 seg changed
+	unsigned int temp_leds = 0;
+	unsigned int temp_7seg = 0; // temp variables to check if the leds or 7 seg changed
 	int in_isr = 0; //if in ISR then 1, else 0.
 	int irq = 0;
 	char IOReg_name[20];
