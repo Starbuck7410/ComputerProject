@@ -1,3 +1,4 @@
+
 	out $zero, $zero, $imm2, $imm1, 1, 2		# enable irq2
 	sll $sp, $imm1, $imm2, $zero, 1, 11		# set $sp = 1 << 11 = 2048
 	out $zero, $imm1, $zero, $imm2, 6, L3		# set irqhandler as L3

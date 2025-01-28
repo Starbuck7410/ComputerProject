@@ -108,8 +108,12 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 			continue;
 		}
 
-
 		get_component(line, label, start);
+
+		if (label[0] == '\0'){ // Get rid of empty lines
+			continue;
+		}
+
 		if(label[strlen(label) - 1] == ':'){ // if it ends with a ':', its a label
 			label[strlen(label) - 1] = '\0';
 			printf("Found label:   | %s\n", label);
@@ -142,9 +146,9 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 	address = 0;
     while (fscanf(asmb_file, "%[^\n]\n", line) != EOF) { 
 		line_index++;
+
 		// Cut out whitespaces
 		int start = 0;
-
 		while(line[start] == ' ' || line[start] == '	'){
 			start++;
 		}
@@ -159,8 +163,9 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 		char op_code[10];
 		start = get_component(line, op_code, start);
 
-		
-		
+		if (op_code[0] == '\0'){ // Get rid of empty lines
+			continue;
+		}
 
 		// Handle .word instructions
 		if (eq_str(op_code, ".word")){
