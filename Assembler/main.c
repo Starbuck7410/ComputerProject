@@ -151,13 +151,17 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 		
 		printf("Line:          | %s\n", line);
 		// Check the line isnt a comment
-		if (line[start] == '#'){
+		if (line[start] == '#' && line[start + 1] != '.'){
 			continue;
 		}
 
 		// Get 1st component (opcode)
 		char op_code[10];
 		start = get_component(line, op_code, start);
+		if(!eq_str(op_code, "#.disksector") && !eq_str(op_code, "#.interrupt")){
+			printf("\x1B[31mERROR: UNDEFINED INSTRUCTION \"%s\" FOUND AT LINE: %d\x1B[0m\n", op_code, line_index); // We didnt recognize the instruction
+			return 1;
+		}
 		
 
 		// Handle .word instructions
@@ -180,7 +184,7 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 		}
 		
 		// TODO - Shraga you know you want to finisht this feature
-		if(eq_str(op_code, ".interrupt")){
+		if(eq_str(op_code, "#.interrupt")){
 			if(argc > 4){
 				// printf("Instruction:   | \"%s\"\n", op_code);
 				char interrupt_text[10];
@@ -190,12 +194,12 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 				printf("Interrupt:     | %d\n", interrupt_value);
 				fprintf(irq2in_file, "%d\n", interrupt_value);
 			} else {
-				warn("WARNING: .interrupt used without extra features mode on.\nFor more info run with the flag -h.\n");
+				warn("WARNING: #.interrupt used without extra features mode on.\nFor more info run with the flag -h.\n");
 			}
 			continue;
 		}
 
-		if(eq_str(op_code, ".disksector")){
+		if(eq_str(op_code, "#.disksector")){
 			if(argc > 4){
 				// printf("Instruction:   | \"%s\"\n", op_code);
 				char disk_sector_text[10];
@@ -221,7 +225,7 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 					disk[disk_sector_value * 16 + i] = word_value;
 				}
 			} else {
-				warn("WARNING: .disksector used without extra features mode on.\nFor more info run with the flag -h.\n");
+				warn("WARNING: #.disksector used without extra features mode on.\nFor more info run with the flag -h.\n");
 			}
 
 			continue;
@@ -301,9 +305,10 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 	}
 
 
-
-	for(int i = 0; i < disk_size; i++){
-		fprintf(disk_in_file, "%08X\n", disk[i]);
+	if(argc > 4){
+		for(int i = 0; i < disk_size; i++){
+			fprintf(disk_in_file, "%08X\n", disk[i]);
+		}
 	}
 
 	if(argc > 4){
