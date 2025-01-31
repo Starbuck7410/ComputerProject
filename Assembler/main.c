@@ -101,8 +101,9 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 	while (elements = fscanf(asmb_file, "%[^\n]\n", temp_line) != EOF) { 
 		line_index++;
 		if(temp_line[0] == '\0'){
-			printf("DEBUG: Line - %d\n", elements);
-			printf("DEBUG: Line - %s\n", temp_line);
+			// printf("DEBUG: Line - %d\n", elements);
+			// printf("DEBUG: Line - %s\n", temp_line);
+			printf("Skipping empty line\n");
 			fgetc(asmb_file);
 			continue;
 		}
@@ -110,10 +111,8 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 		strncpy(temp_line, "", 1);
 		// Cut out whitespaces
 		char label [LABEL_SIZE];
-		int start = 0;
-		while(line[start] == ' ' || line[start] == '	'){
-			start++;
-		}
+		int start = clean_string(line);
+		
 
 		// Check the line isnt a comment
 		if (line[start] == '#'){
@@ -124,7 +123,7 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 		if(label[strlen(label) - 1] == ':'){ // if it ends with a ':', its a label
 			label[strlen(label) - 1] = '\0';
 			printf("Found label:   | %s\n", label);
-			printf("in line:       | %d\n", address);
+			printf("in line:       | %d\n", line_index);
 
 			// Check if we haven't seen this label before
 			for(int i = 0; i < LABEL_COUNT; i++){
@@ -136,9 +135,9 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 			}
 			
 			// Store the found label
-			for (int i = 0; i < LABEL_SIZE; i++){
-				labels[label_index][i] = label[i]; // because apparently regular assignments dont work?
-			} 
+
+			strncpy(labels[label_index], label, LABEL_SIZE); 
+			
 			label_addresses[label_index] = address;
 			label_index++;
 			continue;
@@ -153,33 +152,25 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
     while (elements = fscanf(asmb_file, "%[^\n]\n", temp_line) != EOF) { 
 		line_index++;
 		if(temp_line[0] == '\0'){
-			printf("DEBUG: Line - %d\n", elements);
-			printf("DEBUG: Line - %s\n", temp_line);
 			fgetc(asmb_file);
 			continue;
 		}
 		strncpy(line, temp_line, LINE_SIZE);
 		strncpy(temp_line, "", 1);
 		// Cut out whitespaces
-		int start = 0;
-		while(line[start] == ' ' || line[start] == '	'){
-			start++;
-		}
-		
+		int start = clean_string(line);
+
 		printf("Line:          | %s\n", line);
 		// Check the line isnt a comment
 		if (line[start] == '#' && line[start + 1] != '.'){
 			printf("Skipping comment\n");
 			continue;
 		}
-
+		
 		// Get 1st component (opcode)
 		char op_code[10];
 		start = get_component(line, op_code, start);
 
-		if (op_code[0] == '\0'){ // Get rid of empty lines
-			continue;
-		}
 
 		// Handle .word instructions
 		if (eq_str(op_code, ".word")){
@@ -200,7 +191,6 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 			continue;
 		}
 		
-		// TODO - Shraga you know you want to finisht this feature
 		if(eq_str(op_code, "#.interrupt")){
 			if(argc > 4){
 				printf("Directive:     | \"%s\"\n", op_code);

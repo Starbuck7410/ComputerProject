@@ -79,7 +79,7 @@ int execute(int op_code, int* inst_regs, int* imms, int* registers,
     }
     //  -------------------------------- Memory --------------------------------
     if (op_code == 16){ // LW
-        int address = registers[inst_regs[1]] + registers[inst_regs[2]] + registers[inst_regs[3]];
+        int address = registers[inst_regs[1]] + registers[inst_regs[2]];
         if (debug){
             printf("Loading value %d from address %d\n", registers[inst_regs[0]], address);
         }
@@ -87,7 +87,7 @@ int execute(int op_code, int* inst_regs, int* imms, int* registers,
             error("Error: Address out of bounds\n");
             return 1;
         }
-        registers[inst_regs[0]] = local_memory[address];
+        registers[inst_regs[0]] = local_memory[address] + registers[inst_regs[3]];
     }
     if (op_code == 17) { // SW
         int address = registers[inst_regs[1]] + registers[inst_regs[2]];

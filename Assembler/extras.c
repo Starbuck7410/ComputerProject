@@ -2,6 +2,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+
+int check_char(char character){
+	int result = (character == '-' || character == '.' || character == '#' || character == '$' || (character >= '0' && character <= 'z'));
+	// if (result) printf("Checking char: %c, returning: %d\n", character, result);
+	return (result);
+}
+
 int eq_str(char str1[], char str2[]){
 	if(str1 == NULL || str2 == NULL){
 		return 0;
@@ -117,13 +124,24 @@ long long get_component(char * line, char * component, int start){ // get pointe
 		exit(1);
 	}
 	
-	while (* (line + i) == '-' || * (line + i) == '.' || * (line + i) == '#' || * (line + i) == '$' || * (line + i) >= '0' ) {
+	while (check_char(* (line + i))) {
 		component[i - start] = * (line + i);
 		i++;
 	}
 
 	component[i - start] = '\0'; // Terminate the string
-	while (!(* (line + i) == '\0' || * (line + i) == '-' || * (line + i) == '.' || * (line + i) == '$' || * (line + i) >= '0')){ // Clear trailing whitespaces
+	while (!check_char(* (line + i))){ // Clear trailing whitespaces
+		i++;
+	}
+	return i;
+}
+
+
+
+
+int clean_string(char * line){
+	int i = 0;
+	while (!check_char(line[i])){
 		i++;
 	}
 	return i;

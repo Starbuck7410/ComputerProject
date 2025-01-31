@@ -1,9 +1,10 @@
 ﻿# circle.asm
 # Draw circle in 256x256, center=(127,127). Radius in 0x100.
 
+
 main:   
         sll $sp, $imm1, $imm2, $zero, 1, 11		# set $sp to 2048
-        jal  $ra, $zero, $zero, $imm1, circle, 0  # call circle
+        jal  $ra, $zero, $zero, $imm1, circle, 0        # call circle
         halt $zero, $zero, $zero, $zero, 0, 0
 
 circle:
@@ -13,8 +14,7 @@ circle:
         sw   $s2, $sp, $imm1, $zero, 2, 0
         sw   $ra, $sp, $imm1, $zero, 3, 0
         out  $zero, $imm1, $zero, $imm2, 22, 0
-        add  $t0, $imm1, $zero, $zero, 0x100, 0
-        lw   $s0, $t0,   $zero, $zero, 0, 0   # s0=radius
+        lw   $s0, $imm1,   $zero, $zero, 0x100, 0   # s0=radius
         add  $s1, $zero, $zero, $zero, 0, 0
 
 loop_i:

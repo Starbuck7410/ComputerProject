@@ -11,3 +11,4 @@ void warn(char * text);
 void print_help();
 long long get_component(char * line, char * component, int start);
 int fpeek(FILE *stream);
+int clean_string(char * line);

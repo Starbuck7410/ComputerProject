@@ -23,8 +23,7 @@ a.exe
 
 
 /Simulator/trace.txt
-/Simulator/Simulator.vcxproj
-/Simulator/Simulator.vcxproj.filters
+
 /cycles.txt
 /diskin.txt
 /irq2in.txt
@@ -35,8 +34,7 @@ a.exe
 .vscode/settings.json
 Example/.fib.asm.kate-swp
 /Simulator/dmemout.txt
-/Simulator/Simulator.vcxproj
-/Simulator/Simulator.vcxproj.filters
+
 /binom.asm
 /dmemin.txt
 /dmemout.txt
