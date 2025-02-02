@@ -1,6 +1,4 @@
-﻿# circle.asm
-# Draw circle in 256x256, center=(127,127). Radius in 0x100.
-
+﻿
 
 main:   
         sll $sp, $imm1, $imm2, $zero, 1, 11		# set $sp to 2048

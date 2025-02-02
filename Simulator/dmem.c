@@ -3,7 +3,7 @@
 #include <string.h>
 long long hex_string_to_long_long(char number[], int len);
 
-int fill_llarray_from_file(int mem[], char* dmemin_file_path) {
+int fill_int_array_from_file(int mem[], char* dmemin_file_path) {
 	int i = 0;
 	char data[9];
 	FILE* dmem; //file pointer to dmemin.txt

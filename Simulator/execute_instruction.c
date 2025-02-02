@@ -45,7 +45,6 @@ int execute(int op_code, int* inst_regs, int* imms, int* registers,
         }
     }
     if(op_code == 10){ // BNE
-    // printf("%d != %d: ", registers[inst_regs[1]], registers[inst_regs[2]]);
         if(registers[inst_regs[1]] != registers[inst_regs[2]]){
             // printf("true\n");
             *P_PC = (registers[inst_regs[3]] & 0xFFF) - 1;
@@ -72,8 +71,6 @@ int execute(int op_code, int* inst_regs, int* imms, int* registers,
         }
     }
     if(op_code == 15){ // JAL
-        // printf("Jumping to address %d\n", (registers[inst_regs[3]] & 0xFFF));
-        // printf("Returning to address %d\n", * P_PC + 1);
         registers[inst_regs[0]] = * P_PC + 1;
         *P_PC = (registers[inst_regs[3]] & 0xFFF) - 1;
     }

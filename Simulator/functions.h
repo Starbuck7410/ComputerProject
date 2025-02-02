@@ -6,7 +6,7 @@ int eq_str(char str1[], char str2[]);
 int execute(int op_code, int* inst_regs, int* imms, int* registers, int* P_PC, int* local_memory, unsigned int * io_registers, int * in_isr, int debug);
 int decode(long long input, int regs[], int imm[]);
 long long fetch(FILE* imemin_file, int PC);
-int fill_llarray_from_file(int mem[], char* dmemin_file_path);
+int fill_int_array_from_file(int mem[], char* dmemin_file_path);
 int dmemout(int * local_mem, char* arg5);
 int monitor_out(char* arg13, char* arg14, unsigned char monitor[]);
 void trace_out(FILE* trace_file, int PC, long long inst, int registers[]);

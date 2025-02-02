@@ -5,7 +5,6 @@
 
 int check_char(char character){
 	int result = (character == '-' || character == '.' || character == '#' || character == '$' || (character >= '0' && character <= 'z'));
-	// if (result) printf("Checking char: %c, returning: %d\n", character, result);
 	return (result);
 }
 
@@ -25,7 +24,7 @@ int eq_str(char str1[], char str2[]){
 }
 
 
-int pow_int(int a, int b){ // Do i really have to explain this...?
+int pow_int(int a, int b){
 	if (b == 0){
 		return 1;
 	}
@@ -62,7 +61,7 @@ int hex_string_to_int(char number[]){ // You MUST pass the string WITHOUT the 0x
 	int value = 0;
 	int i = 0;
 	int sign = 1;
-	if (number[0] == '-'){ // fuck it let's allow negative hex numbers why not (0x-8000)
+	if (number[0] == '-'){ // f*** it let's allow negative hex numbers why not (0x-8000)
 		sign = -1;
 		i++;
 	}

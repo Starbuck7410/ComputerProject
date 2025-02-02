@@ -4,7 +4,7 @@
 int eq_str();
 
 
-long long find_instruction(char name[]){ //This function recives a string of the instruction and returns its integer number.
+long long find_instruction(char name[]){ // This function recives a string of the instruction and returns its integer number.
     if (eq_str(name, "add")) return 0;
     if (eq_str(name, "sub")) return 1;
     if (eq_str(name, "mac")) return 2;
@@ -30,7 +30,7 @@ long long find_instruction(char name[]){ //This function recives a string of the
     return -1;
 }
 
-int find_register(char reg[]) { //this function takes the exact string name of the register ($s0 and not $s0,) and returns the register number, as well as some I/O shit.
+int find_register(char reg[]) { // this function takes the exact string name of the register ($s0 and not $s0,) and returns the register number, as well as some I/O shit.
     if ((eq_str(reg, "$zero")) | (eq_str(reg, "$0")) | (eq_str(reg, "irq0enable")))
         return 0;
     if ((eq_str(reg, "$imm1")) | (eq_str(reg, "irq1enable")))

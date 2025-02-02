@@ -45,3 +45,14 @@ L3:
 	out $zero, $zero, $imm2, $zero, 0, 5		# clear irq2 status
 	reti $zero, $zero, $zero, $zero, 0, 0		# return from interrupt
 	.word 64 7
+
+
+#.interrupt 100
+#.interrupt 200
+#.interrupt 300
+#.interrupt 400
+#.interrupt 500
+#.interrupt 600
+#.interrupt 700
+#.interrupt 800
+

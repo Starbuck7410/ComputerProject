@@ -1,4 +1,4 @@
-#    
+
 main:
     lw $a0, $imm1, $zero, $zero, 256, 0             # Load n from memory address 0x100 to $a0
     lw $a1, $imm1, $zero, $zero, 257, 0             # Load k from memory address 0x101 to $a1

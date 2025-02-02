@@ -49,7 +49,7 @@ int main(int argc, char * argv[]) {
 	char IOReg_name[20];
 
 	FILE* mcode = fopen(argv[1], "r");
-	fill_llarray_from_file(local_memory, argv[2]); // fills local memory from dmemin.txt
+	fill_int_array_from_file(local_memory, argv[2]); // fills local memory from dmemin.txt
 	FILE* disk_in_file = fopen(argv[3], "r");
 	FILE* irq2in_file = fopen(argv[4], "r");
 	// dmemout 5 handled in its own function
@@ -64,6 +64,7 @@ int main(int argc, char * argv[]) {
 	
 	if (mcode == NULL) {
 		perror("ERROR");
+		error("Cant open file program memory file, Crashing...");
 		return 1;
 	}
 
@@ -92,7 +93,6 @@ int main(int argc, char * argv[]) {
 		opcode = decode(instruction, inst_regs, imm);
 		registers[1] = imm[0];
         registers[2] = imm[1];
-		// printf("DEBUG: INSTRUCTION - %012llX \n", instruction);
 
 		
 
@@ -104,9 +104,9 @@ int main(int argc, char * argv[]) {
 			get_IO_reg_name(inst_regs, registers, IOReg_name);
 			fprintf(hwregtrace_file, "%d ", cycles);
 			if (opcode == 19){ 
-				fprintf(hwregtrace_file, "READ ");// Read
+				fprintf(hwregtrace_file, "READ "); // Read
 			} else {
-				fprintf(hwregtrace_file, "WRITE ");// Write
+				fprintf(hwregtrace_file, "WRITE "); // Write
 			}
 
 			fprintf(hwregtrace_file, "%s ", IOReg_name);
@@ -136,7 +136,7 @@ int main(int argc, char * argv[]) {
 		temp_7seg = io_registers[10];
 
 
-		//if monitor command is 1 write to monitor array, data from I/O to adress given by I/O.
+		// if monitor command is 1 write to monitor array, data from I/O to adress given by I/O.
 		if (io_registers[22]) {
 			monitor[io_registers[20]] = io_registers[21];
 			io_registers[22] = 0;

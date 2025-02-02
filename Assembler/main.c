@@ -101,8 +101,6 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 	while (elements = fscanf(asmb_file, "%[^\n]\n", temp_line) != EOF) { 
 		line_index++;
 		if(temp_line[0] == '\0'){
-			// printf("DEBUG: Line - %d\n", elements);
-			// printf("DEBUG: Line - %s\n", temp_line);
 			printf("Skipping empty line\n");
 			fgetc(asmb_file);
 			continue;
@@ -238,11 +236,6 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 			continue;
 		}
 
-
-
-		
-
-		// printf("Instruction:   | \"%s\"\n", op_code);
 		converted_instruction = find_instruction(op_code);
 		if (op_code[strlen(op_code) - 1] == ':' || eq_str(op_code, "")){ // Check if it's not a label
 			continue;
@@ -266,7 +259,6 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 				printf("\x1B[31mERROR: UNKNOWN REGISTER \"%s\" AT LINE %d\x1B[0m\n", reg, line_index); // We didnt recognize the register
 				return 1;
 			}
-			// printf("Register:  | %s (%lld)\n", reg, decoded_reg);
 			decoded_instruction += (decoded_reg & 0xF) << (24 + 4*(3-i));
 		}
 
@@ -292,18 +284,14 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 				}	
 			}
 				decoded_instruction += (converted_imm & 0xFFF) << (12*(1-i)); // turn immediate from string to number
-			
-			// printf("got immediate: | %s (%d)\n", imm, converted_imm);
 		}
 
 		printf("Final opcode:  | %012llX\n", decoded_instruction);
 		imem[address] = decoded_instruction;
 		address++;
-		// fprintf(imem_file, "%012llx\n", decoded_instruction); // Write to machine code file
 		
 	}
 	// filling dmemin and imemin
-
 
 	for (int i = 0; i < 4096; i++){
 		fprintf(dmem_file, "%08lX\n", dmem[i]);
