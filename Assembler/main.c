@@ -113,7 +113,7 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 		
 
 		// Check the line isnt a comment
-		if (line[start] == '#'){
+		if (line[start] == '#' || line[start] == '.'){
 			continue;
 		}
 		get_component(line, label, start);

@@ -29,7 +29,7 @@ int right(char * next_block){
 }
 
 int left(char * next_block){
-    char * lft_asm = "add $s0, $s0, $imm1, $zero, 1, 0 # Move pointer to the left\n";
+    char * lft_asm = "add $s0, $s0, $imm1, $zero, -1, 0 # Move pointer to the left\n";
     strncpy(next_block, lft_asm, strlen(lft_asm) + 1);
     return 0;
 }

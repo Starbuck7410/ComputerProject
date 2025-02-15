@@ -34,7 +34,7 @@ int execute(int op_code, int* inst_regs, int* imms, int* registers,
         registers[inst_regs[0]] = registers[inst_regs[1]] >> registers[inst_regs[2]];
     }
     if(op_code == 8){ // SRL
-        registers[inst_regs[0]] = (registers[inst_regs[1]] >> registers[inst_regs[2]]) & ~ (0xFFFFFFFF << registers[inst_regs[2]]);
+        registers[inst_regs[0]] = (registers[inst_regs[1]] >> registers[inst_regs[2]]) & ~ (0xFFFFFFFF << (8 - registers[inst_regs[2]]));
     }
 
     //  -------------------------------- Branches --------------------------------

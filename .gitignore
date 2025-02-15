@@ -1,6 +1,7 @@
 ﻿################################################################################
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
+
 /Simulator/x64/Debug
 /Simulator/Simulator/x64/Debug
 /Simulator/.vs/Simulator
@@ -42,3 +43,4 @@ Example/.fib.asm.kate-swp
 
 assembly-programs/*/*
 !assembly-programs/*/*.asm
+

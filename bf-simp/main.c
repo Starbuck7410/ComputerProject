@@ -30,6 +30,7 @@ int main(int argc, char * argv[]){ // loops on the main bf code, transpiles each
 
 
     // Formalities are OVER. Time to write some ASSEMBLY.
+    
     init_code(next_block);
     fprintf(asmb_file ,"%s\n", next_block);
     while (1){
