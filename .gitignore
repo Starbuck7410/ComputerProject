@@ -39,3 +39,6 @@ Example/.fib.asm.kate-swp
 /dmemin.txt
 /dmemout.txt
 /imemin.txt
+
+assembly-programs/*/*
+!assembly-programs/*/*.asm

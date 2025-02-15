@@ -11,10 +11,16 @@ if [[ $1 = "-h" ]]; then
     echo "       ./nass <file.asm> -c     | Clean up build and run directories" 
     exit 0
 fi
+
 if [[ $2 = "-c" ]]; then
     rm -rf "$(echo $wd)/build"
     rm -rf "$(echo $wd)/run"
     echo "Cleaned up build and run directories"
+    exit 0
+fi
+
+if [[ $2 = "-bf" ]]; then
+    echo "Placeholder for transpiling bf first"
     exit 0
 fi
 
