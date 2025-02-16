@@ -27,8 +27,8 @@ On Windows, you will need to use the binary files in the `bin` folder as instruc
 ## Future additions
 
 ### Add support for additional features:
- - "puts" assembly function to print text onto the screen for brainfuck
  - Add a keyboard interrupt in two of the reserved hwregisters
+ - Optimizations for the brainfuck interpreter
 
 ### Publish and improve documentation
 I do not want to publish the documentation as is, so I need to tell an LLM to transcribe it to a more readable markdown format, and then add my own features in the documentation.

@@ -1,55 +1,70 @@
 #!/bin/sh
+dbg=""
 wd=$(dirname $1)
+fn=$(basename $1)
+assembly=$1
 
-if [[ $1 = "" ]]; then
-    ./assemble
-    exit 1
-fi
-if [[ $1 = "-h" ]]; then
+
+
+if [[ $3 = "-h" ]]; then
     echo "Usage: ./nass <file.asm>        | Assemble and simulate the given file"
     echo "       ./nass -h                | Display this help message"
     echo "       ./nass <file.asm> -c     | Clean up build and run directories" 
     exit 0
 fi
 
-if [[ $2 = "-c" ]]; then
+if [[ $3 = "-c" ]] || [[ $2 = "-c" ]]; then
     rm -rf "$(echo $wd)/build"
     rm -rf "$(echo $wd)/run"
     echo "Cleaned up build and run directories"
     exit 0
 fi
 
-if [[ $2 = "-bf" ]]; then
-    echo "Placeholder for transpiling bf first"
-    exit 0
+if [[ $3 = "-d" ]] || [[ $2 = "-d" ]]; then
+    dbg="-d"
 fi
+
+
+
+if [[ $1 = "-bf" ]]; then
+    wd=$(dirname $2)
+    fn=$(basename $2)
+    ./bf-to-simp $2 "$(echo $wd)/$(echo $fn).asm"
+    if [ $? -ne 0 ]; then
+        exit 1
+    fi
+    assembly="$(echo $wd)/$(echo $fn).asm"
+fi
+
+
+
+
 
 dir="$(echo $wd)/build"
 if [[ ! -e $dir ]]; then
     mkdir $dir
 elif [[ ! -d $dir ]]; then
-    echo "$dir already exists but is not a directory" 1>&2
+    echo "$dir already exists but is not a directory" 2>&2
 fi
 dir="$(echo $wd)/run"
 if [[ ! -e $dir ]]; then
     mkdir $dir
 elif [[ ! -d $dir ]]; then
-    echo "$dir already exists but is not a directory" 1>&2
+    echo "$dir already exists but is not a directory" 2>&2
 fi
 
-
-./assemble "$1" "$(echo $wd)/build/imemin.txt" "$(echo $wd)/build/dmemin.txt" "$(echo $wd)/build/diskin.txt" "$(echo $wd)/build/irq2in.txt"
+./assemble "$assembly" "$(echo $wd)/build/imemin.txt" "$(echo $wd)/build/dmemin.txt" "$(echo $wd)/build/diskin.txt" "$(echo $wd)/build/irq2in.txt"
 if [ $? -ne 0 ]; then
-    exit 1
+    exit 2
 fi
 echo
-echo "Program $1 compiled successfully!"
+echo "Program $assembly compiled successfully!"
 echo "Running simulator..."
 echo
-./simulate "$(echo $wd)/build/imemin.txt" "$(echo $wd)/build/dmemin.txt" "$(echo $wd)/build/diskin.txt" "$(echo $wd)/build/irq2in.txt" "$(echo $wd)/run/dmemout.txt" "$(echo $wd)/run/regout.txt" "$(echo $wd)/run/trace.txt" "$(echo $wd)/run/hwregtrace.txt" "$(echo $wd)/run/cycles.txt" "$(echo $wd)/run/leds.txt" "$(echo $wd)/run/display7seg.txt" "$(echo $wd)/run/diskout.txt" "$(echo $wd)/run/monitor.txt" "$(echo $wd)/run/monitor.yuv" $2
+./simulate "$(echo $wd)/build/imemin.txt" "$(echo $wd)/build/dmemin.txt" "$(echo $wd)/build/diskin.txt" "$(echo $wd)/build/irq2in.txt" "$(echo $wd)/run/dmemout.txt" "$(echo $wd)/run/regout.txt" "$(echo $wd)/run/trace.txt" "$(echo $wd)/run/hwregtrace.txt" "$(echo $wd)/run/cycles.txt" "$(echo $wd)/run/leds.txt" "$(echo $wd)/run/display7seg.txt" "$(echo $wd)/run/diskout.txt" "$(echo $wd)/run/monitor.txt" "$(echo $wd)/run/monitor.yuv" $dbg
 if [ $? -eq 0 ]; then
     echo "Simulation finished successfully!"
     exit 0
 else
-    exit 1
+    exit 2
 fi

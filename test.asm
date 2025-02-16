@@ -1,14 +1,5 @@
-# First, the program will load the typeface sector from disk to the final 512 bytes of memory, 
-# It'll be printed by using a double loop which sets hwregisters 20 (address) and 21 (color) before calling interrupt 22
-# Character will be in $a0, $a1 will be x and $a2 will be y.
-# x and y will be calculated using the screen size (256x256) and character size ((4+1)*(6+1))
-# for example PRINT(64, 0, 0) will print onto the screen the @ symbol, which will be stored as:
-# 0110 1001 1011 1011 1000 0111 = 69BB87 which is 3 bytes.
-# ready?
-
-.word 0 0  # at dmem[0] i will store which secotr is the typeface sector 
-
-
+# LOAD TYPEFACE
+.word 0 0  # at dmem[0] i will store which secotr is the typeface sector
 #.disksector 0 0x00 0x00 0x00 0x22 0x22 0x02 0x55 0x00 0x00 0xAF 0xAA 0xFA 0x27 0x63 0x72 0x51   # 32-36
 #.disksector 1 0x22 0x45 0x8B 0x8C 0xAC 0x22 0x00 0x00 0x12 0x22 0x21 0x84 0x44 0x48 0x52 0x50   # 37-41
 #.disksector 2 0x00 0x00 0x27 0x20 0x00 0x00 0x48 0x00 0x07 0x00 0x00 0x00 0x04 0x11 0x22 0x44   # 42-47
@@ -19,9 +10,16 @@
 
 #.disksector 6 0x69 0xBB 0x87 0x69 0x9F 0x99 0xE9 0xE9 0x9E 0x69 0x88 0x96 0xE9 0x99 0x9E 0xF8    # 64-68
 #.disksector 7 0xE8 0x8F 0xF8 0xE8 0x88 0x69 0x8B 0x96 0x99 0xF9 0x99 0x72 0x22 0x27 0x11 0x11    # 69-73
-#.disksector 8 0x96 0x9A 0xCC 0xA9 0x88 0x88 0x8F 0x9F 0xF9 0x99 0x9D 0xB9 0x99 0x69 0x99 0x96    # 74-80
-# 
-add $sp, $imm1, $zero, $zero, 512, 0  # Initialize the output stack pointer
+#.disksector 8 0x96 0x9A 0xCC 0xA9 0x88 0x88 0x8F 0x9F 0xF9 0x99 0x9D 0xB9 0x99 0x69 0x99 0x96    # 74-79
+#.disksector 9 0xE9 0x9E 0x88 0x69 0x99 0xA5 0x69 0x9E 0xA9 0x78 0x61 0x1E 0x72 0x22 0x22 0x99    # 80-84
+#.disksector 10 0x99 0x96 0x99 0x99 0x66 0x99 0x9F 0xF9 0x99 0x66 0x99 0x55 0x52 0x22 0xF1 0x24  # 85-89
+#.disksector 11 0x8F 0x00 0x79 0x97 0x88 0xE9 0x9E 0x00 0x69 0x87 0x11 0x79 0x97 0x00 0x6F 0x87  # 90-94
+
+
+
+#INIT CODE
+
+add $sp, $imm1, $zero, $zero, 512, 0  # Initialize the stack pointer
 lw $t0, $zero, $zero, $zero, 0, 0  # Load the word in dmem[0] to the correct sector
 out $zero, $imm1, $zero, $t0, 15, 0                          # read from sector $t0
 mac $gp, $imm1, $imm2, $zero, 512, 7  # calculate memory address of 512*7 (last place where sector fits)
@@ -38,27 +36,58 @@ LOOP:
     add $gp, $gp, $imm1, $zero, 16, 0  # increment memory address by 16
     out $zero, $imm1, $zero, $gp, 16, 0                      # r/w to/from memory addresses 512 * 7 + 16
     out $zero, $imm1, $zero, $imm2, 14, 1                        # initiate disk read
-bne $zero, $t0, $imm1, $imm2, 16, LOOP  # if sector != 16, go to LOOP
+bne $zero, $t0, $imm1, $imm2, 18, LOOP  # if sector != 18, go to LOOP
 
 mac $gp, $imm1, $imm2, $zero, 512, 7  # calculate memory address of 512*7 (last place where sector fits)
 add $t0, $zero, $zero, $zero, 0, 0  # reset $t0 for program start
-
-# My favorite part is when shraga said "it's printin' time" and then printed all over the bad g-
-# Ohh yeah. It's printin' time.
-
 add $a1, $imm1, $zero, $zero, 0, 0
 add $a2, $imm1, $zero, $zero, 0, 0
 
-add $t0, $imm1, $zero, $zero, 64, 0  # $t0 = 0
-LOOP2:
-add $t0, $t0, $imm1, $zero, 1, 0  # $t0++
-add $a0, $t0, $zero, $zero, 49, 0
-jal $ra, $zero, $zero, $imm1, PRINT, 0
-bne $zero, $t0, $imm1, $imm2, 80, LOOP2
 
-halt $0, $0, $0, $0, 0, 0
+# PROGRAM START
+lw $t0, $s0, $zero, $zero, 0, 0  # load
+sw $t0, $s0, $zero, $imm1, 1, 0  # add and store
+
+lw $t0, $s0, $zero, $zero, 0, 0  # load
+sw $t0, $s0, $zero, $imm1, 1, 0  # add and store
 
 
+add $s0, $s0, $imm1, $zero, 1, 0  # Move pointer to the right
+
+lw $t0, $s0, $zero, $zero, 0, 0  # load
+sw $t0, $s0, $zero, $imm1, 1, 0  # add and store
+
+lw $t0, $s0, $zero, $zero, 0, 0  # load
+sw $t0, $s0, $zero, $imm1, 1, 0  # add and store
+
+lw $a0, $s0, $zero, $zero, 0, 0  # load current byte
+jal $ra, $zero, $zero, $imm2, 0, PRINT
+
+
+
+add $s0, $s0, $imm1, $zero, -1, 0 # Move pointer to the left
+
+lw $a0, $s0, $zero, $zero, 0, 0  # load current byte
+jal $ra, $zero, $zero, $imm2, 0, PRINT
+
+
+lw $t0, $s0, $zero, $zero, 0, 0  # load
+sw $t0, $s0, $zero, $imm1, 1, 0  # add and store
+
+lw $t0, $s0, $zero, $zero, 0, 0  # load
+sw $t0, $s0, $zero, $imm1, 1, 0  # add and store
+
+lw $a0, $s0, $zero, $zero, 0, 0  # load current byte
+jal $ra, $zero, $zero, $imm2, 0, PRINT
+
+
+
+# PROGRAM END 
+halt $zero, $zero, $zero, $zero, 0, 0 # Stop the program
+
+
+
+# PRINT PROCEDURE
 
 # $a0 is the character in ascii
 # $a1 is the x coordinate
@@ -134,7 +163,5 @@ PRINT:
             add $sp, $sp, $imm1, $zero, 5, 0  # return the stack pointer to its original position
             beq $zero, $zero, $zero, $ra, 0, 0  # return to caller
 
-        
 
-        
-        
+    

@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 	FILE *asmb_file; //file pointer to program.asm
 	FILE *imem_file; //file pointer to imemin.txt
 	FILE *dmem_file; //file pointer to dmemin.txt 
-	asmb_file = fopen(argv[1], "r");// only for read
+	asmb_file = fopen(argv[1], "r"); // only for read
 	if (asmb_file == NULL){
 		error("Failed to create assembly file: ");
 		printf("%s\n", argv[1]);
