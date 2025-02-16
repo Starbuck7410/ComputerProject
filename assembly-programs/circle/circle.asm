@@ -1,6 +1,4 @@
-﻿
-
-main:   
+﻿main:   
         sll $sp, $imm1, $imm2, $zero, 1, 11		# set $sp to 2048
         jal  $ra, $zero, $zero, $imm1, circle, 0        # call circle
         halt $zero, $zero, $zero, $zero, 0, 0

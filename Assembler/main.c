@@ -3,9 +3,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include "functions.h"
-#define LABEL_COUNT 250
-#define LABEL_SIZE 50
-#define LINE_SIZE 250
+#define LABEL_COUNT 300
+#define LABEL_SIZE 70
+#define LINE_SIZE 300
 
 
 int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.txt, argv[3] = dmemin.txt
