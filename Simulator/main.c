@@ -41,14 +41,15 @@ int main(int argc, char * argv[]) {
 	for (int k = 0; k < 256 * 256; k++) monitor[k] = 0;
 
 	int local_memory[4096];
+	long long instruction_memory[4096];
 	int doom_counter = 0;
 	unsigned int temp_leds = 0;
 	unsigned int temp_7seg = 0; // temp variables to check if the leds or 7 seg changed
 	int in_isr = 0; //if in ISR then 1, else 0.
 	int irq = 0;
 	char IOReg_name[20];
-
-	FILE* mcode = fopen(argv[1], "r");
+	
+	fill_long_array_from_file(instruction_memory, argv[1]);
 	fill_int_array_from_file(local_memory, argv[2]); // fills local memory from dmemin.txt
 	FILE* disk_in_file = fopen(argv[3], "r");
 	FILE* irq2in_file = fopen(argv[4], "r");
@@ -62,11 +63,11 @@ int main(int argc, char * argv[]) {
 	FILE* disk_out_file = fopen(argv[12], "w");
 	// Monitor files 13 and 14 also opened in respective functions
 	
-	if (mcode == NULL) {
-		perror("ERROR");
-		error("Cant open file program memory file, Crashing...");
-		return 1;
-	}
+	// if (mcode == NULL) {
+	// 	perror("ERROR");
+	// 	error("Cant open file program memory file, Crashing...");
+	// 	return 1;
+	// }
 
 	if (disk_in_file == NULL){
 		perror("ERROR ");
@@ -80,7 +81,9 @@ int main(int argc, char * argv[]) {
 
 
 		// ------- STAGE: Fetch -------
-		instruction = fetch(mcode, pc);
+		// instruction = fetch(mcode, pc);
+		instruction = instruction_memory[pc];
+		
 		
 		
 		// ------- STAGE: Decode -------
@@ -214,7 +217,6 @@ int main(int argc, char * argv[]) {
 	save_disk(disk_out_file, disk_data);
 	fclose(disp7seg_file);
 	fclose(leds_file);
-	fclose(mcode);
 	fclose(trace_file);
 	fclose(regout_file);
 	fclose(cycles_file);
