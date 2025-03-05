@@ -9,6 +9,7 @@
 
 #define HALT_OP 21
 #define MAX_PC 4096
+#define IRQ_SIZE 100
 // argv[0] = sim.exe,      argv[1] = imemin.txt,   argv[2] = dmemin.txt
 // argv[3] = diskin.txt,   argv[4] = irq2in.txt,   argv[5] = dmemout.txt
 // argv[6] = regout.txt,   argv[7] = trace.txt,    argv[8] = hwregtrace.txt
@@ -16,11 +17,12 @@
 // argv[12] = diskout.txt, argv[13] = monitor.txt, argv[14] = monitor.yuv
 
 
-int scale = 2;
+int scale = 3;
 XImage * image;
 Display * display;
 Window window;
 int screen;
+int slow = 30000; // larger values run faster but are choppier
 
 char * create_screen(int size_x, int size_y) {
     // Connect to the X server
@@ -73,14 +75,7 @@ char * create_screen(int size_x, int size_y) {
         free(image_data);
         return NULL;
     }
-
-    
     return image_data;
-    // Event loop (renders image on Expose, exits on KeyPress)
-    
-    // Cleanup
-
-    
 }
 
 int main(int argc, char * argv[]) {
@@ -105,12 +100,14 @@ int main(int argc, char * argv[]) {
 	int cycles = 0;
 	long long instruction;
 	// The initial values of the local and hardware registers on reset are 0.
+	// I thus declare register 18 to be the keyboard character, register 24 to be the interrupt itself, and register 19 to be the keyboard handler
 	int registers[16] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
-	unsigned int io_registers[23] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	unsigned int io_registers[24] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 	
 	
 	long long imem[4096];
 	int local_memory[4096];
+	int irq2_addresses[IRQ_SIZE];
 	int doom_counter = 0;
 	unsigned int temp_leds = 0;
 	unsigned int temp_7seg = 0; // temp variables to check if the leds or 7 seg changed
@@ -122,6 +119,7 @@ int main(int argc, char * argv[]) {
 	fill_int_array_from_file(local_memory, argv[2]); // fills local memory from dmemin.txt
 	FILE* disk_in_file = fopen(argv[3], "r");
 	FILE* irq2in_file = fopen(argv[4], "r");
+	irq2_load(argv[4], irq2_addresses);
 	// dmemout 5 handled in its own function
 	FILE* regout_file = fopen(argv[6], "w");
 	FILE* trace_file = fopen(argv[7], "w");
@@ -131,6 +129,7 @@ int main(int argc, char * argv[]) {
 	FILE* disp7seg_file = fopen(argv[11], "w");
 	FILE* disk_out_file = fopen(argv[12], "w");
 
+	
 
 	if (disk_in_file == NULL){
 		perror("ERROR ");
@@ -145,11 +144,12 @@ int main(int argc, char * argv[]) {
     char * monitor = create_screen(size_x, size_y);
 	// initialize monitor array and set to 0's.
 	for (int k = 0; k < 256 * 256 * 4 * scale * scale; k++) monitor[k] = 0;
+	XEvent event;
 	XPutImage(display, window, DefaultGC(display, screen), image, 0, 0, 0, 0, size_x * scale, size_y * scale);
 
 
 	while(1){ // main run loop
-
+		// usleep(slow);
 
 		// ------- STAGE: Fetch -------
 
@@ -169,24 +169,26 @@ int main(int argc, char * argv[]) {
 		
 
 		// ------- STAGE: Traces -------
-		trace_out(trace_file, pc, instruction, registers);
+		if(debug){
+				trace_out(trace_file, pc, instruction, registers);
+			
+			
+			if ((opcode == 19) || (opcode == 20)) {
+				get_IO_reg_name(inst_regs, registers, IOReg_name);
+				fprintf(hwregtrace_file, "%d ", cycles);
+				if (opcode == 19){ 
+					fprintf(hwregtrace_file, "READ "); // Read
+				} else {
+					fprintf(hwregtrace_file, "WRITE "); // Write
+				}
 
-		
-		if ((opcode == 19) || (opcode == 20)) {
-			get_IO_reg_name(inst_regs, registers, IOReg_name);
-			fprintf(hwregtrace_file, "%d ", cycles);
-			if (opcode == 19){ 
-				fprintf(hwregtrace_file, "READ "); // Read
-			} else {
-				fprintf(hwregtrace_file, "WRITE "); // Write
-			}
+				fprintf(hwregtrace_file, "%s ", IOReg_name);
 
-			fprintf(hwregtrace_file, "%s ", IOReg_name);
-
-			if (opcode == 19){
-				fprintf(hwregtrace_file, "%08X\n", io_registers[registers[inst_regs[1]] + registers[inst_regs[2]]]); 
-			} else { 
-				fprintf(hwregtrace_file, "%08X\n", registers[inst_regs[3]]);
+				if (opcode == 19){
+					fprintf(hwregtrace_file, "%08X\n", io_registers[registers[inst_regs[1]] + registers[inst_regs[2]]]); 
+				} else { 
+					fprintf(hwregtrace_file, "%08X\n", registers[inst_regs[3]]);
+				}
 			}
 		}
 		// ------- STAGE: Execute -------
@@ -197,15 +199,17 @@ int main(int argc, char * argv[]) {
 
 		
 		// ------- STAGE: I/O -------
-		
-		if(temp_leds != io_registers[9]){
-			fprintf(leds_file, "%d %08x\n", cycles, io_registers[9]);
+		if(debug){
+			if(temp_leds != io_registers[9]){
+				fprintf(leds_file, "%d %08x\n", cycles, io_registers[9]);
+			}
+			if(temp_7seg != io_registers[10]){
+				fprintf(disp7seg_file, "%d %08x\n", cycles, io_registers[10]);
+			}
+			temp_leds = io_registers[9];
+			temp_7seg = io_registers[10];
+
 		}
-		if(temp_7seg != io_registers[10]){
-			fprintf(disp7seg_file, "%d %08x\n", cycles, io_registers[10]);
-		}
-		temp_leds = io_registers[9];
-		temp_7seg = io_registers[10];
 
 
 		// if monitor command is 1 write to monitor array, data from I/O to adress given by I/O.
@@ -227,9 +231,9 @@ int main(int argc, char * argv[]) {
 			}
 			io_registers[22] = 0;
 		}
-		if(cycles % 10000 == 0){
-			XPutImage(display, window, DefaultGC(display, screen), image, 0, 0, 0, 0, size_x * scale, size_y * scale);	
-		}
+		
+		
+
 		
 
 		// doom counter is the counter for the clock cycles since calling the diskcmd
@@ -264,11 +268,51 @@ int main(int argc, char * argv[]) {
 			}else{
 				io_registers[3] = 1;
 				io_registers[12] = 0;
+				
+			}
+		}
+		
+		if(io_registers[24]){
+			io_registers[24] = 0;
+		}
+
+		if(cycles % slow == 0){
+			XPutImage(display, window, DefaultGC(display, screen), image, 0, 0, 0, 0, size_x * scale, size_y * scale);	
+			if(XCheckWindowEvent(display, window, KeyPressMask, &event)){
+				if (event.type == KeyPress) {
+					io_registers[18] = keycode_to_ascii(event);
+					if(io_registers[18] == 27){
+						break;
+					}
+					if(io_registers[18] != 0){
+						io_registers[24] = 1;
+					}
+					if(debug){
+						printf("Key pressed: %d\n", io_registers[18]);
+					}
+				}
 			}
 		}
 
+		if(io_registers[24] == 1 && !in_isr){ // keyboard pressed
+			if(io_registers[19]){
+				io_registers[7] = pc + 1;
+				pc = io_registers[19] - 1;
+				in_isr = 1;
+			}
+			
+		}
+		
+
+
 		// checks for Interrupt 2
-		irq2_check(irq2in_file, cycles, io_registers);
+		if (io_registers[5] == 1) io_registers[5] = 0; //turn off irq2 if irq2 was on last cycles.  
+
+		for(int i = 0; i < IRQ_SIZE; i++){
+			if (irq2_addresses[i] == cycles) {
+				io_registers[5] = 1; //irq2status = 1
+			}
+		}
 		
 		// executing interrupts
 		irq = (io_registers[0] && io_registers[3]) || (io_registers[1] && io_registers[4]) || (io_registers[2] && io_registers[5]);
@@ -289,18 +333,20 @@ int main(int argc, char * argv[]) {
 		pc++;
 	}
 	
-	// writing into regout.txt
-	for (int i = 3; i < 16; i++)
-	{
-		fprintf(regout_file, "%08X\n", registers[i]);
+	if(debug){
+		// writing into regout.txt
+		for (int i = 3; i < 16; i++){
+			fprintf(regout_file, "%08X\n", registers[i]);
+		}
+
 	}
 	// * (monitor + 6) = 250;
 	// writing into cycles.txt
 	fprintf(cycles_file, "%d", cycles);
 
-	while(1){
+	while(1 && io_registers[18] != 27){
 		XPutImage(display, window, DefaultGC(display, screen), image, 0, 0, 0, 0, size_x * scale, size_y * scale);
-		XEvent event;
+		
 		XNextEvent(display, &event);
 		if (event.type == KeyPress) {
 			break;

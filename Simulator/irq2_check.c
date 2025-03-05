@@ -3,18 +3,16 @@
 #include <string.h>
 int dec_string_to_int(char number[]);
 
-
-void irq2_check(FILE* irq2in_file, int cycles, int io_registers[])
-{
+int irq2_load(char * irq2in_file_name, int * addresses){
+	FILE * irq2in_file = fopen(irq2in_file_name, "r");
 	int line_number;
 	char line[256];
-	if (io_registers[5] == 1) io_registers[5] = 0; //turn off irq2 if irq2 was on last cycles.  
-	rewind(irq2in_file);
+	int i = 0;
 	while (fscanf(irq2in_file, "%[^\n]\n", line) != EOF) {
 		line_number = dec_string_to_int(line);
-		if (line_number == cycles) {
-			io_registers[5] = 1; //irq2status = 1
-			return;
-		}
+		addresses[i] = line_number;
+		i++;
 	}
+	fclose(irq2in_file);
+	return 0;
 }

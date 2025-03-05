@@ -18,3 +18,5 @@ long long hex_string_to_long_long(char number[], int len);
 void error(char* text);
 long long pow_int(int a, int b);
 int fill_ll_array_from_file(long long mem[], char * dmemin_file_path);
+int irq2_load(char * irq2in_file_name, int * addresses);
+int keycode_to_ascii(XEvent event);

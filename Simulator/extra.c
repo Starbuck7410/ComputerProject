@@ -1,6 +1,9 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <string.h>
+#include <X11/Xutil.h>
+#include <X11/Xlib.h>
+#include <X11/keysymdef.h>
 
 int eq_str(char str1[], char str2[]){
 	if(str1 == NULL || str2 == NULL){
@@ -130,4 +133,15 @@ void trace_out(FILE* trace_file, int PC, long long inst, int registers[])
 		fprintf(trace_file, "%08x ", registers[i]);
 	}
 	fprintf(trace_file, "%08x\n", registers[15]);
+}
+
+
+int keycode_to_ascii(XEvent event) {
+	char buffer[32];
+	KeySym keysym;
+	int length = XLookupString(&event.xkey, buffer, sizeof(buffer) - 1, &keysym, NULL);
+	buffer[length] = '\0';  // Null-terminate the string
+	// Print key information
+	// printf("Keycode: %u, Keysym: %lu, ASCII: %s\n", event.xkey.keycode, keysym, buffer);
+	return (int) buffer[0];
 }
