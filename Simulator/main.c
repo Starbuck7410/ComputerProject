@@ -22,7 +22,7 @@ XImage * image;
 Display * display;
 Window window;
 int screen;
-int slow = 30000; // larger values run faster but are choppier
+int slow = 30000; // larger values run faster but are choppier, default is 30000
 
 char * create_screen(int size_x, int size_y) {
     // Connect to the X server
