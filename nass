@@ -61,7 +61,7 @@ echo
 echo "Program $assembly compiled successfully!"
 echo "Running simulator..."
 echo
-./simulate "$(echo $wd)/build/imemin.txt" "$(echo $wd)/build/dmemin.txt" "$(echo $wd)/build/diskin.txt" "$(echo $wd)/build/irq2in.txt" "$(echo $wd)/run/dmemout.txt" "$(echo $wd)/run/regout.txt" "$(echo $wd)/run/trace.txt" "$(echo $wd)/run/hwregtrace.txt" "$(echo $wd)/run/cycles.txt" "$(echo $wd)/run/leds.txt" "$(echo $wd)/run/display7seg.txt" "$(echo $wd)/run/diskout.txt" $dbg
+./simulate "$(echo $wd)/build/imemin.txt" "$(echo $wd)/build/dmemin.txt" "$(echo $wd)/build/diskin.txt" "$(echo $wd)/build/irq2in.txt" "$(echo $wd)/run/dmemout.txt" "$(echo $wd)/run/regout.txt" "$(echo $wd)/run/trace.txt" "$(echo $wd)/run/hwregtrace.txt" "$(echo $wd)/run/cycles.txt" "$(echo $wd)/run/leds.txt" "$(echo $wd)/run/display7seg.txt" $dbg
 if [ $? -eq 0 ]; then
     echo "Simulation finished successfully!"
     exit 0

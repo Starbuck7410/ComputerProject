@@ -39,3 +39,8 @@ I do not want to publish the documentation as is, so I need to tell an LLM to tr
 I have made a critical mistake writing the disk drive system, and print functions:
 - I have miscalculated the size of a sector in the drive, so now it is much smaller from the original instructions. I won't revert it to the original size, because it would warrant a large rewrite of the #.disksector meta-instruction, or will make it ridiculouslyw harder to use. I will instead change the specification to 64 bytes per block, and a delay of 512 clock cycles. #.disksector will be replaced with the similar-functionality #.diskpage which will take 2 location arguments (sector and page) and then 4 words to write a quarter of a sector on disk.
 - The typeface for the print function used in the brainfuck interpreter and the new "terminal" program stores 1 byte for every word on disk and memory, which inflates the space and memory requirements by 3x! I will fix this issue before moving on to other things.
+
+### TODO
+ - Redo fonts
+ - Convert PRINT to the new font system
+ - Think of a way to load programs into this shit

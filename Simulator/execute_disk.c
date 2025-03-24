@@ -7,7 +7,7 @@ long long hex_string_to_long_long(char number[], int len);
 void error(char * text);
 
 int* load_disk(FILE * disk_file){
-    int * disk_data = (int*) malloc(512 * 128); // 512 sectors of 128 bytes
+    int * disk_data = (int*) malloc(1024 * 64); // Initialize 1024 sectors of 64 bytes for 64KiB of "storage"
     if (disk_data == NULL) {
         error("ERROR ALLOCATING MEMORY SPACE FOR DISK");
         return NULL;
@@ -40,7 +40,7 @@ int execute_disk(unsigned int * io_registers, int * disk_data, int * local_memor
         return 1;
     }
     if (* disk_cmd == 1){
-        for (int i = 0; i < 16; i++){ // 1 sector = 512 bytes = 16 words
+        for (int i = 0; i < 16; i++){ // 1 sector = 64 bytes = 16 words
             local_memory[(* disk_buffer) + i] = disk_data[(* disk_sector) * 16 + i]; 
         }
         * disk_cmd = 0;
@@ -59,7 +59,7 @@ int execute_disk(unsigned int * io_registers, int * disk_data, int * local_memor
 }
 
 int save_disk(FILE * disk_file, int * disk_data){
-    for (int i = 0; i < 512 * 128 / 4; i++){
+    for (int i = 0; i < 1024 * 64 / 4; i++){
         fprintf(disk_file, "%08X\n", disk_data[i]);
     }
     free(disk_data);

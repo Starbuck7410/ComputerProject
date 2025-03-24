@@ -11,10 +11,10 @@
 #define MAX_PC 4096
 #define IRQ_SIZE 100
 // argv[0] = sim.exe,      argv[1] = imemin.txt,   argv[2] = dmemin.txt
-// argv[3] = diskin.txt,   argv[4] = irq2in.txt,   argv[5] = dmemout.txt
+// argv[3] = disk.txt,   argv[4] = irq2in.txt,   argv[5] = dmemout.txt
 // argv[6] = regout.txt,   argv[7] = trace.txt,    argv[8] = hwregtrace.txt
 // argv[9] = cycles.txt,  argv[10] = leds.txt,    argv[11] =  display7seg.txt 
-// argv[12] = diskout.txt, argv[13] = monitor.txt, argv[14] = monitor.yuv
+
 
 
 int scale = 3;
@@ -85,14 +85,14 @@ int main(int argc, char * argv[]) {
 		return 0;
 	}
 
-	if(argc < 13){
+	if(argc < 12){
 		error("Not enough arguments. Use the -h flag for more info.\n");
 		return 1;
 	}
-	if (argc == 14 && (eq_str(argv[13], "-d") || eq_str(argv[13], "-D"))) {
+	if (argc == 13 && (eq_str(argv[13], "-d") || eq_str(argv[12], "-D"))) {
 		debug = 1;
 	}
-	if(argc > 13 && !debug){
+	if(argc > 12 && !debug){
 		error("Too many arguments. Use the -h flag for more info.\n");
 		return 1;
 	}
@@ -117,7 +117,7 @@ int main(int argc, char * argv[]) {
 
 	fill_ll_array_from_file(imem, argv[1]); // fills local memory from dmemin.txt
 	fill_int_array_from_file(local_memory, argv[2]); // fills local memory from dmemin.txt
-	FILE* disk_in_file = fopen(argv[3], "r");
+	FILE* disk_file = fopen(argv[3], "r");
 	FILE* irq2in_file = fopen(argv[4], "r");
 	irq2_load(argv[4], irq2_addresses);
 	// dmemout 5 handled in its own function
@@ -127,17 +127,17 @@ int main(int argc, char * argv[]) {
 	FILE* cycles_file = fopen(argv[9], "w");
 	FILE* leds_file = fopen(argv[10], "w");
 	FILE* disp7seg_file = fopen(argv[11], "w");
-	FILE* disk_out_file = fopen(argv[12], "w");
+
 
 	
 
-	if (disk_in_file == NULL){
+	if (disk_file == NULL){
 		perror("ERROR ");
-		error("Cant open file diskin. Crashing...");
+		error("Cant open disk file, Crashing...");
 		return 1;
 	}
 
-	int * disk_data = load_disk(disk_in_file);
+	int * disk_data = load_disk(disk_file);
 
 	int size_x = 256;
     int size_y = 256;
@@ -149,7 +149,6 @@ int main(int argc, char * argv[]) {
 
 
 	while(1){ // main run loop
-		// usleep(slow);
 
 		// ------- STAGE: Fetch -------
 
@@ -224,10 +223,6 @@ int main(int argc, char * argv[]) {
 				* (monitor_ptr + xscale + yscale) = io_registers[21] & 0xFF;
 				* (monitor_ptr + xscale + yscale + 1) = io_registers[21] & 0xFF;
 				* (monitor_ptr + xscale + yscale + 2)  = io_registers[21] & 0xFF;
-
-				// * (monitor_ptr + xscale + yscale) =  0xFF;
-				// * (monitor_ptr + xscale + yscale + 1) =  0xFF;
-				// * (monitor_ptr + xscale + yscale + 2)  = 0xFF;
 			}
 			io_registers[22] = 0;
 		}
@@ -246,7 +241,7 @@ int main(int argc, char * argv[]) {
 				error("Error in execute_disk\n");
 				return 1;
 			}
-			doom_counter = 1024; 
+			doom_counter = 512; 
 
 		}
 		if (doom_counter) {
@@ -357,7 +352,7 @@ int main(int argc, char * argv[]) {
     XCloseDisplay(display);
 
 	dmemout(local_memory, argv[5]);
-	save_disk(disk_out_file, disk_data);
+	save_disk(disk_file, disk_data);
 	fclose(disp7seg_file);
 	fclose(leds_file);
 	fclose(trace_file);

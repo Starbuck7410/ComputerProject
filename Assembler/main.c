@@ -205,6 +205,7 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 		}
 
 		if(eq_str(op_code, "#.disksector")){
+			warn("WARNING: #.disksector is deprecated and will likely be removed in a future version.\n");
 			if(argc > 4){
 				printf("Directive:     | \"%s\"\n", op_code);
 				char disk_sector_text[10];
@@ -231,6 +232,43 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 				}
 			} else {
 				warn("WARNING: #.disksector used without extra features mode on.\nFor more info run with the flag -h.\n");
+			}
+
+			continue;
+		}
+
+		if(eq_str(op_code, "#.diskpage")){
+			if(argc > 4){
+				printf("Directive:     | \"%s\"\n", op_code);
+				char disk_sector_text[10];
+				start = get_component(line, disk_sector_text, start);
+				
+				int disk_sector_value = str_to_int(disk_sector_text);
+				if (disk_sector_value * 16 >= disk_size){
+					for (int i = disk_size; i < disk_sector_value * 16; i++){
+						disk[i] = 0;
+					}
+					disk_size = (disk_sector_value + 1) * 16;
+					disk[disk_size + 1] = EOF;	
+				}	
+
+				
+				char disk_page_text[2];
+				start = get_component(line, disk_page_text, start);
+				int disk_page = str_to_int(disk_page_text);
+				
+				printf("Sector, page:  | %d, %d\n", disk_sector_value, disk_page);
+
+				char word_text[10];
+				int word_value;
+				for (int i = 0; i < 4; i++){ // 1 page is 4 words
+					start = get_component(line, word_text, start);
+					word_value = str_to_int(word_text);
+					// printf("Word %02d:       | %d\n", i, word_value);
+					disk[disk_sector_value * 16 + disk_page * 4 + i] = word_value;
+				}
+			} else {
+				warn("WARNING: #.diskpage used without extra features mode on.\nFor more info run with the flag -h.\n");
 			}
 
 			continue;
