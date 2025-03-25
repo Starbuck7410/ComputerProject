@@ -306,8 +306,7 @@ For performance sake, if the debug flag isn't present this file won't be written
 The file <b>trace.txt</b> is an output text file, that contains a line of text for every instruction
 executed by the processor, in the following format:
 ```
-PC INST R0 R1 R2 R3 R4 R5 R6 R7 R8 R9 R10 R11 R12 R13 R14 R15```math
-\frac{x}{y}\cdot 2 \pi
+PC INST R0 R1 R2 R3 R4 R5 R6 R7 R8 R9 R10 R11 R12 R13 R14 R15
 ```
 
 For performance sake, if the debug flag isn't present this file won't be written.
