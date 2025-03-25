@@ -6,6 +6,7 @@ int sub();
 int right();
 int left();
 int out();
+int in();
 int halt();
 int typeface();
 int print_proc();

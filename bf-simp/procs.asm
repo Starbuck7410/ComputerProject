@@ -12,6 +12,8 @@
 #  0000
 # ready?
 
+
+# LOAD TYPEFACE
 .word 0 0  # at dmem[0] i will store which sector on disk is the typeface sector
 
 #.diskpage 0 0 0x00000000 0x02222020 0x05500000 0x0AFAAFA0
@@ -44,6 +46,7 @@
 #.diskpage 5 2 0x00096690 0x0009971E 0x000F24F0 0x01262210
 #.diskpage 5 3 0x02222220 0x08464480 0x0005A000 0x00000000
 
+# INIT CODE
 
 add $sp, $imm1, $zero, $zero, 512, 0  # Initialize the stack pointer
 lw $t0, $zero, $zero, $zero, 0, 0  # Load the word in dmem[0] to the correct sector
@@ -68,12 +71,15 @@ mac $gp, $imm1, $imm2, $zero, 512, 7  # calculate memory address of 512*7 (last 
 add $t0, $zero, $zero, $zero, 0, 0  # reset $t0 for program start
 add $a1, $imm1, $zero, $zero, 0, 0
 add $a2, $imm1, $zero, $zero, 0, 0
+out $zero, $zero, $imm1, $imm2, 19, KEYEVENT # handle keyboard events for the in command
+
 
 # My favorite part is when shraga said "it's printin' time" and then printed all over the bad g-
 # Ohh yeah. It's printin' time.
 
 
 halt $0, $0, $0, $0, 0, 0
+
 
 
 # PRINT PROCEDURE
@@ -181,3 +187,21 @@ PRINT:
         lw $s1, $sp, $imm1, $zero, 4, 0  # pop $s1
         add $sp, $sp, $imm1, $zero, 5, 0  # return the stack pointer to its original position
         beq $zero, $zero, $zero, $ra, 0, 0  # return to caller
+
+
+# Keyboard interrupt handler
+
+KEYEVENT:
+    in $t1, $imm1, $zero, $zero, 18, 0  # read the key event
+    beq $zero, $zero, $zero, $ra, 0, 0  # return to caller
+
+
+# In
+
+IN_XXXX:
+    beq $zero, $t1, $zero, $imm2, 0, IN_XXXX  # wait for the interrupt to be raised
+    bne $zero, $t1, $imm1, $imm2, 13, NOPE_XXXX  # wait for the interrupt to be raised
+    add $t1, $zero, $zero, $zero, 0, 0  # reset $t1
+    NOPE_XXXX:
+    sw $t1, $s0, $zero, $zero, 0, 0  # store the key event
+    add $t1, $zero, $zero, $zero, 0, 0  # reset $t1

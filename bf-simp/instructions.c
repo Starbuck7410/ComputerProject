@@ -2,6 +2,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
+// $s0 is the address of the current word the tape is at, and $t0 is the value. 
+// $t1 is the last keyboard key pressed for the in command
+// $gp is the global pointer, and points to the font data's starting point
+// 
 int init_code(char * next_block){
     char * init_asm = 
     R"(
@@ -30,6 +35,8 @@ mac $gp, $imm1, $imm2, $zero, 512, 7  # calculate memory address of 512*7 (last 
 add $t0, $zero, $zero, $zero, 0, 0  # reset $t0 for program start
 add $a1, $imm1, $zero, $zero, 0, 0
 add $a2, $imm1, $zero, $zero, 0, 0
+out $zero, $zero, $imm1, $imm2, 19, KEYEVENT # handle keyboard events for the in command
+add $s0, $imm1, $zero, $zero, 2047, 0
 
 )";
     strncpy(next_block, init_asm, strlen(init_asm) + 1);
@@ -38,28 +45,26 @@ add $a2, $imm1, $zero, $zero, 0, 0
 }
 
 int add(char * next_block, int count){
-    char * add_asm = "lw $t0, $s0, $zero, $zero, 0, 0  # load\n"
-                     "sw $t0, $s0, $zero, $imm1, 1, 0  # add and store\n";
-    strncpy(next_block, add_asm, strlen(add_asm) + 1);
+    snprintf(next_block, 150, "lw $t0, $s0, $zero, $zero, 0, 0  # load\n"
+        "sw $t0, $s0, $zero, $imm1, %d, 0  # add and store\n"
+        , count);
     return 0;
 }
 
 int sub(char * next_block, int count){
-    char * sub_asm = "lw $t0, $s0, $zero, $zero, 0, 0  # load\n"
-                     "sw $t0, $s0, $zero, $imm1, -1, 0  # substract and store\n";
-    strncpy(next_block, sub_asm, strlen(sub_asm) + 1);
+    snprintf(next_block, 150, "lw $t0, $s0, $zero, $zero, 0, 0  # load\n"
+                     "sw $t0, $s0, $zero, $imm1, -%d, 0  # substract and store\n"
+                     , count);
     return 0;
 }
 
 int right(char * next_block, int count){
-    char * rgt_asm = "add $s0, $s0, $imm1, $zero, 1, 0  # Move pointer to the right\n";
-    strncpy(next_block, rgt_asm, strlen(rgt_asm) + 1);
+    snprintf(next_block, 100, "add $s0, $s0, $imm1, $zero, %d, 0 # Move pointer to the left\n", count);
     return 0;
 }
 
 int left(char * next_block, int count){
-    char * lft_asm = "add $s0, $s0, $imm1, $zero, -1, 0 # Move pointer to the left\n";
-    strncpy(next_block, lft_asm, strlen(lft_asm) + 1);
+    snprintf(next_block, 100, "add $s0, $s0, $imm1, $zero, -%d, 0 # Move pointer to the left\n", count);
     return 0;
 }
 
@@ -76,7 +81,7 @@ int close_loop(char * next_block, int loop_idx){
     snprintf(next_block, 300, 
         "lw $t0, $s0, $zero, $zero, 0, 0  # load\n"
         "bne $zero, $t0, $zero, $imm2, 0, LOOP_START_%04d  # if $t0 != 0, go to LOOP_NE_%04d\n"
-        "LOOP_END_%04d: # Start of loop\n"
+        "LOOP_END_%04d: # End of loop\n"
     , loop_idx, loop_idx, loop_idx);
     return 0;
 }
@@ -88,6 +93,23 @@ int out(char * next_block){
     strncpy(next_block, out_asm, strlen(out_asm) + 1);
     return 0;
 }
+
+int in(char * next_block, int in_dex){
+    snprintf(next_block, 500, 
+        "IN_%04d:\n"
+        "    beq $zero, $t1, $zero, $imm2, 0, IN_%04d  # wait for the interrupt to be raised\n"
+
+        "    bne $zero, $t1, $imm1, $imm2, 13, NOPE_%04d  # check if enter key was pressed\n"
+        "    add $t1, $imm1, $zero, $zero, 10, 0  # $t1 = LF\n"
+
+        "    NOPE_%04d:\n"
+        "    sw $t1, $s0, $zero, $zero, 0, 0  # store the key event\n"
+        "    add $t1, $zero, $zero, $zero, 0, 0  # reset $t1\n"
+    , in_dex, in_dex, in_dex, in_dex);
+    return 0;
+}
+
+
 
 int halt(char * next_block){
     char * halt_asm = "# PROGRAM END \n"
@@ -235,6 +257,13 @@ PRINT:
         lw $s1, $sp, $imm1, $zero, 4, 0  # pop $s1
         add $sp, $sp, $imm1, $zero, 5, 0  # return the stack pointer to its original position
         beq $zero, $zero, $zero, $ra, 0, 0  # return to caller
+
+# Keyboard interrupt handler
+
+KEYEVENT:
+    in $t1, $imm1, $zero, $zero, 18, 0  # read the key event
+    lw $zero, $t1, $zero, $zero, 0, 0 # DEBUG PRINT
+    reti $zero, $zero, $zero, $zero, 0, 0  # return to caller
 
     )";
 

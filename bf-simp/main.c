@@ -3,7 +3,7 @@
 #include <string.h>
 #include "functions.h"
 #define BLOCK_SIZE 20000
-#define LOOP_STACK_SIZE 200
+#define LOOP_STACK_SIZE 500
 
 // Brainfuck translation is as follows:
 // $s0 will be used for the values
@@ -42,43 +42,65 @@ int main(int argc, char * argv[]){ // loops on the main bf code, transpiles each
     init_code(next_block);
     fprintf(asmb_file ,"%s\n", next_block);
     fprintf(asmb_file, "# PROGRAM START\n");
-
+    int in_dex = 0;
+    char prevc;
+    int count = 1;
     while (1){
         char c = fgetc(bf_file);
+        
+        if(prevc == '+' || prevc == '-' || prevc == '<' || prevc == '>'){
+            if(prevc == c){
+                count++;
+                strncpy(next_block, "", 1);
+            }else{
+                switch (prevc){
+                    case '+':
+                        add(next_block, count);
+                        break;
+                    case '-':
+                        sub(next_block, count);
+                        break;
+                    case '>':
+                        right(next_block, count);
+                        break;
+                    case '<':
+                        left(next_block, count);
+                        break;
+                }
+                count = 1;
+            }
+        }else{
+            switch (prevc){
+                case '.':
+                    out(next_block);
+                    break;
+                case '[':
+                    open_loop(next_block, loop_id);
+                    loop_stack[loop_stack_idx] = loop_id;
+                    loop_stack_idx++;
+                    loop_id++;
+                    break;
+                case ']':
+                    loop_stack_idx--;
+                    close_loop(next_block, loop_stack[loop_stack_idx]);
+                    break;
+                case ',':
+                    in(next_block, in_dex);
+                    in_dex++;
+                    break;
+                default:
+                    strncpy(next_block, "", 1);
+                    break;
+            }
+        }
+        
+        prevc = c;
+        if(strcmp(next_block, "")){
+            fprintf(asmb_file ,"%s\n", next_block);
+        }
         if (c == EOF){
             break;
         }
-        switch (c){
-            case '+':
-                add(next_block);
-                break;
-            case '-':
-                sub(next_block);
-                break;
-            case '>':
-                right(next_block);
-                break;
-            case '<':
-                left(next_block);
-                break;
-            case '.':
-                out(next_block);
-                break;
-            case '[':
-                open_loop(next_block, loop_id);
-                loop_stack[loop_stack_idx] = loop_id;
-                loop_stack_idx++;
-                loop_id++;
-                break;
-            case ']':
-                loop_stack_idx--;
-                close_loop(next_block, loop_stack[loop_stack_idx]);
-                break;
-            default:
-                strncpy(next_block, "", 1);
-                break;
-            }
-        fprintf(asmb_file ,"%s\n", next_block);
     }
     halt(next_block);
     fprintf(asmb_file ,"%s\n", next_block);

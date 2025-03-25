@@ -7,7 +7,6 @@
 /bin/linux
 /bin/linux/*
 
-
 /Simulator/x64/Debug
 /Simulator/Simulator/x64/Debug
 /Simulator/.vs/Simulator
@@ -49,6 +48,9 @@ Example/.fib.asm.kate-swp
 
 assembly-programs/*/*
 !assembly-programs/*/*.asm
+
+bf-programs/*/*
+!bf-programs/*/*.bf
 
 bf-test/*
 
