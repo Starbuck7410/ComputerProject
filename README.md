@@ -18,7 +18,7 @@ Well, I prefer POSIX C anyway. 😉
 
 Here's a demo of it's capabilities:
 
-<img src="resources/calculator.png" alt="Basic calculator by Dougaak running on the simualtor" width="400"/>
+<img src="resources/calculator.png" title="Basic calculator by Dougaak running on the simualtor" width="400"/>
 
 ## Folder Structure
 
