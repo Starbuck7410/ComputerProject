@@ -16,12 +16,15 @@ Well, I prefer POSIX C anyway. 😉
 
 <sub>(I bet you could actually make it run with WSL if you really wanted to, but i recommend just setting up a VM at this point.)</sub>
 
+Here's a demo of it's capabilities:
+
+<img src="resources/calculator.png" alt="Basic calculator by Dougaak running on the simualtor" width="400"/>
+
 ## Folder Structure
 
 Assembler - contains the assembler source code
 Simulator - contains the simulator source code
 bf-simp - contains the code for compiling brainfuck code to SIMP assembly
-bin - contains binaries for linux & windows
 assembly_programs - contains all assembly programs
 Example - contains the fibonacci example files
 

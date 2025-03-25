@@ -98,10 +98,8 @@ int in(char * next_block, int in_dex){
     snprintf(next_block, 500, 
         "IN_%04d:\n"
         "    beq $zero, $t1, $zero, $imm2, 0, IN_%04d  # wait for the interrupt to be raised\n"
-
         "    bne $zero, $t1, $imm1, $imm2, 13, NOPE_%04d  # check if enter key was pressed\n"
         "    add $t1, $imm1, $zero, $zero, 10, 0  # $t1 = LF\n"
-
         "    NOPE_%04d:\n"
         "    sw $t1, $s0, $zero, $zero, 0, 0  # store the key event\n"
         "    add $t1, $zero, $zero, $zero, 0, 0  # reset $t1\n"
@@ -262,9 +260,7 @@ PRINT:
 
 KEYEVENT:
     in $t1, $imm1, $zero, $zero, 18, 0  # read the key event
-    lw $zero, $t1, $zero, $zero, 0, 0 # DEBUG PRINT
     reti $zero, $zero, $zero, $zero, 0, 0  # return to caller
-
     )";
 
     strncpy(next_block, print_proc_asm, strlen(print_proc_asm) + 1);

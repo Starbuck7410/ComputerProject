@@ -72,7 +72,7 @@ add $t0, $zero, $zero, $zero, 0, 0  # reset $t0 for program start
 add $a1, $imm1, $zero, $zero, 0, 0
 add $a2, $imm1, $zero, $zero, 0, 0
 out $zero, $zero, $imm1, $imm2, 19, KEYEVENT # handle keyboard events for the in command
-
+add $s0, $imm1, $zero, $zero, 2047, 0
 
 # My favorite part is when shraga said "it's printin' time" and then printed all over the bad g-
 # Ohh yeah. It's printin' time.
@@ -193,15 +193,15 @@ PRINT:
 
 KEYEVENT:
     in $t1, $imm1, $zero, $zero, 18, 0  # read the key event
-    beq $zero, $zero, $zero, $ra, 0, 0  # return to caller
+    reti $zero, $zero, $zero, $zero, 0, 0  # return to caller
 
 
 # In
 
-IN_XXXX:
-    beq $zero, $t1, $zero, $imm2, 0, IN_XXXX  # wait for the interrupt to be raised
-    bne $zero, $t1, $imm1, $imm2, 13, NOPE_XXXX  # wait for the interrupt to be raised
-    add $t1, $zero, $zero, $zero, 0, 0  # reset $t1
-    NOPE_XXXX:
+IN_%04d:
+    beq $zero, $t1, $zero, $imm2, 0, IN_%04d  # wait for the interrupt to be raised
+    bne $zero, $t1, $imm1, $imm2, 13, NOPE_%04d  # check if enter key was pressed
+    add $t1, $imm1, $zero, $zero, 10, 0  # $t1 = LF
+    NOPE_%04d:
     sw $t1, $s0, $zero, $zero, 0, 0  # store the key event
     add $t1, $zero, $zero, $zero, 0, 0  # reset $t1
