@@ -1,32 +1,34 @@
 .word 0 0  # at dmem[0] i will store which sector on disk is the typeface sector
 
 #.diskpage 0 0 0x00000000 0x02222020 0x05500000 0x0AFAAFA0
-#.diskpage 0 1 0x27 0x63 0x72 0x51
-#.diskpage 0 2 0x27 0x63 0x72 0x51
-#.diskpage 0 3 0x27 0x63 0x72 0x51
+#.diskpage 0 1 0x02763720 0x05122450 0x08B8CAC0 0x02200000
+#.diskpage 0 2 0x01222210 0x08444480 0x05250000 0x00027200
+#.diskpage 0 3 0x00000048 0x00007000 0x00000040 0x01122440
 
-#.disksector 1 0x22 0x45 0x8B 0x8C 0xAC 0x22 0x00 0x00 0x12 0x22 0x21 0x84 0x44 0x48 0x52 0x50   # 37-41
-#.disksector 2 0x00 0x00 0x27 0x20 0x00 0x00 0x48 0x00 0x07 0x00 0x00 0x00 0x04 0x11 0x22 0x44   # 42-47
+#.diskpage 1 0 0x069BD960 0x02622270 0x069168F0 0x06921960
+#.diskpage 1 1 0x026AF220 0x0F8E1960 0x068E9960 0x0F124440
+#.diskpage 1 2 0x06969960 0x06997160 0x00020200 0x00020220
+#.diskpage 1 3 0x00124210 0x000E0E00 0x00842480 0x0E164040
 
-#.disksector 3 0x69 0xBD 0x96 0x26 0x22 0x27 0x69 0x16 0x8F 0x69 0x21 0x96 0x26 0xAF 0x22 0xF8   # 48-52
-#.disksector 4 0xE1 0x96 0x68 0xE9 0x96 0xF1 0x24 0x44 0x69 0x69 0x96 0x69 0x97 0x16 0x00 0x20   # 53-57
-#.disksector 5 0x20 0x00 0x20 0x22 0x01 0x24 0x21 0x00 0xE0 0xE0 0x08 0x42 0x48 0xE1 0x64 0x04   # 58-63
+#.diskpage 2 0 0x069BB870 0x0699F990 0x0E9E99E0 0x06988960
+#.diskpage 2 1 0x0E9999E0 0x0F8E88F0 0x0F8E8880 0x0698B960
+#.diskpage 2 2 0x099F9990 0x07222270 0x01111960 0x09ACCA90
+#.diskpage 2 3 0x088888F0 0x09FF9990 0x09DB9990 0x06999960
 
-#.disksector 6 0x69 0xBB 0x87 0x69 0x9F 0x99 0xE9 0xE9 0x9E 0x69 0x88 0x96 0xE9 0x99 0x9E 0xF8    # 64-68
-#.disksector 7 0xE8 0x8F 0xF8 0xE8 0x88 0x69 0x8B 0x96 0x99 0xF9 0x99 0x72 0x22 0x27 0x11 0x11    # 69-73
-#.disksector 8 0x96 0x9A 0xCC 0xA9 0x88 0x88 0x8F 0x9F 0xF9 0x99 0x9D 0xB9 0x99 0x69 0x99 0x96    # 74-79
+#.diskpage 3 0 0x0E99E880 0x06999A50 0x0699EA90 0x078611E0
+#.diskpage 3 1 0x07222220 0x09999960 0x09999660 0x0999FF90
+#.diskpage 3 2 0x09966990 0x05552220 0x0F1248F0 0x03222230
+#.diskpage 3 3 0x04422110 0x0C4444C0 0x04A00000 0x000000F0
 
-#.disksector 9 0xE9 0x9E 0x88 0x69 0x99 0xA5 0x69 0x9E 0xA9 0x78 0x61 0x1E 0x72 0x22 0x22 0x99    # 80-84
-#.disksector 10 0x99 0x96 0x99 0x99 0x66 0x99 0x9F 0xF9 0x99 0x66 0x99 0x55 0x52 0x22 0xF1 0x24  # 85-89
-#.disksector 11 0x8F 0x32 0x22 0x23 0x44 0x22 0x11 0xC4 0x44 0x4C 0x4A 0x00 0x00 0x00 0x00 0x0F  # 90-94
+#.diskpage 4 0 0x04200000 0x00079970 0x088E99E0 0x00069870
+#.diskpage 4 1 0x01179970 0x0006F870 0x01272220 0x0007971E
+#.diskpage 4 2 0x088E9990 0x02022220 0x00101196 0x0889AE90
+#.diskpage 4 3 0x02222210 0x000EF990 0x000E9990 0x00069960
 
-#.disksector 12 0x42 0x00 0x00 0x00 0x79 0x97 0x88 0xE9 0x9E 0x00 0x69 0x87 0x11 0x79 0x97 0x00   # 95-99
-#.disksector 13 0x6F 0x87 0x12 0x72 0x22 0x07 0x97 0x1E 0x88 0xE9 0x99 0x20 0x22 0x22 0x10 0x11   # 100-104 
-#.disksector 14 0x96 0x88 0x9A 0xE9 0x22 0x22 0x21 0x00 0xEF 0x99 0x00 0xE9 0x99 0x00 0x69 0x96   # 105-112
-
-#.disksector 15 0x0E 0x99 0xE8 0x07 0x99 0x71 0x00 0xE9 0x88 0x00 0x7C 0x3E 0x02 0x72 0x21 0x00   # 113-117
-#.disksector 16 0x99 0x97 0x00 0x99 0x66 0x00 0x99 0xF7 0x00 0x96 0x69 0x09 0x97 0x1E 0x00 0xF2   # 118-122
-#.disksector 17 0x4F 0x12 0x62 0x21 0x22 0x22 0x22 0x84 0x64 0x48 0x00 0x5A 0x00 0x00 0x00 0x00   # 123-127
+#.diskpage 5 0 0x000E99E8 0x00079971 0x000E9880 0x0007C3E0
+#.diskpage 5 1 0x00272210 0x00099970 0x00099660 0x00099F70
+#.diskpage 5 2 0x00096690 0x0009971E 0x000F24F0 0x01262210
+#.diskpage 5 3 0x02222220 0x08464480 0x0005A000 0x00000000
 
 
 add $sp, $imm1, $zero, $zero, 512, 0  # Initialize the stack pointer
@@ -46,7 +48,7 @@ LOOP:
     add $gp, $gp, $imm1, $zero, 16, 0  # increment memory address by 16
     out $zero, $imm1, $zero, $gp, 16, 0                      # r/w to/from memory addresses 512 * 7 + 16
     out $zero, $imm1, $zero, $imm2, 14, 1                        # initiate disk read
-bne $zero, $t0, $imm1, $imm2, 18, LOOP  # if sector != 18, go to LOOP
+bne $zero, $t0, $imm1, $imm2, 6, LOOP  # if sector != 6, go to LOOP
 
 mac $gp, $imm1, $imm2, $zero, 512, 7  # calculate memory address of 512*7 (last place where sector fits)
 add $t0, $zero, $zero, $zero, 0, 0  # reset $t0 for program start
@@ -62,19 +64,8 @@ beq $zero, $zero, $zero, $imm2, 0, MAIN
 
 KEEB:
     in $a0, $imm1, $zero, $zero, 18, 0
-    bne $zero, $a0, $imm1, $imm2, 8, NODEL
-    add $a1, $a1, $imm1, $zero, -5, 0
-NODEL:
     jal $ra, $zero, $zero, $imm2, 0, PRINT
-    bne $zero, $a0, $imm1, $imm2, 8, NODEL2
-    add $a1, $a1, $imm1, $zero, -5, 0
-NODEL2:
-    # add $a0, $zero, $zero, $zero, 0, 0
     reti $zero, $zero, $zero, $zero, 0, 0
-
-
-
-
 
 
 
@@ -82,10 +73,20 @@ NODEL2:
 PRINT:
 
     blt $zero, $a1, $imm1, $imm2, 250, NOPE_3  # Make sure were not at the end of the screen...
-    add $a1, $zero, $zero, $zero, 0, 0
-    add $a2, $a2, $imm1, $zero, 7, 0
+    add $a1, $zero, $zero, $zero, 0, 0 # Reset x
+    add $a2, $a2, $imm1, $zero, 8, 0 # Next line
 
     NOPE_3:
+
+    bne $zero, $a0, $imm1, $imm2, 13, NOPE_4  # Newline handling
+    add $a1, $zero, $zero, $zero, 0, 0 # Reset x
+    add $a2, $a2, $imm1, $zero, 8, 0 # Next line
+    beq $zero, $zero, $zero, $ra, 0, 0  # return to caller
+
+    NOPE_4:
+
+
+    # Push everything to the stack
     add $sp, $sp, $imm1, $zero, -5, 0  
     sw $t0, $sp, $imm1, $zero, 0, 0
     sw $t1, $sp, $imm1, $zero, 1, 0
@@ -93,76 +94,74 @@ PRINT:
     sw $s0, $sp, $imm1, $zero, 3, 0
     sw $s1, $sp, $imm1, $zero, 4, 0
 
-    
-    # Let's start with 1 byte:
+    bne $zero, $a0, $imm1, $imm2, 8, NOPE_5  # Backspace handling
+    add $a1, $a1, $imm1, $zero, -5, 0 # Move x back
+    add $s1, $zero, $zero, $zero, 0, 0 # set character to 0
+    beq $zero, $zero, $zero, $imm2, 0, SKIP_5  # skip the loading of the character
+    NOPE_5:
+
     add $s0, $a0, $imm1, $zero, -32, 0  # Handle ascii printable character offset of 32 chars
+    lw $s1, $gp, $s0, $zero, 0, 0  # Load the character from memory
+
+    SKIP_5:
+    sll $t0, $imm1, $imm2, $zero, 1, 27  # set the bit mask = 0x08000000
 
 
+    LOOP_WORD:
+        add $t1, $imm1, $zero, $zero, 0, 0  # reset $t1
+        and $t1, $t0, $s1, $imm1, -1, 0  # $t1 = $t0 & $s1   
+        mac $t2, $a2, $imm1, $a1, 256, 0  # $t2 = $a1 + $a2*256 
+        out $zero, $imm1, $zero, $t2, 20, 0  # set address
+        beq $zero, $t1, $zero, $imm2, 0, NOPE_1  # if $t1 == 0, go to NOPE_1 (print a black pixel)
 
-    PRINT_WORD:
+        add $t1, $imm1, $zero, $zero, 255, 0  # $t1 = 255 # set color to white
 
-        lw $s1, $gp, $s0, $zero, 0, 0  # Load the character from memory
+    NOPE_1:
+        out $zero, $imm1, $zero, $t1 , 21, 0  # set color
+        out $zero, $imm1, $zero, $imm2, 22, 1  # call interrupt 22
+        srl $t0, $t0, $imm1, $zero, 1, 0  # $t0 = $t0 >> 1 mask shift
 
-        sll $t0, $imm1, $imm2, $zero, 1, 27  # mask = 0x08000000
-
-
-        LOOP_WORD:
-            add $t1, $imm1, $zero, $zero, 0, 0  # reset $t1
-            and $t1, $t0, $s1, $imm1, -1, 0  # $t1 = $t0 & $s1   
-            mac $t2, $a2, $imm1, $a1, 256, 0  # $t2 = $a1 + $a2*256 
-            out $zero, $imm1, $zero, $t2, 20, 0  # set address
-            beq $zero, $t1, $zero, $imm2, 0, NOPE_1  # if $t1 == 0, go to NOPE_1
-
-            # NOPE
-            add $t1, $imm1, $zero, $zero, 255, 0  # $t1 = 255
-        NOPE_1:
-            out $zero, $imm1, $zero, $t1 , 21, 0  # set color
-            out $zero, $imm1, $zero, $imm2, 22, 1  # call interrupt 22
-            lw $zero, $t0, $zero, $zero, 0, 0
-            srl $t0, $t0, $imm1, $zero, 1, 0  # $t0 = $t0 >> 1
-            lw $zero, $t0, $zero, $zero, 0, 0
-            add $a1, $a1, $imm1, $zero, 1, 0  # $a1++
-
-            # This massive block checks for end of row
-            sll $t2, $imm1, $imm2, $zero, 1, 23  # mask = 0x00800000 
-            bne $zero, $t0, $t2, $imm2, 0, NOPE_2  # if $t0 != 0x00800000 , go to NOPE_2
-            sll $t2, $imm1, $imm2, $zero, 1, 19  # mask = 0x00080000 
-            bne $zero, $t0, $t2, $imm2, 0, NOPE_2  # if $t0 != 0x00080000 , go to NOPE_2
-            sll $t2, $imm1, $imm2, $zero, 1, 15  # mask = 0x00008000 
-            bne $zero, $t0, $t2, $imm2, 0, NOPE_2  # if $t0 != 0x00008000 , go to NOPE_2
-            sll $t2, $imm1, $imm2, $zero, 1, 11  # mask = 0x00000800 
-            bne $zero, $t0, $t2, $imm2, 0, NOPE_2  # if $t0 != 0x00000800 , go to NOPE_2
-            sll $t2, $imm1, $imm2, $zero, 1, 7  # mask = 0x00000080 
-            bne $zero, $t0, $t2, $imm2, 0, NOPE_2  # if $t0 != 0x00000080 , go to NOPE_2
-            sll $t2, $imm1, $imm2, $zero, 1, 3  # mask = 0x00000008 
-            bne $zero, $t0, $t2, $imm2, 0, NOPE_2  # if $t0 != 0x00000008 , go to NOPE_2
+        add $a1, $a1, $imm1, $zero, 1, 0  # $a1++, next pixel
 
 
-            # NOPE
-            add $a1, $a1, $imm1, $zero, -4, 0  # $a1 -= 4, return to the beginning of the line
-            add $a2, $a2, $imm1, $zero, 1, 0  # $a2++
-        NOPE_2:
-            bne $zero, $t0, $imm1, $imm2, 0, LOOP_WORD  # if $t0 != 0, go to LOOP_WORD
+        # create mask $t2 = 0x08888888
+        add $t2, $imm1, $zero, $zero, 0x008, 0 # $t2 = 0x00000008
+        sll $t2, $t2, $imm1, $zero, 8, 0  # $t2 = 0x00000800
+        add $t2, $imm1, $t2, $zero, 0x088, 0 # $t2 = 0x00000888
+        sll $t2, $t2, $imm1, $zero, 8, 0  # $t2 = 0x00088800
+        add $t2, $imm1, $t2, $zero, 0x088, 0 # $t2 = 0x00088888
+        sll $t2, $t2, $imm1, $zero, 8, 0  # $t2 = 0x08888800
+        add $t2, $imm1, $t2, $zero, 0x088, 0 # $t2 = 0x08888888
 
-            
-            # add $s0, $s0, $imm1, $zero, 1, 0  # $s0++
-            add $a1, $a1, $imm1, $zero, -4, 0  # $a1 -= 4, return to the beginning of the line
-            add $a2, $a2, $imm1, $zero, 1, 0  # $a2++
+        and $t2, $t0, $t2, $imm1, -1, 0
+        
+        beq $zero, $t2, $zero, $imm2, 0, NOPE_2  # if $t0 != 0x08888888, go to NOPE_2 (Check if we finished a row of 4 pixels)
 
-            # max character address = ($a0 - 32) * 3 + 3
-            # sub $t0, $a0, $imm1, $zero, 32, 0  # $t0 = $a0 - 32
-            # mac $t0, $t0, $imm1, $imm1, 3, 0  # $t0 = $t0 * 3 + 3
+        add $a1, $a1, $imm1, $zero, -4, 0  # $a1 -= 4, return to the beginning of the line
+        add $a2, $a2, $imm1, $zero, 1, 0  # $a2++, start new row
 
-            # bne $zero, $s0, $t0, $imm2, 0, PRINT_WORD  # if $s0 != ($a0 - 32) * 3 + 3, go print another word
+    NOPE_2:
+        bne $zero, $t0, $imm1, $imm2, 0, LOOP_WORD  # if $t0 != 0, go to LOOP_WORD and print another bit to the screen
 
-            add $a1, $a1, $imm1, $zero, 5, 0  # $a1++
-            # add $a2, $a2, $imm1, $zero, -6, 0  # $a2 -= 6
 
-            lw $t0, $sp, $imm1, $zero, 0, 0  # pop $t0
-            lw $t1, $sp, $imm1, $zero, 1, 0  # pop $t1
-            lw $t2, $sp, $imm1, $zero, 2, 0  # pop $t2
-            lw $s0, $sp, $imm1, $zero, 3, 0  # pop $s0
-            lw $s1, $sp, $imm1, $zero, 4, 0  # pop $s1
-            add $sp, $sp, $imm1, $zero, 5, 0  # return the stack pointer to its original position
-            beq $zero, $zero, $zero, $ra, 0, 0  # return to caller
+        # Go to the start of the next character
+        add $a1, $a1, $imm1, $zero, 1, 0  # $a1++
+        bne $zero, $a0, $imm1, $imm2, 8, NOPE_6  # Backspace handling again
+
+        lw $zero, $a0, $zero, $zero, 0, 0  # debug
+        add $a1, $a1, $imm1, $zero, -5, 0 # Move x back again
+        
+
+        NOPE_6:
+
+        add $a2, $a2, $imm1, $zero, -6, 0  # $a2 -= 6
+
+        # Pop the stack
+        lw $t0, $sp, $imm1, $zero, 0, 0  # pop $t0
+        lw $t1, $sp, $imm1, $zero, 1, 0  # pop $t1
+        lw $t2, $sp, $imm1, $zero, 2, 0  # pop $t2
+        lw $s0, $sp, $imm1, $zero, 3, 0  # pop $s0
+        lw $s1, $sp, $imm1, $zero, 4, 0  # pop $s1
+        add $sp, $sp, $imm1, $zero, 5, 0  # return the stack pointer to its original position
+        beq $zero, $zero, $zero, $ra, 0, 0  # return to caller
 

@@ -100,7 +100,7 @@ int main(int argc, char * argv[]) {
 	int cycles = 0;
 	long long instruction;
 	// The initial values of the local and hardware registers on reset are 0.
-	// I thus declare register 18 to be the keyboard character, register 24 to be the interrupt itself, and register 19 to be the keyboard handler
+	// I thus declare register 18 to be the keyboard character, register 23 to be the interrupt itself, and register 19 to be the keyboard handler
 	int registers[16] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
 	unsigned int io_registers[24] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 	
@@ -267,8 +267,8 @@ int main(int argc, char * argv[]) {
 			}
 		}
 		
-		if(io_registers[24]){
-			io_registers[24] = 0;
+		if(io_registers[23]){
+			io_registers[23] = 0;
 		}
 
 		if(cycles % slow == 0){
@@ -280,7 +280,7 @@ int main(int argc, char * argv[]) {
 						break;
 					}
 					if(io_registers[18] != 0){
-						io_registers[24] = 1;
+						io_registers[23] = 1;
 					}
 					if(debug){
 						printf("Key pressed: %d\n", io_registers[18]);
@@ -289,7 +289,7 @@ int main(int argc, char * argv[]) {
 			}
 		}
 
-		if(io_registers[24] == 1 && !in_isr){ // keyboard pressed
+		if(io_registers[23] == 1 && !in_isr){ // keyboard pressed
 			if(io_registers[19]){
 				io_registers[7] = pc + 1;
 				pc = io_registers[19] - 1;
