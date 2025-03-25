@@ -89,7 +89,7 @@ int main(int argc, char * argv[]) {
 		error("Not enough arguments. Use the -h flag for more info.\n");
 		return 1;
 	}
-	if (argc == 13 && (eq_str(argv[13], "-d") || eq_str(argv[12], "-D"))) {
+	if (argc == 13 && (eq_str(argv[12], "-d") || eq_str(argv[12], "-D"))) {
 		debug = 1;
 	}
 	if(argc > 12 && !debug){

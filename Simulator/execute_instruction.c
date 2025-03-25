@@ -34,7 +34,7 @@ int execute(int op_code, int* inst_regs, int* imms, int* registers,
         registers[inst_regs[0]] = registers[inst_regs[1]] >> registers[inst_regs[2]];
     }
     if(op_code == 8){ // SRL
-        registers[inst_regs[0]] = (registers[inst_regs[1]] >> registers[inst_regs[2]]) & ~ (0xFFFFFFFF << (8 - registers[inst_regs[2]]));
+        registers[inst_regs[0]] = (registers[inst_regs[1]] >> registers[inst_regs[2]]) & ~ (0xFFFFFFFF << (32 - registers[inst_regs[2]]));
     }
 
     //  -------------------------------- Branches --------------------------------
@@ -76,6 +76,10 @@ int execute(int op_code, int* inst_regs, int* imms, int* registers,
     }
     //  -------------------------------- Memory --------------------------------
     if (op_code == 16){ // LW
+        if(inst_regs[0] == 0 && debug){
+            printf("DEBUG PRINT: Register %d is %d\n", inst_regs[1], registers[inst_regs[1]]);
+            return 0;
+        }
         int address = registers[inst_regs[1]] + registers[inst_regs[2]];
         int value = local_memory[address] + registers[inst_regs[3]];
         if (debug){

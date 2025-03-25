@@ -1,8 +1,8 @@
 .word 0 0  # at dmem[0] i will store which sector on disk is the typeface sector
 
-#.diskpage 0 0 0x00 0x00 0x00 0x22
-#.diskpage 0 1 0x22 0x02 0x55 0x00
-#.diskpage 0 2 0x00 0xAF 0xAA 0xFA
+#.diskpage 0 0 0x00000000 0x02222020 0x05500000 0x0AFAAFA0
+#.diskpage 0 1 0x27 0x63 0x72 0x51
+#.diskpage 0 2 0x27 0x63 0x72 0x51
 #.diskpage 0 3 0x27 0x63 0x72 0x51
 
 #.disksector 1 0x22 0x45 0x8B 0x8C 0xAC 0x22 0x00 0x00 0x12 0x22 0x21 0x84 0x44 0x48 0x52 0x50   # 37-41
@@ -96,19 +96,19 @@ PRINT:
     
     # Let's start with 1 byte:
     add $s0, $a0, $imm1, $zero, -32, 0  # Handle ascii printable character offset of 32 chars
-    mac $s0, $s0, $imm1, $zero, 3, 0  # $s0 = $s0 * 3 (each character is 3 bytes)
 
 
 
-    PRINT_BYTE:
+    PRINT_WORD:
 
         lw $s1, $gp, $s0, $zero, 0, 0  # Load the character from memory
 
-        add $t0, $imm1, $zero, $zero, 128, 0  # mask = 0x10000000
+        sll $t0, $imm1, $imm2, $zero, 1, 27  # mask = 0x08000000
 
-        LOOP_BYTE:
+
+        LOOP_WORD:
             add $t1, $imm1, $zero, $zero, 0, 0  # reset $t1
-            and $t1, $t0, $s1, $imm1, 0x0FF, 0  # $t1 = $t0 & $s0   
+            and $t1, $t0, $s1, $imm1, -1, 0  # $t1 = $t0 & $s1   
             mac $t2, $a2, $imm1, $a1, 256, 0  # $t2 = $a1 + $a2*256 
             out $zero, $imm1, $zero, $t2, 20, 0  # set address
             beq $zero, $t1, $zero, $imm2, 0, NOPE_1  # if $t1 == 0, go to NOPE_1
@@ -118,29 +118,45 @@ PRINT:
         NOPE_1:
             out $zero, $imm1, $zero, $t1 , 21, 0  # set color
             out $zero, $imm1, $zero, $imm2, 22, 1  # call interrupt 22
+            lw $zero, $t0, $zero, $zero, 0, 0
             srl $t0, $t0, $imm1, $zero, 1, 0  # $t0 = $t0 >> 1
+            lw $zero, $t0, $zero, $zero, 0, 0
             add $a1, $a1, $imm1, $zero, 1, 0  # $a1++
-            bne $zero, $t0, $imm1, $imm2, 8, NOPE_2  # if $t0 != 0x1000, go to NOPE_2
+
+            # This massive block checks for end of row
+            sll $t2, $imm1, $imm2, $zero, 1, 23  # mask = 0x00800000 
+            bne $zero, $t0, $t2, $imm2, 0, NOPE_2  # if $t0 != 0x00800000 , go to NOPE_2
+            sll $t2, $imm1, $imm2, $zero, 1, 19  # mask = 0x00080000 
+            bne $zero, $t0, $t2, $imm2, 0, NOPE_2  # if $t0 != 0x00080000 , go to NOPE_2
+            sll $t2, $imm1, $imm2, $zero, 1, 15  # mask = 0x00008000 
+            bne $zero, $t0, $t2, $imm2, 0, NOPE_2  # if $t0 != 0x00008000 , go to NOPE_2
+            sll $t2, $imm1, $imm2, $zero, 1, 11  # mask = 0x00000800 
+            bne $zero, $t0, $t2, $imm2, 0, NOPE_2  # if $t0 != 0x00000800 , go to NOPE_2
+            sll $t2, $imm1, $imm2, $zero, 1, 7  # mask = 0x00000080 
+            bne $zero, $t0, $t2, $imm2, 0, NOPE_2  # if $t0 != 0x00000080 , go to NOPE_2
+            sll $t2, $imm1, $imm2, $zero, 1, 3  # mask = 0x00000008 
+            bne $zero, $t0, $t2, $imm2, 0, NOPE_2  # if $t0 != 0x00000008 , go to NOPE_2
+
 
             # NOPE
             add $a1, $a1, $imm1, $zero, -4, 0  # $a1 -= 4, return to the beginning of the line
             add $a2, $a2, $imm1, $zero, 1, 0  # $a2++
         NOPE_2:
-            bne $zero, $t0, $imm1, $imm2, 0, LOOP_BYTE  # if $t0 != 0, go to LOOP_BYTE  
+            bne $zero, $t0, $imm1, $imm2, 0, LOOP_WORD  # if $t0 != 0, go to LOOP_WORD
 
             
-            add $s0, $s0, $imm1, $zero, 1, 0  # $s0++
+            # add $s0, $s0, $imm1, $zero, 1, 0  # $s0++
             add $a1, $a1, $imm1, $zero, -4, 0  # $a1 -= 4, return to the beginning of the line
             add $a2, $a2, $imm1, $zero, 1, 0  # $a2++
 
             # max character address = ($a0 - 32) * 3 + 3
-            sub $t0, $a0, $imm1, $zero, 32, 0  # $t0 = $a0 - 32
-            mac $t0, $t0, $imm1, $imm1, 3, 0  # $t0 = $t0 * 3 + 3
+            # sub $t0, $a0, $imm1, $zero, 32, 0  # $t0 = $a0 - 32
+            # mac $t0, $t0, $imm1, $imm1, 3, 0  # $t0 = $t0 * 3 + 3
 
-            bne $zero, $s0, $t0, $imm2, 0, PRINT_BYTE  # if $s0 != ($a0 - 32) * 3 + 3, go print another byte
+            # bne $zero, $s0, $t0, $imm2, 0, PRINT_WORD  # if $s0 != ($a0 - 32) * 3 + 3, go print another word
 
-            add $a1, $a1, $imm1, $zero, 5, 0  # $a0++
-            add $a2, $a2, $imm1, $zero, -6, 0  # $a1 += 6
+            add $a1, $a1, $imm1, $zero, 5, 0  # $a1++
+            # add $a2, $a2, $imm1, $zero, -6, 0  # $a2 -= 6
 
             lw $t0, $sp, $imm1, $zero, 0, 0  # pop $t0
             lw $t1, $sp, $imm1, $zero, 1, 0  # pop $t1
