@@ -51,6 +51,7 @@ assembly-programs/*/*
 
 bf-programs/*/*
 !bf-programs/*/*.bf
+bf-programs/gol
 
 bf-test/*
 

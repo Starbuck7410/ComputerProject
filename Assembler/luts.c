@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
-int eq_str();
+int eq_str(char str1[], char str2[]);
 
 
 long long find_instruction(char name[]){ // This function recives a string of the instruction and returns its integer number.
