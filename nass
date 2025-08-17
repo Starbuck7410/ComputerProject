@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 dbg=""
 
 
@@ -13,9 +13,19 @@ if [[ $1 = "-h" ]]; then
     exit 0
 fi
 
-wd=$(dirname $1)
-fn=$(basename $1)
-assembly=$1
+if [[ $1 = "-bf" ]]; then
+    wd=$(dirname $2)
+    fn=$(basename $2)
+    ./bf-to-simp $2 "$(echo $wd)/$(echo $fn).asm"
+    if [ $? -ne 0 ]; then
+        exit 1
+    fi
+    assembly="$(echo $wd)/$(echo $fn).asm"
+else
+    wd=$(dirname $1)
+    fn=$(basename $1)
+    assembly=$1
+fi
 
 if [[ $3 = "-c" ]] || [[ $2 = "-c" ]]; then
     rm -rf "$(echo $wd)/build"
@@ -27,21 +37,6 @@ fi
 if [[ $3 = "-d" ]] || [[ $2 = "-d" ]]; then
     dbg="-d"
 fi
-
-
-
-if [[ $1 = "-bf" ]]; then
-    wd=$(dirname $2)
-    fn=$(basename $2)
-    ./bf-to-simp $2 "$(echo $wd)/$(echo $fn).asm"
-    if [ $? -ne 0 ]; then
-        exit 1
-    fi
-    assembly="$(echo $wd)/$(echo $fn).asm"
-fi
-
-
-
 
 
 dir="$(echo $wd)/build"

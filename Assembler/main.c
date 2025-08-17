@@ -101,7 +101,6 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 	while (elements = fscanf(asmb_file, "%[^\n]\n", temp_line) != EOF) { 
 		line_index++;
 		if(temp_line[0] == '\0'){
-			printf("Skipping empty line\n");
 			fgetc(asmb_file);
 			continue;
 		}
@@ -120,8 +119,8 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 
 		if(label[strlen(label) - 1] == ':'){ // if it ends with a ':', its a label
 			label[strlen(label) - 1] = '\0';
-			printf("Found label:   | %s\n", label);
-			printf("in line:       | %d\n", line_index);
+			// printf("Found label:   | %s\n", label);
+			// printf("in line:       | %d\n", line_index);
 
 			// Check if we haven't seen this label before
 			for(int i = 0; i < LABEL_COUNT; i++){
@@ -158,10 +157,10 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 		// Cut out whitespaces
 		int start = clean_string(line);
 
-		printf("Line:          | %s\n", line);
+		// printf("Line:          | %s\n", line);
 		// Check the line isnt a comment
 		if (line[start] == '#' && line[start + 1] != '.'){
-			printf("Skipping comment\n");
+			// printf("Skipping comment\n");
 			continue;
 		}
 		
@@ -173,7 +172,7 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 		// Handle .word instructions
 		if (eq_str(op_code, ".word")){
 			int int_word_address, int_word_value;									//define int of address, int of data, array such that x[address] = data and assist vars
-			printf("Directive:     | \"%s\"\n", op_code);
+			// printf("Directive:     | \"%s\"\n", op_code);
 			char word_address[15], word_value[15];									//define string of address and string of data
 
 			start = get_component(line, word_address, start);
@@ -184,14 +183,14 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 			int_word_value = str_to_int(word_value);							//convert string to int
 		               
 			dmem[int_word_address] = int_word_value;                                	 //dmem[address] = data
-			printf("Word address:  | %d\n", int_word_address);
-			printf("Word Value:    | %d\n", int_word_value);
+			// printf("Word address:  | %d\n", int_word_address);
+			// printf("Word Value:    | %d\n", int_word_value);
 			continue;
 		}
 		
 		if(eq_str(op_code, "#.interrupt")){
 			if(argc > 4){
-				printf("Directive:     | \"%s\"\n", op_code);
+				// printf("Directive:     | \"%s\"\n", op_code);
 				char interrupt_text[10];
 				start = get_component(line, interrupt_text, start);
 				
@@ -239,7 +238,7 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 
 		if(eq_str(op_code, "#.diskpage")){
 			if(argc > 4){
-				printf("Directive:     | \"%s\"\n", op_code);
+				// printf("Directive:     | \"%s\"\n", op_code);
 				char disk_sector_text[10];
 				start = get_component(line, disk_sector_text, start);
 				
@@ -257,7 +256,7 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 				start = get_component(line, disk_page_text, start);
 				int disk_page = str_to_int(disk_page_text);
 				
-				printf("Sector, page:  | %d, %d\n", disk_sector_value, disk_page);
+				// printf("Sector, page:  | %d, %d\n", disk_sector_value, disk_page);
 
 				char word_text[10];
 				int word_value;
@@ -311,7 +310,7 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 			}else{
 				for(int i = 0; i < LABEL_COUNT; i++){
 					if (eq_str(labels[i], imm)){
-						printf("\x1B[32mReplacing label \"%s\" with address: %d\x1B[0m\n",labels[i] , label_addresses[i]);
+						// printf("\x1B[32mReplacing label \"%s\" with address: %d\x1B[0m\n",labels[i] , label_addresses[i]);
 						converted_imm = label_addresses[i];
 						break;
 					}
@@ -324,7 +323,7 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 				decoded_instruction += (converted_imm & 0xFFF) << (12*(1-i)); // turn immediate from string to number
 		}
 
-		printf("Final opcode:  | %012llX\n", decoded_instruction);
+		// printf("Final opcode:  | %012llX\n", decoded_instruction);
 		imem[address] = decoded_instruction;
 		address++;
 		
