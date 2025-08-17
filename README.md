@@ -1,5 +1,7 @@
 # Computer ISA Project
 
+### Note: V2 is currently documentation ONLY. The code should be identical to the "interactive" branch until the documentation is finalized.
+
 This is a project given as a course assignment in some university.
 We started this project as a team of four, but after completing the main branch (which received full marks! 😇)
 I continued working on it to turn it into a real working interactive emulator, not unlike other console emulators out there.

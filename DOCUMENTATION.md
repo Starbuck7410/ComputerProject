@@ -12,7 +12,7 @@ and a disk drive. Every instruction in the processor is executed in one clock cy
 
 # Registers
 
-The SIMP processor includes 16 registers, each 32 bits wide. The name, number and
+The SIMP processor includes 16 general-purpose registers, each 32 bits wide. The name, number and
 role of each register according to the calling conventions is given in the following
 table:
 
@@ -41,29 +41,25 @@ The register names and roles are similar to what we have seen in the lectures an
 recitations for the MIPS processor, with one difference: the two registers $imm1,
 $imm2 are special registers that can’t be written, and always contain the immediate
 ields immediate1, immediate2 (respectively), after performing sign extension, as was
-coded in the assembly instruction. Register 0 ($zero) is by definition identical to 0.
+coded in the assembly instruction. The value in register 0 ($zero) by definition equals to 0.
 Instructions that write to $zero, $imm1, $imm2 are legal, but don’t change their
 values.
 
-# Instruction and Data memories
+# Memory
 
-(This section might be changed in the future due to me wanting to combine the memories to make it possible to load programs)
-
-The instruction memory has a width of 48 bits and a depth of 4096 lines. The PC
-register is therefore 12 bits, and consecutive instructions are separated by a difference
-of 1 in the PC (not 4 like in MIPS).
-The data memory has a width of 32 bits and a depth of 4096 lines. The address of the
-data memory is therefore 12 bits wide. In contrast to the MIPS processor, the SIMP
-processor does not support byte or short. Every access to the data memory reads or
-writes a 32-bit wide word.
+The memory has a width of 32 bits and a depth of 64k lines (or 65536 lines, which is 4MiB). The PC
+register is therefore 16 bits, and consecutive instructions are separated by a difference
+of 2 in the PC. 
+In contrast to the MIPS processor, the SIMP processor does not support byte or short. Every
+access to the data memory reads or writes a 32-bit wide word.
 
 # Intruction set and encoding
 The SIMP processor has a single instruction format used to encode all instructions.
-Every instruction is 48 bits wide, where the bit numbers of every field are given in the
+Every instruction is 64 bits wide, where the bit numbers of every field are given in the
 following table:
 
 
-| 47:40  | 39:36 | 35:32 | 31:28 | 27:24 | 23:12       | 11:0        |
+| 63:56  | 55:52 | 51:48 | 47:44 | 43:40 | 39:20       | 19:0        |
 |--------|-------|-------|-------|-------|-------------|-------------|
 | opcode | rd    | rs    | rt    | rm    | immediate 1 | immediate 2 | 
 
@@ -81,19 +77,20 @@ in the following table:
 | 6             | sll  | R[rd] = R[rs] << R[rt]                                       |
 | 7             | sra  | R[rd] = R[rs] >> R[rt], arithmetic shift with sign extension |
 | 8             | srl  | R[rd] = R[rs] >> R[rt], logical shift                        |
-| 9             | beq  | if (R[rs] == R[rt]) pc = R[rm][low bits 11:0]                |
-| 10            | bne  | if (R[rs] != R[rt]) pc = R[rm][low bits 11:0]                |
-| 11            | blt  | if (R[rs] < R[rt]) pc = R[rm][low bits 11:0]                 |
-| 12            | bgt  | if (R[rs] > R[rt]) pc = R[rm][low bits 11:0]                 |
-| 13            | ble  | if (R[rs] <= R[rt]) pc = R[rm][low bits 11:0]                |
-| 14            | bge  | if (R[rs] >= R[rt]) pc = R[rm][low bits 11:0]                |
-| 15            | jal  | R[rd] = pc + 1 (next instruction address), pc = R[rm][11:0]  |
+| 9             | beq  | if (R[rs] == R[rt]) pc = R[rm][low bits 15:0]                |
+| 10            | bne  | if (R[rs] != R[rt]) pc = R[rm][low bits 15:0]                |
+| 11            | blt  | if (R[rs] < R[rt]) pc = R[rm][low bits 15:0]                 |
+| 12            | bgt  | if (R[rs] > R[rt]) pc = R[rm][low bits 15:0]                 |
+| 13            | ble  | if (R[rs] <= R[rt]) pc = R[rm][low bits 15:0]                |
+| 14            | bge  | if (R[rs] >= R[rt]) pc = R[rm][low bits 15:0]                |
+| 15            | jal  | R[rd] = pc + 2 (next instruction address), pc = R[rm][15:0]  |
 | 16            | lw   | R[rd] = MEM[R[rs] + R[rt]] + R[rm]                           |
 | 17            | sw   | MEM[R[rs] + R[rt]] = R[rm] + R[rd]                           |
 | 18            | reti | PC = IORegister[7]                                           |
 | 19            | in   | R[rd] = IORegister[R[rs] + R[rt]]                            |
 | 20            | out  | IORegister[R[rs] + R[rt]] = R[rm]                            |
 | 21            | halt | Halt execution, exit simulator                               |
+| 22            | copr | Will be used for co-processor instructions                   |
 
 
 
@@ -114,8 +111,8 @@ of the hardware registers on reset are 0.
 | 6                 | irqhandler    | 12   | PC of interrupt handler                                                   |
 | 7                 | irqreturn     | 12   | PC of interrupt return address                                            |
 | 8                 | clks          | 32   | Cyclic clock counter. Starts from 0 and increments every clock            |
-| 9                 | leds          | 32   | Connected to 32 output pins driving 32 LEDs                               |
-| 10                | display7seg   | 32   | Connected to 7-segment display of 8 letters                               |
+| 9                 | reserved      | 32   | Reserved for future use                                                   |
+| 10                | reserved      | 32   | Reserved for future use                                                   |
 | 11                | timerenable   | 1    | 1: Timer enabled<br>0: Timer disabled                                     |
 | 12                | timercurrent  | 32   | Current timer counter                                                     |
 | 13                | timermax      | 32   | Max timer value                                                           |
@@ -183,10 +180,6 @@ In the clock cycle in which timercurrent == timermax, the timer hardware sets
 irqstatus0. In that clock cycle, instead of incrementing timercurrent, it is reset back to
 zero.
 
-# LED lights
-The SIMP processor is connected to 32 leds. The assembly code turns on/off leds by
-writing a 32-bit word to the hardware register leds, where bit 0 turns on or off led
-number 0 (the rightmost led), and bit 31 controls led 31 (leftmost led).
 
 # Monitor
 
@@ -260,22 +253,16 @@ command line application that received 14 command line parameters in accordance
 with the following command line:
 
 ```bash
-./sim imemin.txt dmemin.txt disk.txt irq2in.txt dmemout.txt regout.txt trace.txt hwregtrace.txt cycles.txt leds.txt display7seg.txt debug_flag
+./sim memin.txt disk.txt irq2in.txt memout.txt [ regout.txt trace.txt hwregtrace.txt cycles.txt debug_flag ]
 ```
 
 ## Ouput files
 
-The file <b>imemin.txt</b> is an input file in text format that contains the instruction
-memory contents at the start of the run. Every line in the file contains the contents of a
-line in the instruction memory, starting from address 0, with a format of 12
-hexadecimal letters. In case the number of lines in the file is smaller than 4096, the
-assumption is that the rest of the memory above the last address that was initialized in
-the file, is initialized to 0. It can be assumed that the syntax of the input file is valid.
 
-The file <b>dmemin.txt</b> is an input file in text format that contains the data memory
+The file <b>memin.txt</b> is an input file in text format that contains the memory
 contents at the start of the run. Every line in the file contains the contents of a line in
 the data memory, starting from address 0, with a format of 8 hexadecimal letters. In
-case the number of lines in the file is smaller than 4096, the assumption is that the rest
+case the number of lines in the file is smaller than 64k, the assumption is that the rest
 of the memory above the last address that was initialized in the file, is initialized to 0.
 It can be assumed that the syntax of the input file is valid.
 
@@ -294,22 +281,20 @@ The input files should be present even if in your assembly code they are not bei
 used (for example even for an assembly code that does not use the disk drive, an input
 file diskin.txt should exist. You are allowed to leave its contents empty).
 
-The file <b>dmemout.txt</b> is an output text file, in the same format as dmemin.txt, that
-contains the contents of the data memory at the end of the run.
+The file <b>memout.txt</b> is an output text file, in the same format as memin.txt, that
+contains the contents of the memory at the end of the run.
+
+### Debug files - These files will not be written if the debug flag isn't specified
 
 The file <b>regout.txt</b> is an output text file, that contains the values of the registers R3-
 R15 at the end of the run (note that the constants R0-R2 should not be printed in this
 file). Every line will be written in 8 hexadecimal letters.
-
-For performance sake, if the debug flag isn't present this file won't be written.
 
 The file <b>trace.txt</b> is an output text file, that contains a line of text for every instruction
 executed by the processor, in the following format:
 ```
 PC INST R0 R1 R2 R3 R4 R5 R6 R7 R8 R9 R10 R11 R12 R13 R14 R15
 ```
-
-For performance sake, if the debug flag isn't present this file won't be written.
 
 The file <b>hwregtrace.txt</b> is an output file that contains a line of text for each read or
 write to a hardware register (using in and out instructions) in the following format:
@@ -326,19 +311,6 @@ The field DATA contains the value that was written or read in 8 hexadecimal digi
 The output file cycles.txt contains the number of clock cycles it took the program to
 run.
 
-For performance sake, if the debug flag isn't present this file won't be written.
-
-<b>The following 2 files might be deprecated, due to them not serving any useful purpose.</b>
-
-The output file <b>leds.txt</b> contains the status of the 32 leds. In each clock cycle in which
-one of the leds changes (turns on or off), a line is written to the file with two numbers
-and a space in-between: the left number is the clock cycle in decimal, and the right
-number is the status of all 32 leds in 8 hexadecimal numbers.
-
-The file <b>display7seg.txt</b> contains the 7-segment display. In every clock cycle in which
-the display changes, a line is written to the file with two numbers and a space in-
-between: the left number is the clock cycle in decimal, and the right number is the 7-
-segment status in 8 hexadecimal numbers.
 
 ## Monitor
 
@@ -364,19 +336,15 @@ Similar to the simulator, the assembler is a command line application, with the
 following run command line:
 
 ```bash
-./asm program.asm imemin.txt dmemin.txt [ irq2in.txt disk.txt ]
+./asm program.asm memin.txt irq2in.txt disk.txt
 ```
 <b>program.asm</b> is an input file containing the assembly program.
 
-<b>imemin.txt</b> is an output file containing the initial instruction memory image.
-
-<b>dmemin.txt</b> is an output file containing the initial data memory image. 
+<b>memin.txt</b> is an output file containing the initial memory image.
 
 <b>irq2in.txt</b> is an output file containing the interrupt times for interrupt 2, and 
-will be created only if 5 arguments were given to the assembler.
 
 <b>disk.txt</b> is an output file containing the initial state of the disk, and 
-will be created only if 5 arguments were given to the assembler.
 
 The output files of the assembler
 are later used as input files for the simulator.
@@ -479,14 +447,6 @@ Usage:
 
 This directive only creates entries in the irq2in.txt file at assembly time.
 
-### #.disksector (DEPRECATED)
-The disksector directive was used to set the initial state of the disk from the assembly file.
-Usage:
-```
-#.disksector sector word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16
-```
-
-It defines an entire sector in one long-ass line nobody wants to read. That's why I deprecated it.
 
 ## Additional assumptions
 
