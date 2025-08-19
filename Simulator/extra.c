@@ -4,6 +4,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xlib.h>
 #include <X11/keysymdef.h>
+#include "functions.h"
 
 int eq_str(char str1[], char str2[]){
 	if(str1 == NULL || str2 == NULL){
@@ -54,9 +55,9 @@ int dec_string_to_int(char number[]){ // Decimal string to int
 
 
 // like in the assembler, but returns long long
-long long hex_string_to_long_long(char number[], int len) 
+int32_t hex_string_to_int32(char number[], int len) 
 { // You MUST pass the string WITHOUT the 0x
-	long long value = 0;
+	int32_t value = 0;
 	int i = 0;
 	int sign = 1;
 	if (number[0] == '-') { // fuck it let's allow negative hex numbers why not (0x-8000)

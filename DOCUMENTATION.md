@@ -253,7 +253,7 @@ command line application that received 14 command line parameters in accordance
 with the following command line:
 
 ```bash
-./sim memin.txt disk.txt irq2in.txt memout.txt [ regout.txt trace.txt hwregtrace.txt cycles.txt debug_flag ]
+./sim memin.txt disk.txt irq2in.txt [ memout.txt regout.txt trace.txt hwregtrace.txt cycles.txt debug_flag ]
 ```
 
 ## Ouput files
@@ -410,8 +410,7 @@ called directives that allows to set the contents of all the input files for the
 allowing assembly from one assembly file to a fully usable machine state.
 
 ### .word
-This is the only directive in the original project documentation, so due to compatability 
-concerns it's the only one that doesn't start with a '#'. 
+The ```.word``` directive is used to set an initial condition for a word in memory.
 
 Usage:
 ```
@@ -425,24 +424,29 @@ be in decimal, or hexadecimal when preceded with 0x, for example:
 .word 0x100 0x1234ABCD # MEM[0x100] = MEM[256] = 0x1234ABCD
 ```
 
-### #.diskpage
+### .diskpage
 The diskpage directive is used to set the initial state of the disk from the assembly file.
 
 Usage:
 ```
-#.diskpage sector page word1 word2 word3 word4
+.diskpage sector page word1 word2 word3 word4
 ```
 
 Each sector is divided into 4 pages (each page is 4 32 bit words long), numbered 0-3.
-A sector can be set fully with 4 #.diskpage directives or partially with less, with the
-missing pages being full of 0s.
+A sector can be set fully with 4 .diskpage directives or partially with less, with the
+missing pages being full of 0s. For example, to set half a sector:
+
+```
+.diskpage 0 0 0x1234ABCD 0x11111111 0xB00B5    11
+.diskpage 0 1 0xAAAA     0xF00D     0          -123
+```
 
 
-### #.interrupt
+### .interrupt
 The interrupt directive is used to set the clock numbers for which irq2 will be raised.
 Usage:
 ```
-#.interrupt cycle
+.interrupt cycle
 ```
 
 This directive only creates entries in the irq2in.txt file at assembly time.

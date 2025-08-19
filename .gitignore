@@ -55,4 +55,9 @@ bf-programs/gol
 
 bf-test/*
 
+build
+build/*
+run
+run/*
+
 

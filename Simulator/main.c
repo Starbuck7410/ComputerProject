@@ -1,19 +1,22 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include "mem.h"
+#include "file_handler.h"
 #include "functions.h"
 
 #define HALT_OP 21
 #define MAX_PC 4096
 #define IRQ_SIZE 100
-// argv[0] = sim.exe,      argv[1] = imemin.txt,   argv[2] = dmemin.txt
-// argv[3] = disk.txt,   argv[4] = irq2in.txt,   argv[5] = dmemout.txt
-// argv[6] = regout.txt,   argv[7] = trace.txt,    argv[8] = hwregtrace.txt
-// argv[9] = cycles.txt,  argv[10] = leds.txt,    argv[11] =  display7seg.txt 
+// argv[0] = sim.exe,      argv[1] = memin.txt,      argv[2] = disk.txt,   
+// argv[3] = irq2in.txt,   argv[4] = memout.txt      argv[5] = regout.txt, 
+// argv[6] = trace.txt,    argv[7] = hwregtrace.txt  argv[8] = cycles.txt,
+// argv[9] = debug flag
 
 
 
@@ -80,64 +83,45 @@ char * create_screen(int size_x, int size_y) {
 
 int main(int argc, char * argv[]) {
 	int debug = 0;
-	if(argc == 2 && (eq_str(argv[1], "-h") || eq_str(argv[1], "-H"))){
+	if(argc == 2 && (eq_str(argv[1], "-h"))){
 		print_help();
 		return 0;
 	}
 
-	if(argc < 12){
-		error("Not enough arguments. Use the -h flag for more info.\n");
-		return 1;
-	}
-	if (argc == 13 && (eq_str(argv[12], "-d") || eq_str(argv[12], "-D"))) {
+	
+	if (argc == 10 && (eq_str(argv[9], "-d") || eq_str(argv[12], "--debug"))) {
 		debug = 1;
 	}
-	if(argc > 12 && !debug){
-		error("Too many arguments. Use the -h flag for more info.\n");
-		return 1;
+
+	if (argc != 4 && !debug){
+		error("Wrong number of arguments. Use the -h flag for more info.\n");
 	}
-	int pc = 0;
-	int cycles = 0;
-	long long instruction;
-	// The initial values of the local and hardware registers on reset are 0.
-	// I thus declare register 18 to be the keyboard character, register 23 to be the interrupt itself, and register 19 to be the keyboard handler
-	int registers[16] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
-	unsigned int io_registers[24] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+
+	files_t files;
+	if(files_load_from_args(&files, argv, debug)) return 1;
+
+	size_t pc = 0;
+	int64_t cycles = 0;
+	int64_t instruction;
+	// The initial values of the local and IO registers on reset are 0.
+	int32_t registers[16] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
+	uint32_t io_registers[24] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
 	
 	
-	long long imem[4096];
-	int local_memory[4096];
+	mem_t memory;
+	mem_init(&memory);
 	int irq2_addresses[IRQ_SIZE];
-	int doom_counter = 0;
-	unsigned int temp_leds = 0;
-	unsigned int temp_7seg = 0; // temp variables to check if the leds or 7 seg changed
+	int hdd_doom_counter = 0;
 	int in_isr = 0; //if in ISR then 1, else 0.
 	int irq = 0;
 	char IOReg_name[20];
 
-	fill_ll_array_from_file(imem, argv[1]); // fills local memory from dmemin.txt
-	fill_int_array_from_file(local_memory, argv[2]); // fills local memory from dmemin.txt
-	FILE* disk_file = fopen(argv[3], "r");
-	FILE* irq2in_file = fopen(argv[4], "r");
-	irq2_load(argv[4], irq2_addresses);
-	// dmemout 5 handled in its own function
-	FILE* regout_file = fopen(argv[6], "w");
-	FILE* trace_file = fopen(argv[7], "w");
-	FILE* hwregtrace_file = fopen(argv[8], "w");
-	FILE* cycles_file = fopen(argv[9], "w");
-	FILE* leds_file = fopen(argv[10], "w");
-	FILE* disp7seg_file = fopen(argv[11], "w");
-
 
 	
+	mem_read_init_state(&memory, files.memin);
+	irq2_load(files.irq2in, irq2_addresses);
 
-	if (disk_file == NULL){
-		perror("ERROR ");
-		error("Cant open disk file, Crashing...");
-		return 1;
-	}
-
-	int * disk_data = load_disk(disk_file);
+	int * disk_data = load_disk(files.disk);
 
 	int size_x = 256;
     int size_y = 256;
@@ -152,7 +136,7 @@ int main(int argc, char * argv[]) {
 
 		// ------- STAGE: Fetch -------
 
-		instruction = imem[pc];
+		instruction = memory.data[pc] << 32 | memory.data[pc + 1];
 		
 		// ------- STAGE: Decode -------
 		// takes long long, outputs int opcode, int[4] reg addresses, int[2] imm values
@@ -169,24 +153,24 @@ int main(int argc, char * argv[]) {
 
 		// ------- STAGE: Traces -------
 		if(debug){
-				trace_out(trace_file, pc, instruction, registers);
+				trace_out(files.trace, pc, instruction, registers);
 			
 			
 			if ((opcode == 19) || (opcode == 20)) {
 				get_IO_reg_name(inst_regs, registers, IOReg_name);
-				fprintf(hwregtrace_file, "%d ", cycles);
+				fprintf(files.hwregtrace, "%d ", cycles);
 				if (opcode == 19){ 
-					fprintf(hwregtrace_file, "READ "); // Read
+					fprintf(files.hwregtrace, "READ "); // Read
 				} else {
-					fprintf(hwregtrace_file, "WRITE "); // Write
+					fprintf(files.hwregtrace, "WRITE "); // Write
 				}
 
-				fprintf(hwregtrace_file, "%s ", IOReg_name);
+				fprintf(files.hwregtrace, "%s ", IOReg_name);
 
 				if (opcode == 19){
-					fprintf(hwregtrace_file, "%08X\n", io_registers[registers[inst_regs[1]] + registers[inst_regs[2]]]); 
+					fprintf(files.hwregtrace, "%08X\n", io_registers[registers[inst_regs[1]] + registers[inst_regs[2]]]); 
 				} else { 
-					fprintf(hwregtrace_file, "%08X\n", registers[inst_regs[3]]);
+					fprintf(files.hwregtrace, "%08X\n", registers[inst_regs[3]]);
 				}
 			}
 		}
@@ -198,18 +182,6 @@ int main(int argc, char * argv[]) {
 
 		
 		// ------- STAGE: I/O -------
-		if(debug){
-			if(temp_leds != io_registers[9]){
-				fprintf(leds_file, "%d %08x\n", cycles, io_registers[9]);
-			}
-			if(temp_7seg != io_registers[10]){
-				fprintf(disp7seg_file, "%d %08x\n", cycles, io_registers[10]);
-			}
-			temp_leds = io_registers[9];
-			temp_7seg = io_registers[10];
-
-		}
-
 
 		// if monitor command is 1 write to monitor array, data from I/O to adress given by I/O.
 		if (io_registers[22]) {
@@ -358,7 +330,7 @@ int main(int argc, char * argv[]) {
 	fclose(trace_file);
 	fclose(regout_file);
 	fclose(cycles_file);
-	fclose(irq2in_file);
+
 	fclose(hwregtrace_file);
 	return 0;
 }

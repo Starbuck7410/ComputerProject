@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "functions.h"
+#include "mem.h"
 #define LABEL_COUNT 300
 #define LABEL_SIZE 70
 #define LINE_SIZE 300
@@ -13,85 +14,72 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 		error("No arguments given. Use the -h flag for more info.\n");
 		return 1;
 	}
-	// // -h flag handling:
-	if (eq_str(argv[1], "-h") || eq_str(argv[1], "-H")){ 
+	// -h flag handling:
+	if (eq_str(argv[1], "-h")){ 
 		print_help();
 		return 0;
 	}
-	if (argc < 3){
-		error("Not enough arguments. Use the -h flag for more info.\n");
+	if (argc != 5){
+		error("Wrong number of arguments. Use the -h flag for more info.\n");
 		return 1;
 	}
 
-	FILE *asmb_file; //file pointer to program.asm
-	FILE *imem_file; //file pointer to imemin.txt
-	FILE *dmem_file; //file pointer to dmemin.txt 
+	FILE * asmb_file; //file pointer to program.asm
+	FILE * mem_file; //file pointer to memin.txt
+	FILE * irq2in_file; //file pointer to irq2in.txt
+	FILE * disk_in_file; //file pointer to diskin.txt
+	
 	asmb_file = fopen(argv[1], "r"); // only for read
 	if (asmb_file == NULL){
-		error("Failed to create assembly file: ");
+		error("Failed to read assembly file: ");
 		printf("%s\n", argv[1]);
 		perror("");
 		return 1;	
 	}
 
-	imem_file = fopen(argv[2],"w");	//read and write
+	mem_file = fopen(argv[2],"w");	//read and write
 	if (asmb_file == NULL){
-		error("Failed to create imem file: ");
-		printf("%s\n", argv[1]);
+		error("Failed to create mem file: ");
+		printf("%s\n", argv[2]);
 		perror("");
 		return 1;	
 	}
 
-	dmem_file = fopen(argv[3], "w");
-	if (asmb_file == NULL){
-		error("Failed to create dmem file: ");
-		printf("%s\n", argv[1]);
+	
+	irq2in_file = fopen(argv[3], "w");
+	if (irq2in_file == NULL){
+		error("Failed to create irq2in file: ");
+		printf("%s\n", argv[3]);
 		perror("");
 		return 1;	
 	}
 
-	FILE* disk_in_file;
-	FILE* irq2in_file;
-	int disk_size;
-	int *disk;
-	if(argc > 4){
-		disk_in_file = fopen(argv[4], "w");
-		irq2in_file = fopen(argv[5], "w");
 
-		if (disk_in_file == NULL){
-			error("Failed to create diskin file: ");
-			printf("%s\n", argv[1]);
-			perror("");
-			return 1;	
-		}
-		if (irq2in_file == NULL){
-			error("Failed to create irq2in file: ");
-			printf("%s\n", argv[1]);
-			perror("");
-			return 1;	
-		}
-		disk = (int*) malloc(512 * 128); // 512 sectors of 128 bytes
+	disk_in_file = fopen(argv[4], "w");
+	if (disk_in_file == NULL){
+		error("Failed to create diskin file: ");
+		printf("%s\n", argv[4]);
+		perror("");
+		return 1;	
 	}
+
+
+	mem_t disk;
+	mem_init(&disk);
+
 
 
 	char line [LINE_SIZE]; 
 	char temp_line[LINE_SIZE];
 	strncpy(line, "", 1);
 	strncpy(temp_line, "", 1);
-	char labels [LABEL_COUNT][LABEL_SIZE]; // support for up to 250 labels
+	char labels [LABEL_COUNT][LABEL_SIZE]; // support for up to LABEL_COUNT labels
 	int label_addresses [LABEL_COUNT];
 
 
-	if(asmb_file == NULL || imem_file == NULL || dmem_file == NULL){
-		
-	}
-
-	int dmem[4096];
-	long long imem[4096];
-	for (int i = 0; i < 4096; i++){
-		dmem[i] = 0;	// dmemin.txt gets initialized to 00000000\n * 4096
-		imem[i] = 0;	// imemin.txt gets initialized to 000000000000\n * 4096
-	}       
+	mem_t mem;
+	mem_init(&mem);
+	     
 
 	// 				------------------------------------- 1st pass on the code: ----------------------------------
 	int address = 0;
@@ -143,8 +131,8 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 	}
 	rewind(asmb_file);
 	// 				------------------------------------- 2nd pass on the code: ----------------------------------
-	long long decoded_instruction; // 48 bits per instruction
-	long long converted_instruction;
+	int64_t decoded_instruction; // 64 bits per instruction
+	int64_t converted_instruction;
 	address = 0;
     while (elements = fscanf(asmb_file, "%[^\n]\n", temp_line) != EOF) { 
 		line_index++;
@@ -157,10 +145,8 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 		// Cut out whitespaces
 		int start = clean_string(line);
 
-		// printf("Line:          | %s\n", line);
 		// Check the line isnt a comment
-		if (line[start] == '#' && line[start + 1] != '.'){
-			// printf("Skipping comment\n");
+		if (line[start] == '#'){
 			continue;
 		}
 		
@@ -169,106 +155,57 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 		start = get_component(line, op_code, start);
 
 
-		// Handle .word instructions
+		// Handle .word directives
 		if (eq_str(op_code, ".word")){
-			int int_word_address, int_word_value;									//define int of address, int of data, array such that x[address] = data and assist vars
+			int int_word_address, int_word_value;									
 			// printf("Directive:     | \"%s\"\n", op_code);
-			char word_address[15], word_value[15];									//define string of address and string of data
+			char word_address[15], word_value[15];									
 
 			start = get_component(line, word_address, start);
 			start = get_component(line, word_value, start);
 			
 			
-			int_word_address = str_to_int(word_address);						//convert string to int
-			int_word_value = str_to_int(word_value);							//convert string to int
+			int_word_address = str_to_int(word_address);
+			int_word_value = str_to_int(word_value);							
 		               
-			dmem[int_word_address] = int_word_value;                                	 //dmem[address] = data
-			// printf("Word address:  | %d\n", int_word_address);
-			// printf("Word Value:    | %d\n", int_word_value);
+			mem_write_idx(&mem, int_word_value, int_word_address);
 			continue;
 		}
 		
-		if(eq_str(op_code, "#.interrupt")){
-			if(argc > 4){
-				// printf("Directive:     | \"%s\"\n", op_code);
-				char interrupt_text[10];
-				start = get_component(line, interrupt_text, start);
-				
-				int interrupt_value = str_to_int(interrupt_text);
-				printf("Interrupt:     | %d\n", interrupt_value);
-				fprintf(irq2in_file, "%d\n", interrupt_value);
-			} else {
-				warn("WARNING: #.interrupt used without extra features mode on.\nFor more info run with the flag -h.\n");
-			}
+		if(eq_str(op_code, ".interrupt")){
+			// printf("Directive:     | \"%s\"\n", op_code);
+			char interrupt_text[10];
+			start = get_component(line, interrupt_text, start);		
+			int interrupt_value = str_to_int(interrupt_text);
+			printf("Interrupt:     | %d\n", interrupt_value);
+			fprintf(irq2in_file, "%d\n", interrupt_value);
 			continue;
 		}
 
-		if(eq_str(op_code, "#.disksector")){
-			warn("WARNING: #.disksector is deprecated and will likely be removed in a future version.\n");
-			if(argc > 4){
-				printf("Directive:     | \"%s\"\n", op_code);
-				char disk_sector_text[10];
-				start = get_component(line, disk_sector_text, start);
-				
-				int disk_sector_value = str_to_int(disk_sector_text);
-				if (disk_sector_value * 16 >= disk_size){
-					for (int i = disk_size; i < disk_sector_value * 16; i++){
-						disk[i] = 0;
-					}
-					disk_size = (disk_sector_value + 1) * 16;
-					disk[disk_size + 1] = EOF;	
-				}	
 
-				printf("Disk Sector:   | %d\n", disk_sector_value);
+		if(eq_str(op_code, ".diskpage")){
+		
+			// printf("Directive:     | \"%s\"\n", op_code);
+			char disk_sector_text[10];
+			start = get_component(line, disk_sector_text, start);
+			
+			size_t disk_sector_value = str_to_int(disk_sector_text);
+			
+			char disk_page_text[2];
+			start = get_component(line, disk_page_text, start);
+			size_t disk_page = str_to_int(disk_page_text);
+			
+			// printf("Sector, page:  | %d, %d\n", disk_sector_value, disk_page);
 
-				char word_text[10];
-				int word_value;
-				for (int i = 0; i < 16; i++){ // 1 sector is 16 words
-					start = get_component(line, word_text, start);
-					word_value = str_to_int(word_text);
-					// printf("Word %02d:       | %d\n", i, word_value);
-					disk[disk_sector_value * 16 + i] = word_value;
-				}
-			} else {
-				warn("WARNING: #.disksector used without extra features mode on.\nFor more info run with the flag -h.\n");
+			char word_text[10];
+			int32_t word_value;
+			for (int i = 0; i < 4; i++){ // 1 page is 4 words
+				start = get_component(line, word_text, start);
+				word_value = str_to_int(word_text);
+				// printf("Word %02d:       | %d\n", i, word_value);
+				mem_write_idx(&disk, word_value, disk_sector_value * 16 + disk_page * 4 + i);
 			}
-
-			continue;
-		}
-
-		if(eq_str(op_code, "#.diskpage")){
-			if(argc > 4){
-				// printf("Directive:     | \"%s\"\n", op_code);
-				char disk_sector_text[10];
-				start = get_component(line, disk_sector_text, start);
-				
-				int disk_sector_value = str_to_int(disk_sector_text);
-				if (disk_sector_value * 16 >= disk_size){
-					for (int i = disk_size; i < disk_sector_value * 16; i++){
-						disk[i] = 0;
-					}
-					disk_size = (disk_sector_value + 1) * 16;
-					disk[disk_size + 1] = EOF;	
-				}	
-
-				
-				char disk_page_text[2];
-				start = get_component(line, disk_page_text, start);
-				int disk_page = str_to_int(disk_page_text);
-				
-				// printf("Sector, page:  | %d, %d\n", disk_sector_value, disk_page);
-
-				char word_text[10];
-				int word_value;
-				for (int i = 0; i < 4; i++){ // 1 page is 4 words
-					start = get_component(line, word_text, start);
-					word_value = str_to_int(word_text);
-					// printf("Word %02d:       | %d\n", i, word_value);
-					disk[disk_sector_value * 16 + disk_page * 4 + i] = word_value;
-				}
-			} else {
-				warn("WARNING: #.diskpage used without extra features mode on.\nFor more info run with the flag -h.\n");
-			}
+			
 
 			continue;
 		}
@@ -277,12 +214,12 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 		if (op_code[strlen(op_code) - 1] == ':' || eq_str(op_code, "")){ // Check if it's not a label
 			continue;
 		}
-		if(!eq_str(op_code, "#.disksector") && !eq_str(op_code, "#.interrupt") && converted_instruction == -1){
+		if(converted_instruction == -1){
 			printf("\x1B[31mERROR: UNDEFINED INSTRUCTION \"%s\" FOUND AT LINE: %d\x1B[0m\n", op_code, line_index); // We didnt recognize the instruction
 			return 1;
 		}
 		
-		decoded_instruction =  (converted_instruction & 0xFF) << 40; 
+		decoded_instruction =  (converted_instruction & 0xFF) << 56; 
 
 		long long decoded_reg;
 		// get all 4 registers
@@ -296,7 +233,7 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 				printf("\x1B[31mERROR: UNKNOWN REGISTER \"%s\" AT LINE %d\x1B[0m\n", reg, line_index); // We didnt recognize the register
 				return 1;
 			}
-			decoded_instruction += (decoded_reg & 0xF) << (24 + 4*(3-i));
+			decoded_instruction += (decoded_reg & 0xF) << (40 + 4*(3-i));
 		}
 
 		// get both immediates
@@ -320,39 +257,24 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 					}
 				}	
 			}
-				decoded_instruction += (converted_imm & 0xFFF) << (12*(1-i)); // turn immediate from string to number
+				decoded_instruction += (converted_imm & 0xFFFFF) << (20*(1-i)); // turn immediate from string to number
 		}
 
 		// printf("Final opcode:  | %012llX\n", decoded_instruction);
-		imem[address] = decoded_instruction;
+		mem_write_idx(&mem, (int32_t) (decoded_instruction >> 32), 2 * address);
+		mem_write_idx(&mem, (int32_t) decoded_instruction, 2 * address + 1);
 		address++;
 		
 	}
-	// filling dmemin and imemin
 
-	for (int i = 0; i < 4096; i++){
-		fprintf(dmem_file, "%08lX\n", dmem[i]);
-	}
+	mem_write_file(&mem, mem_file);
+	mem_write_file(&disk, disk_in_file);
 
-	for (int i = 0; i < 4096; i++){
-		fprintf(imem_file, "%012llX\n", imem[i]);
-	}
-
-
-	if(argc > 4){
-		for(int i = 0; i < disk_size; i++){
-			fprintf(disk_in_file, "%08X\n", disk[i]);
-		}
-	}
-
-	if(argc > 4){
-		fclose(disk_in_file);
-		fclose(irq2in_file);
-	}
-
-	free(disk);
+	free(mem.data);
+	free(disk.data);
+	fclose(disk_in_file);
+	fclose(irq2in_file);
 	fclose(asmb_file);
-	fclose(imem_file); 
-	fclose(dmem_file);
+	fclose(mem_file); 
 	return 0;
 }

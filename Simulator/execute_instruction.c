@@ -3,7 +3,7 @@
 #include <string.h>
 void error(char * text);
 int execute(int op_code, int* inst_regs, int* imms, int* registers, 
-    int* P_PC, int* local_memory, unsigned int* io_registers, int * in_isr, int debug) 
+    int* P_PC, int * local_memory, unsigned int* io_registers, int * in_isr, int debug) 
 {   
 
     // returns 0 on success, will decide of error codes for other things

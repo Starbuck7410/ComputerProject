@@ -7,7 +7,7 @@ long long hex_string_to_long_long(char number[], int len);
 void error(char * text);
 
 int* load_disk(FILE * disk_file){
-    int * disk_data = (int*) malloc(1024 * 64); // Initialize 1024 sectors of 64 bytes for 64KiB of "storage"
+    int * disk_data = (int*) malloc(4096 * 64); // Initialize 4096 sectors of 64 bytes (16 words) for 256KiB of "storage"
     if (disk_data == NULL) {
         error("ERROR ALLOCATING MEMORY SPACE FOR DISK");
         return NULL;
