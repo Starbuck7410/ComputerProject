@@ -52,15 +52,34 @@ elif [[ ! -d $dir ]]; then
     echo "$dir already exists but is not a directory" 2>&2
 fi
 
-./assemble "$assembly" "$(echo $wd)/build/imemin.txt" "$(echo $wd)/build/dmemin.txt" "$(echo $wd)/build/diskin.txt" "$(echo $wd)/build/irq2in.txt"
+./assemble "$assembly" "$(echo $wd)/build/memin.txt" "$(echo $wd)/build/diskin.txt" "$(echo $wd)/build/irq2in.txt"
 if [ $? -ne 0 ]; then
     exit 2
 fi
 echo
 echo "Program $assembly compiled successfully!"
 echo "Running simulator..."
+# echo "./simulate $wd/build/memin.txt $wd/build/diskin.txt $wd/build/irq2in.txt"
 echo
-./simulate "$(echo $wd)/build/imemin.txt" "$(echo $wd)/build/dmemin.txt" "$(echo $wd)/build/diskin.txt" "$(echo $wd)/build/irq2in.txt" "$(echo $wd)/run/dmemout.txt" "$(echo $wd)/run/regout.txt" "$(echo $wd)/run/trace.txt" "$(echo $wd)/run/hwregtrace.txt" "$(echo $wd)/run/cycles.txt" "$(echo $wd)/run/leds.txt" "$(echo $wd)/run/display7seg.txt" $dbg
+
+if [[ -n $dbg ]]; then
+    ./simulate \
+        "$wd/build/memin.txt" \
+        "$wd/build/diskin.txt" \
+        "$wd/build/irq2in.txt" \
+        "$wd/run/memout.txt" \
+        "$wd/run/regout.txt" \
+        "$wd/run/trace.txt" \
+        "$wd/run/hwregtrace.txt" \
+        "$wd/run/cycles.txt" \
+        $dbg
+else
+    ./simulate \
+        "$wd/build/memin.txt" \
+        "$wd/build/diskin.txt" \
+        "$wd/build/irq2in.txt"
+fi
+
 if [ $? -eq 0 ]; then
     echo "Simulation finished successfully!"
     exit 0

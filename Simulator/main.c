@@ -9,9 +9,10 @@
 #include "mem.h"
 #include "file_handler.h"
 #include "functions.h"
+#include "instructions.h"
+#include "disk.h"
 
 #define HALT_OP 21
-#define MAX_PC 4096
 #define IRQ_SIZE 100
 // argv[0] = sim.exe,      argv[1] = memin.txt,      argv[2] = disk.txt,   
 // argv[3] = irq2in.txt,   argv[4] = memout.txt      argv[5] = regout.txt, 
@@ -25,7 +26,7 @@ XImage * image;
 Display * display;
 Window window;
 int screen;
-int slow = 30000; // larger values run faster but are choppier, default is 30000
+int slow = 10000; // larger values run faster but are choppier, default is 30000
 
 char * create_screen(int size_x, int size_y) {
     // Connect to the X server
@@ -89,30 +90,36 @@ int main(int argc, char * argv[]) {
 	}
 
 	
-	if (argc == 10 && (eq_str(argv[9], "-d") || eq_str(argv[12], "--debug"))) {
+	if (argc == 10 && (eq_str(argv[9], "-d") || eq_str(argv[9], "--debug"))) {
 		debug = 1;
 	}
 
 	if (argc != 4 && !debug){
 		error("Wrong number of arguments. Use the -h flag for more info.\n");
+		return 1;
 	}
 
 	files_t files;
 	if(files_load_from_args(&files, argv, debug)) return 1;
 
-	size_t pc = 0;
 	int64_t cycles = 0;
-	int64_t instruction;
-	// The initial values of the local and IO registers on reset are 0.
-	int32_t registers[16] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
-	uint32_t io_registers[24] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
-	
+	int64_t instruction_code;
+
+
+
 	
 	mem_t memory;
-	mem_init(&memory);
+	mem_init(&memory, MAX_MEM_SIZE);
+	machine_state_t machine_state = { 0 };
+	machine_state.memory = &memory;
+	
+	mem_t storage;
+	disk_t disk = { 0 };
+	disk.storage = &storage;
+	disk.file = files.disk;
+	load_disk(&disk);
+
 	int irq2_addresses[IRQ_SIZE];
-	int hdd_doom_counter = 0;
-	int in_isr = 0; //if in ISR then 1, else 0.
 	int irq = 0;
 	char IOReg_name[20];
 
@@ -121,7 +128,6 @@ int main(int argc, char * argv[]) {
 	mem_read_init_state(&memory, files.memin);
 	irq2_load(files.irq2in, irq2_addresses);
 
-	int * disk_data = load_disk(files.disk);
 
 	int size_x = 256;
     int size_y = 256;
@@ -136,30 +142,26 @@ int main(int argc, char * argv[]) {
 
 		// ------- STAGE: Fetch -------
 
-		instruction = memory.data[pc] << 32 | memory.data[pc + 1];
+		instruction_code = (uint64_t) memory.data[machine_state.PC] << 32 | memory.data[machine_state.PC + 1];
 		
 		// ------- STAGE: Decode -------
-		// takes long long, outputs int opcode, int[4] reg addresses, int[2] imm values
-		// changes their values in decode as such: 
-		// opcode is returned 
-		// reg[0] = rd, reg[1] = rs, reg[2] = rt, reg[3] = rm
-		// imm[0] = immediate 1, imm[1] = immediate 2
-		int opcode, inst_regs[4], imm[2];
-		opcode = decode(instruction, inst_regs, imm);
-		registers[1] = imm[0];
-        registers[2] = imm[1];
 
+		instruction_t instruction = { 0 };
+		decode_instruction(instruction_code, &instruction);
 		
+		machine_state.registers[1] = instruction.immediates[0];
+        machine_state.registers[2] = instruction.immediates[1];
+
 
 		// ------- STAGE: Traces -------
 		if(debug){
-				trace_out(files.trace, pc, instruction, registers);
+				trace_out(files.trace, machine_state.PC, instruction_code, machine_state.registers);
 			
 			
-			if ((opcode == 19) || (opcode == 20)) {
-				get_IO_reg_name(inst_regs, registers, IOReg_name);
+			if ((instruction.opcode == 19) || (instruction.opcode == 20)) {
+				get_IO_reg_name(instruction.registers, machine_state.registers, IOReg_name);
 				fprintf(files.hwregtrace, "%d ", cycles);
-				if (opcode == 19){ 
+				if (instruction.opcode == 19){ 
 					fprintf(files.hwregtrace, "READ "); // Read
 				} else {
 					fprintf(files.hwregtrace, "WRITE "); // Write
@@ -167,15 +169,17 @@ int main(int argc, char * argv[]) {
 
 				fprintf(files.hwregtrace, "%s ", IOReg_name);
 
-				if (opcode == 19){
-					fprintf(files.hwregtrace, "%08X\n", io_registers[registers[inst_regs[1]] + registers[inst_regs[2]]]); 
+				if (instruction.opcode == 19){
+					fprintf(files.hwregtrace, "%08X\n", machine_state.io_registers[
+						machine_state.registers[instruction.registers[1]] + machine_state.registers[instruction.registers[2]]
+					]); 
 				} else { 
-					fprintf(files.hwregtrace, "%08X\n", registers[inst_regs[3]]);
+					fprintf(files.hwregtrace, "%08X\n", machine_state.registers[instruction.registers[3]]);
 				}
 			}
 		}
 		// ------- STAGE: Execute -------
-		if (execute(opcode, inst_regs, imm, registers, &pc, local_memory, io_registers, &in_isr, debug)){
+		if (execute_instruction(instruction, &machine_state, debug)){
 			error("Error in execute\n");
 			return 1;
 		}
@@ -184,19 +188,19 @@ int main(int argc, char * argv[]) {
 		// ------- STAGE: I/O -------
 
 		// if monitor command is 1 write to monitor array, data from I/O to adress given by I/O.
-		if (io_registers[22]) {
-			int x = io_registers[20] % 256;
-			int y = io_registers[20] / 256;
+		if (machine_state.io_registers[22]) {
+			int x = machine_state.io_registers[20] % 256;
+			int y = machine_state.io_registers[20] / 256;
 			
 			char * monitor_ptr = monitor + scale * (x + y * 256 * scale) * 4;
 			for(int i = 0; i < scale * scale; i++){
 				int xscale = i % scale * 4;
 				int yscale = (i / scale) * 256 * scale * 4;
-				* (monitor_ptr + xscale + yscale) = io_registers[21] & 0xFF;
-				* (monitor_ptr + xscale + yscale + 1) = io_registers[21] & 0xFF;
-				* (monitor_ptr + xscale + yscale + 2)  = io_registers[21] & 0xFF;
+				* (monitor_ptr + xscale + yscale) = machine_state.io_registers[21] & 0xFF;
+				* (monitor_ptr + xscale + yscale + 1) = machine_state.io_registers[21] & 0xFF;
+				* (monitor_ptr + xscale + yscale + 2)  = machine_state.io_registers[21] & 0xFF;
 			}
-			io_registers[22] = 0;
+			machine_state.io_registers[22] = 0;
 		}
 		
 		
@@ -204,23 +208,23 @@ int main(int argc, char * argv[]) {
 		
 
 		// doom counter is the counter for the clock cycles since calling the diskcmd
-		if (io_registers[14]) {
+		if (machine_state.io_registers[14]) {
 			if (debug){
-				printf("Instruction: %d\n", opcode);
-				printf("Disk command: %d\n", io_registers[14]);
+				printf("Instruction: %d\n", instruction.opcode);
+				printf("Disk command: %d\n", machine_state.io_registers[14]);
 			} 
-			if(execute_disk(io_registers, disk_data, local_memory)){
+			if(execute_disk(&machine_state, &disk)){
 				error("Error in execute_disk\n");
 				return 1;
 			}
-			doom_counter = 512; 
+			disk.busy_timeout = 512; 
 
 		}
-		if (doom_counter) {
-			doom_counter--;
-			if (!doom_counter) {
-				io_registers[17] = 0;
-				io_registers[3] = 1;
+		if (disk.busy_timeout) {
+			disk.busy_timeout--;
+			if (!disk.busy_timeout) {
+				machine_state.io_registers[17] = 0;
+				machine_state.io_registers[3] = 1;
 				// raise the interrupt
 			}
 		}
@@ -228,44 +232,44 @@ int main(int argc, char * argv[]) {
 		// ------- STAGE: Interrupts -------
 
 		// Timer
-		if(io_registers[11]){
-			if (io_registers[12] - io_registers[13]) {
-				io_registers[3] = 0;
-				io_registers[12]++;
+		if(machine_state.io_registers[11]){
+			if (machine_state.io_registers[12] - machine_state.io_registers[13]) {
+				machine_state.io_registers[3] = 0;
+				machine_state.io_registers[12]++;
 			}else{
-				io_registers[3] = 1;
-				io_registers[12] = 0;
+				machine_state.io_registers[3] = 1;
+				machine_state.io_registers[12] = 0;
 				
 			}
 		}
 		
-		if(io_registers[23]){
-			io_registers[23] = 0;
+		if(machine_state.io_registers[23]){
+			machine_state.io_registers[23] = 0;
 		}
 
 		if(cycles % slow == 0){
 			XPutImage(display, window, DefaultGC(display, screen), image, 0, 0, 0, 0, size_x * scale, size_y * scale);	
 			if(XCheckWindowEvent(display, window, KeyPressMask, &event)){
 				if (event.type == KeyPress) {
-					io_registers[18] = keycode_to_ascii(event);
-					if(io_registers[18] == 27){
+					machine_state.io_registers[18] = keycode_to_ascii(event);
+					if(machine_state.io_registers[18] == 27){
 						break;
 					}
-					if(io_registers[18] != 0){
-						io_registers[23] = 1;
+					if(machine_state.io_registers[18] != 0){
+						machine_state.io_registers[23] = 1;
 					}
 					if(debug){
-						printf("Key pressed: %d\n", io_registers[18]);
+						printf("Key pressed: %d\n", machine_state.io_registers[18]);
 					}
 				}
 			}
 		}
 
-		if(io_registers[23] == 1 && !in_isr){ // keyboard pressed
-			if(io_registers[19]){
-				io_registers[7] = pc + 1;
-				pc = io_registers[19] - 1;
-				in_isr = 1;
+		if(machine_state.io_registers[23] == 1 && !machine_state.in_isr){ // keyboard pressed
+			if(machine_state.io_registers[19] > 1){
+				machine_state.io_registers[7] = machine_state.PC + 2;
+				machine_state.PC = machine_state.io_registers[19] - 2;
+				machine_state.in_isr = 1;
 			}
 			
 		}
@@ -273,45 +277,49 @@ int main(int argc, char * argv[]) {
 
 
 		// checks for Interrupt 2
-		if (io_registers[5] == 1) io_registers[5] = 0; //turn off irq2 if irq2 was on last cycles.  
+		if (machine_state.io_registers[5] == 1) machine_state.io_registers[5] = 0; //turn off irq2 if irq2 was on last cycles.  
 
 		for(int i = 0; i < IRQ_SIZE; i++){
 			if (irq2_addresses[i] == cycles) {
-				io_registers[5] = 1; //irq2status = 1
+				machine_state.io_registers[5] = 1; //irq2status = 1
 			}
 		}
 		
 		// executing interrupts
-		irq = (io_registers[0] && io_registers[3]) || (io_registers[1] && io_registers[4]) || (io_registers[2] && io_registers[5]);
-		if (irq & !in_isr) {
-			io_registers[7] = pc + 1;
-			pc = io_registers[6] - 1;
-			in_isr = 1;
+		irq = (machine_state.io_registers[0] && machine_state.io_registers[3]) 
+		   || (machine_state.io_registers[1] && machine_state.io_registers[4]) 
+		   || (machine_state.io_registers[2] && machine_state.io_registers[5]);
+
+		if (irq && !machine_state.in_isr) {
+			printf("It's Morbin' time\n");
+			machine_state.io_registers[7] = machine_state.PC + 2;
+			machine_state.PC = machine_state.io_registers[6] - 2;
+			machine_state.in_isr = 1;
 		}
 
 		cycles++;
-		io_registers[8] = cycles;
+		machine_state.io_registers[8] = cycles;
 		// halt instruction
-		if (opcode == HALT_OP || pc >= MAX_PC)
-		{ 
+		if (instruction.opcode == HALT_OP || machine_state.PC >= machine_state.memory->max_size){ 	
+			printf("Opcode: %d | PC: %d | machine_state.io_registers[6]: %d\n", instruction.opcode, machine_state.PC, machine_state.io_registers[6]);
 			printf("Halted successfully!\n");
 			break;
 		}
-		pc++;
+		machine_state.PC += 2;
 	}
 	
 	if(debug){
 		// writing into regout.txt
 		for (int i = 3; i < 16; i++){
-			fprintf(regout_file, "%08X\n", registers[i]);
+			fprintf(files.regout, "%08X\n", machine_state.registers[i]);
 		}
-
+		// writing into cycles.txt
+		fprintf(files.cycles, "%llu", cycles);
+		mem_write_file(machine_state.memory, files.memout);
 	}
-	// * (monitor + 6) = 250;
-	// writing into cycles.txt
-	fprintf(cycles_file, "%d", cycles);
 
-	while(1 && io_registers[18] != 27){
+
+	while(machine_state.io_registers[18] != 27){
 		XPutImage(display, window, DefaultGC(display, screen), image, 0, 0, 0, 0, size_x * scale, size_y * scale);
 		
 		XNextEvent(display, &event);
@@ -322,15 +330,12 @@ int main(int argc, char * argv[]) {
 	XDestroyImage(image); // Also frees image_data
     XDestroyWindow(display, window);
     XCloseDisplay(display);
-
-	dmemout(local_memory, argv[5]);
-	save_disk(disk_file, disk_data);
-	fclose(disp7seg_file);
-	fclose(leds_file);
-	fclose(trace_file);
-	fclose(regout_file);
-	fclose(cycles_file);
-
-	fclose(hwregtrace_file);
+	
+	
+	mem_write_file(disk.storage, disk.file);
+	free(machine_state.memory->data);
+	free(disk.storage->data);
+	
+	files_close(&files, debug);
 	return 0;
 }

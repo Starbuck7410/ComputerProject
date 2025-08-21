@@ -14,4 +14,4 @@ typedef struct files_t {
 
 int files_load_from_args(files_t *files, char **argv, int debug);
 
-int files_close(files_t *files);
+int files_close(files_t * files, int debug);

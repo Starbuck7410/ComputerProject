@@ -45,23 +45,24 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 		return 1;	
 	}
 
-	
-	irq2in_file = fopen(argv[3], "w");
-	if (irq2in_file == NULL){
-		error("Failed to create irq2in file: ");
+	disk_in_file = fopen(argv[3], "w");
+	if (disk_in_file == NULL){
+		error("Failed to create diskin file: ");
 		printf("%s\n", argv[3]);
 		perror("");
 		return 1;	
 	}
-
-
-	disk_in_file = fopen(argv[4], "w");
-	if (disk_in_file == NULL){
-		error("Failed to create diskin file: ");
+	
+	irq2in_file = fopen(argv[4], "w");
+	if (irq2in_file == NULL){
+		error("Failed to create irq2in file: ");
 		printf("%s\n", argv[4]);
 		perror("");
 		return 1;	
 	}
+
+
+	
 
 
 	mem_t disk;
@@ -123,7 +124,7 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 
 			strncpy(labels[label_index], label, LABEL_SIZE); 
 			
-			label_addresses[label_index] = address;
+			label_addresses[label_index] = address*2;
 			label_index++;
 			continue;
 		}
@@ -177,7 +178,7 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 			char interrupt_text[10];
 			start = get_component(line, interrupt_text, start);		
 			int interrupt_value = str_to_int(interrupt_text);
-			printf("Interrupt:     | %d\n", interrupt_value);
+			// printf("Interrupt:     | %d\n", interrupt_value);
 			fprintf(irq2in_file, "%d\n", interrupt_value);
 			continue;
 		}

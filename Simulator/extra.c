@@ -127,8 +127,8 @@ void print_help(){
 
 void trace_out(FILE* trace_file, int PC, long long inst, int registers[])
 {
-	fprintf(trace_file, "%03X ", PC);
-	fprintf(trace_file, "%012llX ", inst);
+	fprintf(trace_file, "%04X ", PC);
+	fprintf(trace_file, "%016llX ", inst);
 	for (int i = 0; i < 15; i++)
 	{
 		fprintf(trace_file, "%08x ", registers[i]);

@@ -1,4 +1,3 @@
-
 	out $zero, $zero, $imm2, $imm1, 1, 2		# enable irq2
 	sll $sp, $imm1, $imm2, $zero, 1, 11		# set $sp = 1 << 11 = 2048
 	out $zero, $imm1, $zero, $imm2, 6, L3		# set irqhandler as L3
@@ -33,10 +32,6 @@ L2:
 	out $zero, $zero, $imm2, $t0, 0, 10		# write $t0 to display
 	beq $zero, $zero, $zero, $ra, 0, 0		# and return
 L3:
-	in $t1, $zero, $imm2, $zero, 0, 9		# read leds register into $t1
-	sll $t1, $t1, $imm2, $zero, 0, 1		# left shift led pattern to the left
-	or $t1, $t1, $imm2, $zero, 0, 1			# lit up the rightmost led
-	out $zero, $zero, $imm2, $t1, 0, 9		# write the new led pattern
 	out $zero, $zero, $imm2, $imm1, 255, 21		# set pixel color to white
 	out $zero, $zero, $imm2, $imm1, 1, 22		# draw pixel
 	in $t1, $zero, $imm2, $zero, 0, 20		# read pixel address
@@ -47,12 +42,12 @@ L3:
 	.word 64 7
 
 
-#.interrupt 100
-#.interrupt 200
-#.interrupt 300
-#.interrupt 400
-#.interrupt 500
-#.interrupt 600
-#.interrupt 700
-#.interrupt 800
+.interrupt 100
+.interrupt 200
+.interrupt 300
+.interrupt 400
+.interrupt 500
+.interrupt 600
+.interrupt 700
+.interrupt 800
 

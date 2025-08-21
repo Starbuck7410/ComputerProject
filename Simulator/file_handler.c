@@ -1,5 +1,16 @@
 #include <stdio.h>
 #include "file_handler.h"
+#include "functions.h"
+
+FILE * file_open(char * filename, char * mode){
+    FILE * opened_file = fopen(filename, mode);
+	if (opened_file == NULL){
+		error("Failed to load file: ");
+		printf("%s\n", filename);
+		perror("");	
+	}
+    return opened_file;
+}
 
 int files_load_from_args(files_t * files, char ** argv, int debug){
 
@@ -59,23 +70,17 @@ int files_load_from_args(files_t * files, char ** argv, int debug){
     return 0;
 }
 
-FILE * file_open(char * filename, char * mode){
-    FILE * opened_file = fopen(filename, mode);
-	if (opened_file == NULL){
-		error("Failed to load file: ");
-		printf("%s\n", filename);
-		perror("");	
-	}
-    return opened_file;
-}
 
-int files_close(files_t * files){
-    fclose((* files).memin);
-    fclose((* files).disk);
-    fclose((* files).irq2in);
-    fclose((* files).memout);
-    fclose((* files).regout);
-    fclose((* files).trace);
-    fclose((* files).hwregtrace);
-    fclose((* files).cycles);
+
+int files_close(files_t * files, int debug){
+    fclose(files->memin);
+    fclose(files->disk);
+    fclose(files->irq2in);
+    if (debug){
+        fclose(files->memout);
+        fclose(files->regout);
+        fclose(files->trace);
+        fclose(files->hwregtrace);
+        fclose(files->cycles);
+    }
 }
