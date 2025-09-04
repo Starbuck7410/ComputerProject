@@ -13,10 +13,10 @@ int init_code(char * next_block){
 #INIT CODE
 
 add $sp, $imm1, $zero, $zero, 512, 0  # Initialize the stack pointer
-lw $t0, $zero, $zero, $zero, 0, 0  # Load the word in dmem[0] to the correct sector
+lw $t0, $zero, $zero, $zero, 0, 0  # Load the word in mem[0] to the correct sector
 out $zero, $imm1, $zero, $t0, 15, 0                          # read from sector $t0
-mac $gp, $imm1, $imm2, $zero, 512, 7  # calculate memory address of 512*7 (last place where sector fits)
-out $zero, $imm1, $zero, $gp, 16, 0                      # r/w to/from memory addresses 512 * 7
+mac $gp, $imm1, $imm2, $zero, 512, 8  # calculate memory address of 512*8 (4096)
+out $zero, $imm1, $zero, $gp, 16, 0                      # r/w to/from memory addresses 512 * 8
 out $zero, $imm1, $zero, $imm2, 14, 1                        # initiate disk read
 
 LOOP:
@@ -27,11 +27,11 @@ LOOP:
     add $t0, $t0, $imm1, $zero, 1, 0  # increment sector
     out $zero, $imm1, $zero, $t0, 15, 0                          # read from sector $t0
     add $gp, $gp, $imm1, $zero, 16, 0  # increment memory address by 16
-    out $zero, $imm1, $zero, $gp, 16, 0                      # r/w to/from memory addresses 512 * 7 + 16
+    out $zero, $imm1, $zero, $gp, 16, 0                      # r/w to/from memory addresses 512 * 8 + 16
     out $zero, $imm1, $zero, $imm2, 14, 1                        # initiate disk read
 bne $zero, $t0, $imm1, $imm2, 6, LOOP  # if sector != 6, go to LOOP
 
-mac $gp, $imm1, $imm2, $zero, 512, 7  # calculate memory address of 512*7 (last place where sector fits)
+mac $gp, $imm1, $imm2, $zero, 512, 8  # calculate memory address of 512*8 (last place where sector fits)
 add $t0, $zero, $zero, $zero, 0, 0  # reset $t0 for program start
 add $a1, $imm1, $zero, $zero, 0, 0
 add $a2, $imm1, $zero, $zero, 0, 0
@@ -118,36 +118,36 @@ int halt(char * next_block){
 
 int typeface(char * next_block){
     char * typeface_asm = R"(# LOAD TYPEFACE
-.word 0 0  # at dmem[0] i will store which secotr is the typeface sector
-#.diskpage 0 0 0x00000000 0x02222020 0x05500000 0x0AFAAFA0
-#.diskpage 0 1 0x02763720 0x05122450 0x08B8CAC0 0x02200000
-#.diskpage 0 2 0x01222210 0x08444480 0x05250000 0x00027200
-#.diskpage 0 3 0x00000048 0x00007000 0x00000040 0x01122440
+.word 0 0  # at mem[0] i will store which sector is the typeface sector
+.diskpage 0 0 0x00000000 0x02222020 0x05500000 0x0AFAAFA0
+.diskpage 0 1 0x02763720 0x05122450 0x08B8CAC0 0x02200000
+.diskpage 0 2 0x01222210 0x08444480 0x05250000 0x00027200
+.diskpage 0 3 0x00000048 0x00007000 0x00000040 0x01122440
 
-#.diskpage 1 0 0x069BD960 0x02622270 0x069168F0 0x06921960
-#.diskpage 1 1 0x026AF220 0x0F8E1960 0x068E9960 0x0F124440
-#.diskpage 1 2 0x06969960 0x06997160 0x00020200 0x00020220
-#.diskpage 1 3 0x00124210 0x000E0E00 0x00842480 0x0E164040
+.diskpage 1 0 0x069BD960 0x02622270 0x069168F0 0x06921960
+.diskpage 1 1 0x026AF220 0x0F8E1960 0x068E9960 0x0F124440
+.diskpage 1 2 0x06969960 0x06997160 0x00020200 0x00020220
+.diskpage 1 3 0x00124210 0x000E0E00 0x00842480 0x0E164040
 
-#.diskpage 2 0 0x069BB870 0x0699F990 0x0E9E99E0 0x06988960
-#.diskpage 2 1 0x0E9999E0 0x0F8E88F0 0x0F8E8880 0x0698B960
-#.diskpage 2 2 0x099F9990 0x07222270 0x01111960 0x09ACCA90
-#.diskpage 2 3 0x088888F0 0x09FF9990 0x09DB9990 0x06999960
+.diskpage 2 0 0x069BB870 0x0699F990 0x0E9E99E0 0x06988960
+.diskpage 2 1 0x0E9999E0 0x0F8E88F0 0x0F8E8880 0x0698B960
+.diskpage 2 2 0x099F9990 0x07222270 0x01111960 0x09ACCA90
+.diskpage 2 3 0x088888F0 0x09FF9990 0x09DB9990 0x06999960
 
-#.diskpage 3 0 0x0E99E880 0x06999A50 0x0699EA90 0x078611E0
-#.diskpage 3 1 0x07222220 0x09999960 0x09999660 0x0999FF90
-#.diskpage 3 2 0x09966990 0x05552220 0x0F1248F0 0x03222230
-#.diskpage 3 3 0x04422110 0x0C4444C0 0x04A00000 0x000000F0
+.diskpage 3 0 0x0E99E880 0x06999A50 0x0699EA90 0x078611E0
+.diskpage 3 1 0x07222220 0x09999960 0x09999660 0x0999FF90
+.diskpage 3 2 0x09966990 0x05552220 0x0F1248F0 0x03222230
+.diskpage 3 3 0x04422110 0x0C4444C0 0x04A00000 0x000000F0
 
-#.diskpage 4 0 0x04200000 0x00079970 0x088E99E0 0x00069870
-#.diskpage 4 1 0x01179970 0x0006F870 0x01272220 0x0007971E
-#.diskpage 4 2 0x088E9990 0x02022220 0x00101196 0x0889AE90
-#.diskpage 4 3 0x02222210 0x000EF990 0x000E9990 0x00069960
+.diskpage 4 0 0x04200000 0x00079970 0x088E99E0 0x00069870
+.diskpage 4 1 0x01179970 0x0006F870 0x01272220 0x0007971E
+.diskpage 4 2 0x088E9990 0x02022220 0x00101196 0x0889AE90
+.diskpage 4 3 0x02222210 0x000EF990 0x000E9990 0x00069960
 
-#.diskpage 5 0 0x000E99E8 0x00079971 0x000E9880 0x0007C3E0
-#.diskpage 5 1 0x00272210 0x00099970 0x00099660 0x00099F70
-#.diskpage 5 2 0x00096690 0x0009971E 0x000F24F0 0x01262210
-#.diskpage 5 3 0x02222220 0x08464480 0x0005A000 0x00000000
+.diskpage 5 0 0x000E99E8 0x00079971 0x000E9880 0x0007C3E0
+.diskpage 5 1 0x00272210 0x00099970 0x00099660 0x00099F70
+.diskpage 5 2 0x00096690 0x0009971E 0x000F24F0 0x01262210
+.diskpage 5 3 0x02222220 0x08464480 0x0005A000 0x00000000
                         
 )";
 

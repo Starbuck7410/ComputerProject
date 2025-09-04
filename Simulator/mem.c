@@ -85,3 +85,7 @@ int read_int_array_from_file(int mem[], char* dmemin_file_path) {
 	return 0;
 }
 
+int32_t mem_read_idx(mem_t * mem, size_t idx){
+    if(idx > mem->length) return 0;
+    return mem->data[idx];
+}

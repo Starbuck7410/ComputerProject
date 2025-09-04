@@ -58,4 +58,4 @@ out_ic:
         beq  $zero, $zero, $zero, $ra, 0, 0
 
 # Data: radius=100
-.word 0x100, 240
+.word 0x100, 100

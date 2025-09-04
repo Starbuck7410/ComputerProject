@@ -26,4 +26,4 @@ int mem_read_init_state(mem_t *mem, FILE *mem_file);
 
 int read_int_array_from_file(int mem[], char* dmemin_file_path);
 
-
+int32_t mem_read_idx(mem_t *mem, size_t idx);

@@ -120,7 +120,7 @@ int execute_instruction(instruction_t instruction, machine_state_t * machine_sta
             error("Error: Address out of bounds\n");
             return 1;
         }
-        machine_state->memory->data[address] = machine_state->registers[instruction.registers[0]] + machine_state->registers[instruction.registers[3]];
+        mem_write_idx(machine_state->memory, machine_state->registers[instruction.registers[0]] + machine_state->registers[instruction.registers[3]], address);
     }
     //  -------------------------------- I/0 --------------------------------
     if (instruction.opcode == 18) { // reti
