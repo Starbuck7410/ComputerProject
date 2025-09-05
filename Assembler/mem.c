@@ -38,17 +38,17 @@ int mem_init(mem_t * mem){
 }
 
 int mem_write_idx(mem_t * mem, int32_t value, size_t idx){
-    while ((* mem).allocated < idx){
+    while (mem->allocated < idx + 1){
         if(mem_scale(mem)) return 1;
     }
-    (* mem).data[idx] = value;
-    (* mem).length = ((* mem).length <= idx) ? idx + 1 : (* mem).length;
+    mem->data[idx] = value;
+    mem->length = (mem->length <= idx) ? idx + 1 : mem->length;
     return 0;
 }
 
 int mem_write_file(mem_t * mem, FILE * file){
-    for (int i = 0; i < (* mem).length; i++){
-        fprintf(file, "%08lX\n", (* mem).data[i]);
+    for (int i = 0; i < mem->length; i++){
+        fprintf(file, "%08lX\n", mem->data[i]);
     }
     return 0;
 }

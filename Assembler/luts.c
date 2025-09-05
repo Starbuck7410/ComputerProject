@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 
 int eq_str(char str1[], char str2[]);
 
 
-long long find_instruction(char name[]){ // This function recives a string of the instruction and returns its integer number.
+uint64_t find_instruction(char name[]){ // This function recives a string of the instruction and returns its integer number.
     if (eq_str(name, "add")) return 0;
     if (eq_str(name, "sub")) return 1;
     if (eq_str(name, "mac")) return 2;

@@ -67,13 +67,13 @@ int execute_instruction(instruction_t instruction, machine_state_t * machine_sta
 
     if(instruction.opcode == 9){ // BEQ
         if(machine_state->registers[instruction.registers[1]] == machine_state->registers[instruction.registers[2]]){
-            machine_state->PC = (machine_state->registers[instruction.registers[3]] & 0xFFF) - 2;
+            machine_state->PC = (machine_state->registers[instruction.registers[3]] & 0xFFFF) - 2;
         }
     }
     if(instruction.opcode == 10){ // BNE
         if(machine_state->registers[instruction.registers[1]] != machine_state->registers[instruction.registers[2]]){
             // printf("true\n");
-            machine_state->PC = (machine_state->registers[instruction.registers[3]] & 0xFFF) - 2;
+            machine_state->PC = (machine_state->registers[instruction.registers[3]] & 0xFFFF) - 2;
         }
     }
     if(instruction.opcode == 11){ // BLT
@@ -97,7 +97,7 @@ int execute_instruction(instruction_t instruction, machine_state_t * machine_sta
         }
     }
     if(instruction.opcode == 15){ // JAL
-        machine_state->registers[instruction.registers[0]] = machine_state->PC + 2;
+        machine_state->registers[instruction.registers[0]] = (machine_state->PC) + 2;
         machine_state->PC = (machine_state->registers[instruction.registers[3]] & 0xFFFF) - 2;
     }
     //  -------------------------------- Memory --------------------------------

@@ -1,6 +1,7 @@
 // Those are just the function declerations
-long long find_instruction(char name[]);
-long long find_register(char reg[]);
+#include <stdint.h>
+uint64_t find_instruction(char name[]);
+int find_register(char reg[]);
 long long pow_int(int a, int b);
 int eq_str(char str1[], char str2[]);
 int dec_string_to_int();

@@ -39,7 +39,7 @@ int mem_init(mem_t * mem, size_t max_size){
 }
 
 int mem_write_idx(mem_t * mem, int32_t value, size_t idx){
-    while (mem->allocated <= idx){
+    while (mem->allocated <= idx + 1){
         if(mem_scale(mem)) return 1;
     }
     mem->data[idx] = value;
