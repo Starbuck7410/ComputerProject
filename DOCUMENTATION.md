@@ -336,7 +336,7 @@ Similar to the simulator, the assembler is a command line application, with the
 following run command line:
 
 ```bash
-./asm program.asm memin.txt irq2in.txt disk.txt
+./asm program.asm memin.txt disk.txt irq2in.txt
 ```
 <b>program.asm</b> is an input file containing the assembly program.
 

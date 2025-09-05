@@ -124,7 +124,7 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 
 			strncpy(labels[label_index], label, LABEL_SIZE); 
 			
-			label_addresses[label_index] = address*2;
+			label_addresses[label_index] = address * 2;
 			label_index++;
 			continue;
 		}
@@ -132,8 +132,8 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 	}
 	rewind(asmb_file);
 	// 				------------------------------------- 2nd pass on the code: ----------------------------------
-	int64_t decoded_instruction; // 64 bits per instruction
-	int64_t converted_instruction;
+	uint64_t decoded_instruction; // 64 bits per instruction
+	uint64_t converted_instruction;
 	address = 0;
     while (elements = fscanf(asmb_file, "%[^\n]\n", temp_line) != EOF) { 
 		line_index++;
@@ -258,9 +258,10 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 					}
 				}	
 			}
-				decoded_instruction += (converted_imm & 0xFFFFF) << (20*(1-i)); // turn immediate from string to number
+			// printf("Imm %d decoded into %d (%08X)\n", i, converted_imm, converted_imm);
+			decoded_instruction |= (uint64_t) (converted_imm & 0xFFFFF) << (20*(1-i)); // turn immediate from string to number
 		}
-
+                    
 		// printf("Final opcode:  | %012llX\n", decoded_instruction);
 		mem_write_idx(&mem, (int32_t) (decoded_instruction >> 32), 2 * address);
 		mem_write_idx(&mem, (int32_t) decoded_instruction, 2 * address + 1);

@@ -20,10 +20,11 @@ int files_load_from_args(files_t * files, char ** argv, int debug){
         return 1;
     }
 
-	FILE * disk_file = file_open(argv[2], "w");
+	FILE * disk_file = file_open(argv[2], "r+");
     if (disk_file == NULL) { 
         return 1;
     }
+    rewind(disk_file);
 	
 	FILE * irq2_file = file_open(argv[3], "r");
     if (irq2_file == NULL) { 

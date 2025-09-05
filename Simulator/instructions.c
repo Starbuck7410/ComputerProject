@@ -107,7 +107,7 @@ int execute_instruction(instruction_t instruction, machine_state_t * machine_sta
             return 0;
         }
         int address = machine_state->registers[instruction.registers[1]] + machine_state->registers[instruction.registers[2]];
-        int value = machine_state->memory->data[address] + machine_state->registers[instruction.registers[3]];
+        int value = mem_read_idx(machine_state->memory, address) + machine_state->registers[instruction.registers[3]];
         if(address >= machine_state->memory->max_size || address < 0){
             error("Error: Address out of bounds\n");
             return 1;

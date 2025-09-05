@@ -14,6 +14,8 @@
 
 #define HALT_OP 21
 #define IRQ_SIZE 100
+#define DISK_TIMEOUT 2
+
 // argv[0] = sim.exe,      argv[1] = memin.txt,      argv[2] = disk.txt,   
 // argv[3] = irq2in.txt,   argv[4] = memout.txt      argv[5] = regout.txt, 
 // argv[6] = trace.txt,    argv[7] = hwregtrace.txt  argv[8] = cycles.txt,
@@ -26,7 +28,10 @@ XImage * image;
 Display * display;
 Window window;
 int screen;
+
 int slow = 10000; // larger values run faster but are choppier, default is 30000
+// Future fix: add a concurrent task to handle the display which refreshes every 
+// frame using the displays refresh rate (or 60 if I cant get that easily)
 
 char * create_screen(int size_x, int size_y) {
     // Connect to the X server
@@ -105,8 +110,6 @@ int main(int argc, char * argv[]) {
 	int64_t cycles = 0;
 	int64_t instruction_code;
 
-
-
 	
 	mem_t memory;
 	mem_init(&memory, MAX_MEM_SIZE);
@@ -142,7 +145,7 @@ int main(int argc, char * argv[]) {
 
 		// ------- STAGE: Fetch -------
 
-		instruction_code = (uint64_t) memory.data[machine_state.PC] << 32 | memory.data[machine_state.PC + 1];
+		instruction_code = (uint64_t) mem_read_idx(machine_state.memory, machine_state.PC) << 32 | mem_read_idx(machine_state.memory, machine_state.PC + 1);
 		
 		// ------- STAGE: Decode -------
 
@@ -204,27 +207,22 @@ int main(int argc, char * argv[]) {
 		}
 		
 		
-
-		
-
-		// doom counter is the counter for the clock cycles since calling the diskcmd
 		if (machine_state.io_registers[14]) {
 			if (debug){
-				printf("Instruction: %d\n", instruction.opcode);
-				printf("Disk command: %d\n", machine_state.io_registers[14]);
+				printf("Sending command to disk: %d\n", machine_state.io_registers[14]);
 			} 
 			if(execute_disk(&machine_state, &disk)){
 				error("Error in execute_disk\n");
 				return 1;
 			}
-			disk.busy_timeout = 512; 
+			disk.busy_timeout = DISK_TIMEOUT; 
 
 		}
 		if (disk.busy_timeout) {
 			disk.busy_timeout--;
 			if (!disk.busy_timeout) {
 				machine_state.io_registers[17] = 0;
-				machine_state.io_registers[3] = 1;
+				machine_state.io_registers[4] = 1;
 				// raise the interrupt
 			}
 		}
@@ -275,7 +273,6 @@ int main(int argc, char * argv[]) {
 		}
 		
 
-
 		// checks for Interrupt 2
 		if (machine_state.io_registers[5] == 1) machine_state.io_registers[5] = 0; //turn off irq2 if irq2 was on last cycles.  
 
@@ -291,7 +288,6 @@ int main(int argc, char * argv[]) {
 		   || (machine_state.io_registers[2] && machine_state.io_registers[5]);
 
 		if (irq && !machine_state.in_isr) {
-			printf("It's Morbin' time\n");
 			machine_state.io_registers[7] = machine_state.PC + 2;
 			machine_state.PC = machine_state.io_registers[6] - 2;
 			machine_state.in_isr = 1;
@@ -299,9 +295,9 @@ int main(int argc, char * argv[]) {
 
 		cycles++;
 		machine_state.io_registers[8] = cycles;
-		// halt instruction
+
+		// halt
 		if (instruction.opcode == HALT_OP || machine_state.PC >= machine_state.memory->max_size){ 	
-			printf("Opcode: %d | PC: %d | machine_state.io_registers[6]: %d\n", instruction.opcode, machine_state.PC, machine_state.io_registers[6]);
 			printf("Halted successfully!\n");
 			break;
 		}
@@ -309,11 +305,9 @@ int main(int argc, char * argv[]) {
 	}
 	
 	if(debug){
-		// writing into regout.txt
 		for (int i = 3; i < 16; i++){
 			fprintf(files.regout, "%08X\n", machine_state.registers[i]);
 		}
-		// writing into cycles.txt
 		fprintf(files.cycles, "%llu", cycles);
 		mem_write_file(machine_state.memory, files.memout);
 	}
@@ -327,7 +321,7 @@ int main(int argc, char * argv[]) {
 			break;
 		}
 	}
-	XDestroyImage(image); // Also frees image_data
+	XDestroyImage(image); 
     XDestroyWindow(display, window);
     XCloseDisplay(display);
 	
