@@ -19,3 +19,4 @@ typedef struct instruction_t {
 int execute_instruction(instruction_t instruction, machine_state_t *machine_state, int debug);
 void decode_instruction(uint64_t input, instruction_t *instruction);
 
+uint64_t pack_uint32(uint32_t hi, uint32_t lo);

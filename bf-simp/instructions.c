@@ -12,7 +12,7 @@ int init_code(char * next_block){
     R"(
 #INIT CODE
 
-add $sp, $imm1, $zero, $zero, 512, 0  # Initialize the stack pointer
+add $sp, $imm1, $zero, $zero, 4095, 0  # Initialize the stack pointer
 lw $t0, $imm1, $zero, $zero, 4096, 0  # Load the word in mem[4096] to the correct sector
 sw $zero, $imm1, $zero, $zero, 4096, 0 # And then reset it to 0 to not interfere with anything later
 out $zero, $imm1, $zero, $t0, 15, 0                          # read from sector $t0
@@ -119,7 +119,7 @@ int halt(char * next_block){
 
 int typeface(char * next_block){
     char * typeface_asm = R"(# LOAD TYPEFACE
-.word 4096 1  # at mem[4096] i will store which sector is the typeface sector
+.word 4096 0  # at mem[4096] i will store which sector is the typeface sector
 .diskpage 0 0 0x00000000 0x02222020 0x05500000 0x0AFAAFA0
 .diskpage 0 1 0x02763720 0x05122450 0x08B8CAC0 0x02200000
 .diskpage 0 2 0x01222210 0x08444480 0x05250000 0x00027200

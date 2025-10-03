@@ -107,8 +107,8 @@ int main(int argc, char * argv[]) {
 	files_t files;
 	if(files_load_from_args(&files, argv, debug)) return 1;
 
-	int64_t cycles = 0;
-	int64_t instruction_code;
+	uint64_t cycles = 0;
+	uint64_t instruction_code;
 
 	
 	mem_t memory;
@@ -145,16 +145,17 @@ int main(int argc, char * argv[]) {
 
 		// ------- STAGE: Fetch -------
 
-		instruction_code = (uint64_t) mem_read_idx(machine_state.memory, machine_state.PC) << 32 | mem_read_idx(machine_state.memory, machine_state.PC + 1);
-		
+		instruction_code = pack_uint32((uint32_t) mem_read_idx(machine_state.memory, machine_state.PC), (uint32_t) mem_read_idx(machine_state.memory, machine_state.PC + 1));
+
 		// ------- STAGE: Decode -------
 
 		instruction_t instruction = { 0 };
 		decode_instruction(instruction_code, &instruction);
-		
+		if(instruction.opcode == 0xFF){
+			printf("%016llX\n", instruction_code);
+		}
 		machine_state.registers[1] = instruction.immediates[0];
         machine_state.registers[2] = instruction.immediates[1];
-
 
 		// ------- STAGE: Traces -------
 		if(debug){
@@ -209,7 +210,7 @@ int main(int argc, char * argv[]) {
 		
 		if (machine_state.io_registers[14]) {
 			if (debug){
-				printf("Sending command to disk: %d\n", machine_state.io_registers[14]);
+				printf("Disk: Command - %d, Sector - %d, Buffer - %d\n", machine_state.io_registers[14], machine_state.io_registers[15], machine_state.io_registers[16]);
 			} 
 			if(execute_disk(&machine_state, &disk)){
 				error("Error in execute_disk\n");

@@ -219,7 +219,7 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 			printf("\x1B[31mERROR: UNDEFINED INSTRUCTION \"%s\" FOUND AT LINE: %d\x1B[0m\n", op_code, line_index); // We didnt recognize the instruction
 			return 1;
 		}
-		printf("Instruction:   | \"%02X\" at line: %d (0x%X)\n", converted_instruction, 2 * address, 2 * address);
+		// printf("Instruction:   | \"%02X\" at line: %d (0x%X)\n", converted_instruction, 2 * address, 2 * address);
 		decoded_instruction = (converted_instruction & 0xFF) << 56; 
 
 		long long decoded_reg;
@@ -263,8 +263,8 @@ int main(int argc, char* argv[]) { // argv[1] = program.asm, argv[2] = imemin.tx
 		}
                     
 		// printf("Final opcode:  | %012llX\n", decoded_instruction);
-		mem_write_idx(&mem, (uint32_t) (decoded_instruction >> 32), 2 * address);
-		mem_write_idx(&mem, (uint32_t) decoded_instruction, 2 * address + 1);
+		mem_write_idx(&mem, (int32_t) (decoded_instruction >> 32), 2 * address);
+		mem_write_idx(&mem, (int32_t) decoded_instruction, 2 * address + 1);
 		address++;
 		
 	}

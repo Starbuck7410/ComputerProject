@@ -157,3 +157,7 @@ void decode_instruction(uint64_t input, instruction_t * instruction) {
 	input = (input >> 4);
 	instruction->opcode = (int32_t)input;
 }
+
+uint64_t pack_uint32(uint32_t hi, uint32_t lo){
+    uint64_t instruction_code = ((uint64_t) hi << 32) | lo;
+}
