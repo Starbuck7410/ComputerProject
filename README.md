@@ -12,7 +12,7 @@ if you're interested check it out here:
 The original project required working with MSVC, but since I am on a Linux machine (arch btw) 
 I made it incompatible with Windows by using the X11 window system for the interactive parts.
 
-Well, I prefer POSIX C anyway. 😉
+Well, I prefer GNU C anyway. 😉
 <p style="color:gray;">
 <sub>(I bet you could actually make it run with WSL if you really wanted to, but i recommend just setting up a VM at this point.)</sub>
 </p>
