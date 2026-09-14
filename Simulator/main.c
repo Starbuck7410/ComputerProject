@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <signal.h>
 #include "mem.h"
 #include "file_handler.h"
 #include "functions.h"
@@ -21,7 +22,13 @@
 // argv[6] = trace.txt,    argv[7] = hwregtrace.txt  argv[8] = cycles.txt,
 // argv[9] = debug flag
 
-
+// Handle Ctrl+C
+volatile sig_atomic_t stop = 0;
+void handle_sigterm(int signum) {
+    if (signum == SIGTERM) {
+        stop = 1;
+    }
+}
 
 int scale = 3;
 XImage * image;
@@ -298,7 +305,7 @@ int main(int argc, char * argv[]) {
 		machine_state.io_registers[8] = cycles;
 
 		// halt
-		if (instruction.opcode == HALT_OP || machine_state.PC >= machine_state.memory->max_size){ 	
+		if (instruction.opcode == HALT_OP || machine_state.PC >= machine_state.memory->max_size || stop == 1){ 	
 			printf("Halted successfully!\n");
 			break;
 		}

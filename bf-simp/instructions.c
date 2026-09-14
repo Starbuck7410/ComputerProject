@@ -13,11 +13,11 @@ int init_code(char * next_block){
 #INIT CODE
 
 add $sp, $imm1, $zero, $zero, 4095, 0  # Initialize the stack pointer
-lw $t0, $imm1, $zero, $zero, 4096, 0  # Load the word in mem[4096] to the correct sector
-sw $zero, $imm1, $zero, $zero, 4096, 0 # And then reset it to 0 to not interfere with anything later
+lw $t0, $imm1, $zero, $zero, 8192, 0  # Load the word in mem[8192] to the correct sector
+sw $zero, $imm1, $zero, $zero, 8192, 0 # And then reset it to 0 to not interfere with anything later
 out $zero, $imm1, $zero, $t0, 15, 0                          # read from sector $t0
-mac $gp, $imm1, $imm2, $zero, 512, 8  # calculate memory address of 512*8 (4096)
-out $zero, $imm1, $zero, $gp, 16, 0                      # r/w to/from memory addresses 512 * 8
+mac $gp, $imm1, $imm2, $zero, 512, 16  # calculate memory address of 512*16 (8192)
+out $zero, $imm1, $zero, $gp, 16, 0                      # r/w to/from memory addresses 512 * 16
 out $zero, $imm1, $zero, $imm2, 14, 1                        # initiate disk read
 
 LOOP:
@@ -28,16 +28,16 @@ LOOP:
     add $t0, $t0, $imm1, $zero, 1, 0  # increment sector
     out $zero, $imm1, $zero, $t0, 15, 0                          # read from sector $t0
     add $gp, $gp, $imm1, $zero, 16, 0  # increment memory address by 16
-    out $zero, $imm1, $zero, $gp, 16, 0                      # r/w to/from memory addresses 512 * 8 + 16
+    out $zero, $imm1, $zero, $gp, 16, 0                      # r/w to/from memory addresses 512 * 16 + 16
     out $zero, $imm1, $zero, $imm2, 14, 1                        # initiate disk read
 bne $zero, $t0, $imm1, $imm2, 6, LOOP  # if sector != 6, go to LOOP
 
-mac $gp, $imm1, $imm2, $zero, 512, 8  # calculate memory address of 512*8 (last place where sector fits)
+mac $gp, $imm1, $imm2, $zero, 512, 16  # calculate memory address of 512*16 (last place where sector fits)
 add $t0, $zero, $zero, $zero, 0, 0  # reset $t0 for program start
 add $a1, $imm1, $zero, $zero, 0, 0
 add $a2, $imm1, $zero, $zero, 0, 0
 out $zero, $zero, $imm1, $imm2, 19, KEYEVENT # handle keyboard events for the in command
-add $s0, $imm1, $zero, $zero, 2047, 0
+add $s0, $imm1, $zero, $zero, 4096, 0
 
 )";
     strncpy(next_block, init_asm, strlen(init_asm) + 1);
@@ -54,7 +54,7 @@ int add(char * next_block, int count){
 
 int sub(char * next_block, int count){
     snprintf(next_block, 150, "lw $t0, $s0, $zero, $zero, 0, 0  # load\n"
-                     "sw $t0, $s0, $zero, $imm1, -%d, 0  # substract and store\n"
+                     "sw $t0, $s0, $zero, $imm1, -%d, 0  # subtract and store\n"
                      , count);
     return 0;
 }
@@ -81,7 +81,7 @@ int open_loop(char * next_block, int loop_idx){
 int close_loop(char * next_block, int loop_idx){
     snprintf(next_block, 300, 
         "lw $t0, $s0, $zero, $zero, 0, 0  # load\n"
-        "bne $zero, $t0, $zero, $imm2, 0, LOOP_START_%04d  # if $t0 != 0, go to LOOP_NE_%04d\n"
+        "bne $zero, $t0, $zero, $imm2, 0, LOOP_START_%04d  # if $t0 != 0, go to LOOP_START_%04d\n"
         "LOOP_END_%04d: # End of loop\n"
     , loop_idx, loop_idx, loop_idx);
     return 0;
@@ -119,7 +119,7 @@ int halt(char * next_block){
 
 int typeface(char * next_block){
     char * typeface_asm = R"(# LOAD TYPEFACE
-.word 4096 0  # at mem[4096] i will store which sector is the typeface sector
+.word 8192 0  # at mem[8192] i will store which sector holds the typeface sector
 .diskpage 0 0 0x00000000 0x02222020 0x05500000 0x0AFAAFA0
 .diskpage 0 1 0x02763720 0x05122450 0x08B8CAC0 0x02200000
 .diskpage 0 2 0x01222210 0x08444480 0x05250000 0x00027200
