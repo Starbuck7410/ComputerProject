@@ -1,12 +1,13 @@
 # Introduction
 In this project we’ll exercise the subjects of ISA, Input/Output, as well as our skills in
 the C language. We’ll implement an assembler and a simulator (separate programs),
-and write programs in assembly language for a RISC processor named SIMP, which
-is similar to the MIPS processor but simpler.
+and write programs in an assembly language for a RISC processor named "SIMP", which
+is definitely not the MIPS architecture.
 
 The simulator will simulate the SIMP processor, as well as several input/output
-devices: leds, 7-segment-display, monochromatic monitor with 256x256 resolution,
-and a disk drive. Every instruction in the processor is executed in one clock cycle.
+devices: Keyboard, monochromatic monitor with 256x256 resolution,
+and a disk drive. Every instruction in the processor is executed in one clock cycle, 
+and there is no pipelining for simplicity.
 
 
 
@@ -40,8 +41,8 @@ table:
 The register names and roles are similar to what we have seen in the lectures and
 recitations for the MIPS processor, with one difference: the two registers $imm1,
 $imm2 are special registers that can’t be written, and always contain the immediate
-ields immediate1, immediate2 (respectively), after performing sign extension, as was
-coded in the assembly instruction. The value in register 0 ($zero) by definition equals to 0.
+fields immediate1 and immediate2 after performing sign extension, as was
+coded in the assembly instruction. The value in register 0 ($zero) by definition always equals to 0.
 Instructions that write to $zero, $imm1, $imm2 are legal, but don’t change their
 values.
 
@@ -132,11 +133,11 @@ of the hardware registers on reset are 0.
 
 The SIMP processor supports 4 interrupts: irq0, irq1, irq2 and keyboardevent.
 
-Interrupt 0 belongs to the timer, and the assemble code can program the timer to select
+Interrupt 0 belongs to the timer, and the assembly code can program the timer to select
 how often the interrupt will occur.
 
-Interrupt 1 belongs to the simulated hard disk. Using interrupt 1 the disk notifies the
-processer when it finished performing a read or write command.
+Interrupt 1 belongs to the simulated hard disk. The disk notifies the
+processer when it finished performing a read or write command using interrupt 1.
 
 Interrupt 2 is connected to an external (to the processor) interrupt line, irq2. An input
 file to the simulator specifies when the interrupt occurs.
